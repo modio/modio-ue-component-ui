@@ -1,0 +1,53 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "2.0",
+	"FriendlyName": "mod.io Component UI",
+	"Description": "Component-oriented UI framework for mod.io",
+	"Category": "Other",
+	"CreatedBy": "mod.io",
+	"CreatedByURL": "https://mod.io",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "http://discord.mod.io",
+	"CanContainContent": true,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "ModioUICore",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault"
+		},
+		{
+			"Name": "ModioUI",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "ModioUICoreEditor",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit"
+		}
+	],
+	"LocalizationTargets": [
+		{
+			"Name": "ModioUI",
+			"LoadingPolicy": "Always",
+			"ConfigGenerationPolicy": "Never"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "CommonUI",
+			"Enabled": true
+		},
+		{
+			"Name": "PluginBrowser",
+			"Enabled": true
+		},
+		{
+			"Name": "Modio",
+			"Enabled": true
+		}
+	]
+}
