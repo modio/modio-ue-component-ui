@@ -29,6 +29,12 @@ class MODIOUICORE_API UModioModTagSelectorMenu : public UModioUIComponentBase, p
 {
 	GENERATED_BODY()
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "mod.io|UI|TagSelectorMenu")
+	bool bShowHiddenTags = true;
+
+	UPROPERTY(EditDefaultsOnly, Category = "mod.io|UI|TagSelectorMenu")
+	bool bShowLockedTags = true;
+
 	UPROPERTY(BlueprintAssignable, meta = (BlueprintProtected))
 	FModioOnTagSelectionChangedMulticast OnTagSelectionChanged;
 
@@ -61,6 +67,13 @@ protected:
 	UFUNCTION(BlueprintNativeEvent, Category = "mod.io|UI|Tag Selector", meta = (BlueprintProtected))
 	void OnCategoryEntrySelectionChanged(UObject* NewlySelectedEntry);
 
+	/**
+	 * @brief Filters through category tags based on their hidden/locked flags to compare with our local preferences if they should be shown
+	 * @return Array of category tags allowed to be shown
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Tag Selector")
+	TArray<TScriptInterface<UModioModTagCategoryUIDetails>> GetAllowedTags();
+
 	//~ Begin IModioUIModTagSelector Interface
 	virtual void SetAvailableTagsFromModTagOptions_Implementation(const FModioModTagOptions& InOptions) override;
 	virtual void SetAvailableTagsFromBoundModTagOptions_Implementation(const TScriptInterface<UModioModTagOptionsUIDetails>& InOptions) override;
@@ -68,6 +81,9 @@ protected:
 	virtual void ClearSelectedTags_Implementation() override;
 	virtual void AddTagSelectionChangedHandler_Implementation(const FModioOnTagSelectionChanged& Handler) override;
 	virtual void RemoveTagSelectionChangedHandler_Implementation(const FModioOnTagSelectionChanged& Handler) override;
+
+	virtual bool GetAllowHiddenTags_Implementation() override;
+	virtual bool GetAllowLockedTags_Implementation() override;
 	//~ End IModioUIModTagSelector Interface
 
 	//~ Begin UUserWidget Interface

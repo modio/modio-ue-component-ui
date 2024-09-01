@@ -10,7 +10,6 @@
 
 #include "UI/EventHandlers/IModioUIWalletBalanceUpdatedEventReceiver.h"
 #include "Engine/Engine.h"
-#include "ModioUISubsystem.h"
 
 void IModioUIWalletBalanceUpdatedEventReceiver::WalletBalanceUpdatedHandler(uint64 NewBalance)
 {
@@ -51,7 +50,8 @@ void IModioUIWalletBalanceUpdatedEventReceiver::NativeOnWalletBalanceUpdated(uin
 	Execute_OnWalletBalanceUpdated(Cast<UObject>(this), FModioUnsigned64(NewBalance));
 }
 
-void UModioUIWalletBalanceUpdatedEventReceiverLibrary::RegisterWalletBalanceUpdatedEventReceiver(UObject* ObjectToRegister) 
+void UModioUIWalletBalanceUpdatedEventReceiverLibrary::RegisterWalletBalanceUpdatedEventReceiver(
+	UObject* ObjectToRegister)
 {
 	if (ObjectToRegister && ObjectToRegister->Implements<UModioUIWalletBalanceUpdatedEventReceiver>())
 	{
@@ -59,7 +59,8 @@ void UModioUIWalletBalanceUpdatedEventReceiverLibrary::RegisterWalletBalanceUpda
 	}
 }
 
-void UModioUIWalletBalanceUpdatedEventReceiverLibrary::DeregisterWalletBalanceUpdatedEventReceiver(UObject* ObjectToDeregister) 
+void UModioUIWalletBalanceUpdatedEventReceiverLibrary::DeregisterWalletBalanceUpdatedEventReceiver(
+	UObject* ObjectToDeregister)
 {
 	if (ObjectToDeregister && ObjectToDeregister->Implements<UModioUIWalletBalanceUpdatedEventReceiver>())
 	{

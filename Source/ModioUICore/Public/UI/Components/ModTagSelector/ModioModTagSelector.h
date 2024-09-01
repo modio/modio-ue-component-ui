@@ -51,6 +51,7 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Widget Getters", meta = (BlueprintProtected))
 	TScriptInterface<UModioUIClickableWidget> GetMenuToggleClickableWidget() const;
 
+	
 	//~ Begin IModioUIModTagSelector Interface
 	virtual void SetAvailableTagsFromModTagOptions_Implementation(const FModioModTagOptions& InOptions) override;
 	virtual void SetAvailableTagsFromBoundModTagOptions_Implementation(const TScriptInterface<UModioModTagOptionsUIDetails>& InOptions) override;

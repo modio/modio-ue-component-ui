@@ -12,6 +12,17 @@
 
 #include "Widgets/Input/SMultiLineEditableTextBox.h"
 
+FReply SModioCommonMultiLineEditableTextBox::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
+{
+	FReply Reply = SMultiLineEditableTextBox::OnKeyDown(MyGeometry, InKeyEvent);
+	if (Reply.IsEventHandled())
+	{
+		return Reply;
+	}
+	// SWidget::OnKeyDown will handle navigation with gamepad by FReply::Handled().SetNavigation if needed
+	return SWidget::OnKeyDown(MyGeometry, InKeyEvent);
+}
+
 FString UModioDefaultMultiLineEditableTextBox::NativeGatherInput()
 {
 	return GetText().ToString();
@@ -40,7 +51,8 @@ void UModioDefaultMultiLineEditableTextBox::ConfigureTooltip_Implementation(cons
 TSharedRef<SWidget> UModioDefaultMultiLineEditableTextBox::RebuildWidget()
 {
 	// Create MyEditableTextBlock manually to pass extra parameters (such as VirtualKeyboardTrigger for consoles to show the virtual keyboard)
-	MyEditableTextBlock = SNew(SMultiLineEditableTextBox)
+	// And to support navigation with gamepad
+	MyEditableTextBlock = SNew(SModioCommonMultiLineEditableTextBox)
 		.Style(&WidgetStyle)
 		.IsCaretMovedWhenGainFocus(IsCaretMovedWhenGainFocus)
 		.SelectAllTextWhenFocused(SelectAllTextWhenFocused)

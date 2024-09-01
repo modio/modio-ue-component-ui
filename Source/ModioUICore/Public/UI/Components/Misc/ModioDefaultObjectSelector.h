@@ -14,18 +14,26 @@
 #include "Core/ModioStackedBool.h"
 #include "CoreMinimal.h"
 #include "UI/Components/ComponentHelpers.h"
+#include "UI/Interfaces/IModioFocusableWidget.h"
 #include "UI/Interfaces/IModioUIObjectListWidget.h"
 #include "UI/Interfaces/IModioUIObjectSelector.h"
 
 #include "ModioDefaultObjectSelector.generated.h"
 
 /**
- *
+ * @default_impl_for Object Selector
+ * @brief The Default Object Selector is a default implementation of the Object Selector component. This implementation
+ * derives from `UListView` and defers to it for displaying a set of objects and allowing the user to select one or more
+ * of them based on the widget's configuration. It requires the widgets that represent each entry in the list to
+ * implement `IModioUIDataSourceWidget` and `IModioUIClickableWidget` in addition to the `IUserObjectListEntry` interface
+ * requirement imposed by the underlying List View.
+ * @component_display_name Object Selector
  */
 UCLASS(meta = (ModioWidget))
 class MODIOUICORE_API UModioDefaultObjectSelector : public UListView,
 													public IModioUIObjectSelector,
-													public IModioUIObjectListWidget
+													public IModioUIObjectListWidget,
+													public IModioFocusableWidget
 {
 	GENERATED_BODY()
 
@@ -37,6 +45,11 @@ public:
 	UUserWidget* GetEntryWidgetFromItem(const UObject* Item) const;
 
 protected:
+	/**
+	 * @brief Passes the bound value for which selection state has changed as `SelectedValue`
+	 * @default_component_event FModioOnObjectSelectionChanged
+	 */
+	UPROPERTY()
 	FModioOnObjectSelectionChangedMulticast OnSelectedValueChanged;
 
 	FModioStackedBool EmitSelectionEvents {true};
@@ -72,22 +85,36 @@ protected:
 	virtual void AddSelectionChangedHandler_Implementation(const FModioOnObjectSelectionChanged& Handler) override;
 	virtual void RemoveSelectionChangedHandler_Implementation(const FModioOnObjectSelectionChanged& Handler) override;
 	virtual void SetSelectedStateForIndex_Implementation(int32 Index, bool bNewSelectionState,
-												 bool bEmitSelectionEvent) override;
+														 bool bEmitSelectionEvent) override;
 	virtual void SetSelectedStateForValue_Implementation(UObject* Value, bool bNewSelectionState,
-												 bool bEmitSelectionEvent) override;
+														 bool bEmitSelectionEvent) override;
 	virtual TArray<UObject*> GetSelectedValues_Implementation() override;
 	virtual void SetMultiSelectionAllowed_Implementation(bool bMultiSelectionAllowed) override;
 	virtual bool GetMultiSelectionAllowed_Implementation() override;
 	virtual void SetListEntryWidgetClass_Implementation(TSubclassOf<UWidget> InNewEntryClass) override;
+	virtual int32 GetIndexForValue_Implementation(UObject* Value) const override;
 	//~ End IModioUIObjectSelector Interface
 
 	void NotifySelectionChanged(UObject* SelectedItem);
 
 	//~ Begin IModioUIObjectListWidget Interface
+	
+	/**
+	 * @brief Passes the newly created widget as `ObjectWidget`, and the UObject bound to that widget as `Object`
+	 * @default_component_event FModioObjectListOnObjectWidgetCreated
+	 */
+	UPROPERTY()
 	FModioObjectListOnObjectWidgetCreatedMulticast OnWidgetCreated;
+
 	virtual void NativeSetObjects(const TArray<UObject*>& InObjects) override;
 	virtual TArray<UObject*> NativeGetObjects() override;
+	virtual UObject* NativeGetObjectAt(int32 Index) const override;
 	virtual void NativeAddObjectWidgetCreatedHandler(const FModioObjectListOnObjectWidgetCreated& Handler) override;
 	virtual void NativeRemoveObjectWidgetCreatedHandler(const FModioObjectListOnObjectWidgetCreated& Handler) override;
 	//~ End IModioUIObjectListWidget Interface
+
+
+	//~ Begin IModioFocusableWidget Interface
+	virtual UWidget* NativeGetWidgetToFocus(EUINavigation NavigationType) const override;
+	//~ End IModioFocusableWidget Interface
 };

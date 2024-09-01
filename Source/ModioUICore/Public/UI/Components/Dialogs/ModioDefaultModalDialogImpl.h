@@ -61,4 +61,8 @@ protected:
 
 	virtual void RemoveDialogButtonClickedHandler_Implementation(
 		const FModioDialogButtonClickedEvent& Handler) override;
+
+#if WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
 };

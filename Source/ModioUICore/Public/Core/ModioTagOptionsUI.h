@@ -105,6 +105,14 @@ protected:
 	{
 		return Underlying.bAllowMultipleSelection;
 	}
+	virtual bool GetIsCategoryHidden_Implementation() override
+	{
+		return Underlying.bHidden;
+	}
+	virtual bool GetIsCategoryLocked_Implementation() override
+	{
+		return Underlying.bLocked;
+	}
 	//~ End IModioModTagCategoryUIDetails Interface
 
 public:

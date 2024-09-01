@@ -34,7 +34,7 @@ protected:
 	 * @default_component_widget_getter
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent,
-			  Category = "mod.io|UI|Components|Mod Property Collection Visualizer", meta = (BlueprintProtected))
+			  Category = "mod.io|UI|ModPropertyVisualizer|WidgetGetters", meta = (BlueprintProtected))
 	TArray<TScriptInterface<IModioUIDataSourceWidget>> GetModPropertyVisualizerWidgets();
 
 	//~ Begin IModioUIDataSourceWidget Interface

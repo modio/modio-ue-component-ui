@@ -15,8 +15,19 @@
 void UModioModTagSelector::SetAvailableTagsFromModTagOptions_Implementation(const FModioModTagOptions& InOptions)
 {
 	IModioUIModTagSelector::Execute_SetAvailableTagsFromBoundModTagOptions(
-		this, TScriptInterface<UModioModTagOptionsUIDetails>(
-				  UModioUICommonFunctionLibrary::CreateBindableModTagOptions(InOptions)));
+		this, TScriptInterface<UModioModTagOptionsUIDetails>(UModioUICommonFunctionLibrary::CreateBindableModTagOptions(InOptions)));
+}
+
+void UModioModTagSelector::SetAvailableTagsFromBoundModTagOptions_Implementation(
+	const TScriptInterface<UModioModTagOptionsUIDetails>& InOptions)
+{
+	// Keep a pointer to the bound tags so that we can inspect the selection state directly rather than asking the menu
+	CachedTagOptions = InOptions;
+	if (GetSelectorMenuWidget().GetObject())
+	{
+		IModioUIModTagSelector::Execute_SetAvailableTagsFromBoundModTagOptions(GetSelectorMenuWidget().GetObject(),
+																			   CachedTagOptions);
+	}
 }
 
 TArray<FString> UModioModTagSelector::GetSelectedTags_Implementation()
@@ -50,18 +61,6 @@ void UModioModTagSelector::RemoveTagSelectionChangedHandler_Implementation(const
 	if (GetSelectorMenuWidget().GetObject())
 	{
 		IModioUIModTagSelector::Execute_RemoveTagSelectionChangedHandler(GetSelectorMenuWidget().GetObject(), Handler);
-	}
-}
-
-void UModioModTagSelector::SetAvailableTagsFromBoundModTagOptions_Implementation(
-	const TScriptInterface<UModioModTagOptionsUIDetails>& InOptions)
-{
-	//Keep a pointer to the bound tags so that we can inspect the selection state directly rather than asking the menu
-	CachedTagOptions = InOptions;
-	if (GetSelectorMenuWidget().GetObject())
-	{
-		IModioUIModTagSelector::Execute_SetAvailableTagsFromBoundModTagOptions(GetSelectorMenuWidget().GetObject(),
-																			   CachedTagOptions);
 	}
 }
 

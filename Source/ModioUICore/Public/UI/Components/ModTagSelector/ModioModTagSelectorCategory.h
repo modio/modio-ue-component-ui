@@ -52,6 +52,8 @@ protected:
 	//~ Begin IModioUIObjectSelector Interface
 	virtual void SetValues_Implementation(const TArray<UObject*>& InValues) override;
 	virtual UObject* GetSingleSelectedValue_Implementation() override;
+	virtual int32 GetNumEntries_Implementation() override;
+	virtual int32 GetSingleSelectionIndex_Implementation() override;
 	virtual void ClearSelectedValues_Implementation() override;
 	virtual void SetSingleSelectionByIndex_Implementation(int32 Index, bool bEmitSelectionEvent) override;
 	virtual void SetSingleSelectionByValue_Implementation(UObject* Value, bool bEmitSelectionEvent) override;
@@ -62,6 +64,7 @@ protected:
 	virtual TArray<UObject*> GetSelectedValues_Implementation() override;
 	virtual void SetMultiSelectionAllowed_Implementation(bool bMultiSelectionAllowed) override;
 	virtual bool GetMultiSelectionAllowed_Implementation() override;
+	virtual int32 GetIndexForValue_Implementation(UObject* Value) const override;
 	//~ End IModioUIObjectSelector Interface
 
 	/**

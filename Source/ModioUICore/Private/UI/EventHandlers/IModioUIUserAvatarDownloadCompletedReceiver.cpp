@@ -10,7 +10,6 @@
 
 #include "UI/EventHandlers/IModioUIUserAvatarDownloadCompletedReceiver.h"
 #include "Engine/Engine.h"
-#include "ModioUISubsystem.h"
 
 void IModioUIUserAvatarDownloadCompletedReceiver::UserAvatarDownloadCompletedHandler(
 	FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image)
@@ -28,4 +27,42 @@ void IModioUIUserAvatarDownloadCompletedReceiver::NativeOnUserAvatarDownloadComp
 {
 	bRoutedAvatarDownloaded = true;
 	Execute_OnUserAvatarDownloadCompleted(Cast<UObject>(this), ErrorCode, FModioOptionalImage {Image});
+}
+
+void IModioUIUserAvatarDownloadCompletedReceiver::UserAvatarDownloadCompletedHandlerK2Helper(
+	FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image, TWeakObjectPtr<UObject> ImplementingObject)
+{
+	if (ImplementingObject.IsValid())
+	{
+		void* RawInterfacePtr =
+			ImplementingObject->GetNativeInterfaceAddress(UModioUIUserAvatarDownloadCompletedReceiver::StaticClass());
+		if (RawInterfacePtr != nullptr)
+		{
+			IModioUIUserAvatarDownloadCompletedReceiver* ConcretePtr =
+				static_cast<IModioUIUserAvatarDownloadCompletedReceiver*>(RawInterfacePtr);
+			ConcretePtr->UserAvatarDownloadCompletedHandler(ErrorCode, Image);
+		}
+		else
+		{
+			Execute_OnUserAvatarDownloadCompleted(ImplementingObject.Get(), ErrorCode, FModioOptionalImage {Image});
+		}
+	}
+}
+
+void UModioUIUserAvatarDownloadCompletedReceiverLibrary::RegisterUserAvatarDownloadCompletedReceiver(
+	UObject* ObjectToRegister)
+{
+	if (ObjectToRegister && ObjectToRegister->Implements<UModioUIUserAvatarDownloadCompletedReceiver>())
+	{
+		IModioUIUserAvatarDownloadCompletedReceiver::RegisterFromK2(ObjectToRegister);
+	}
+}
+
+void UModioUIUserAvatarDownloadCompletedReceiverLibrary::DeregisterUserAvatarDownloadCompletedReceiver(
+	UObject* ObjectToDeregister)
+{
+	if (ObjectToDeregister && ObjectToDeregister->Implements<UModioUIUserAvatarDownloadCompletedReceiver>())
+	{
+		IModioUIUserAvatarDownloadCompletedReceiver::DeregisterFromK2(ObjectToDeregister);
+	}
 }

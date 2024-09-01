@@ -15,7 +15,7 @@
 
 void UModioModTagSelectorMenu::SetAvailableTagsFromModTagOptions_Implementation(const FModioModTagOptions& InOptions)
 {
-	// Wrap the struct data in a UObject so it can be used for data binding and forward onto the method taking such a
+	// Wrap the struct data in a UObject, so it can be used for data binding and forward onto the method taking such a
 	// wrapped UObject
 	IModioUIModTagSelector::Execute_SetAvailableTagsFromBoundModTagOptions(
 		this, TScriptInterface<UModioModTagOptionsUIDetails>(
@@ -26,13 +26,13 @@ void UModioModTagSelectorMenu::SetAvailableTagsFromBoundModTagOptions_Implementa
 	const TScriptInterface<UModioModTagOptionsUIDetails>& InOptions)
 {
 	CachedTagOptions = InOptions;
+
 	// Pass the array of category objects to the internal widget that visualizes the categories
-	if (GetCategoryContainerWidget().GetObject())
+	if (UWidget* CategoryContainerWidget = ModioUI::GetInterfaceWidgetChecked(GetCategoryContainerWidget()))
 	{
 		IModioUIObjectListWidget::Execute_SetObjects(
-			GetCategoryContainerWidget().GetObject(),
-			UModioUICommonFunctionLibrary::NativeConvertInterfaceToObjectArray(
-				IModioModTagOptionsUIDetails::Execute_GetCategories(CachedTagOptions.GetObject())));
+			CategoryContainerWidget,
+			UModioUICommonFunctionLibrary::NativeConvertInterfaceToObjectArray(GetAllowedTags()));
 	}
 }
 
@@ -52,14 +52,41 @@ void UModioModTagSelectorMenu::ClearSelectedTags_Implementation()
 	{
 		// Clear the selected tags on our data source
 		IModioModTagOptionsUIDetails::Execute_ClearSelectedTags(CachedTagOptions.GetObject());
+
 		// Redraw the categories (and in turn their tags) by re-setting the data source containing categories to display
 		// on the internal widget
 		IModioUIObjectListWidget::Execute_SetObjects(
 			CategoryContainerWidget,
-			UModioUICommonFunctionLibrary::NativeConvertInterfaceToObjectArray(
-				IModioModTagOptionsUIDetails::Execute_GetCategories(CachedTagOptions.GetObject())));
+			UModioUICommonFunctionLibrary::NativeConvertInterfaceToObjectArray(GetAllowedTags()));
 		NotifySelectionChanged();
 	}
+}
+
+TArray<TScriptInterface<UModioModTagCategoryUIDetails>> UModioModTagSelectorMenu::GetAllowedTags_Implementation()
+{
+	auto TagCategories = IModioModTagOptionsUIDetails::Execute_GetCategories(CachedTagOptions.GetObject());
+
+	TArray<TScriptInterface<UModioModTagCategoryUIDetails>> TagInterfaces;
+	for (auto CurrentTag : TagCategories)
+	{
+		if (CurrentTag.GetObject() &&
+			CurrentTag.GetObject()->GetClass()->ImplementsInterface(UModioModTagCategoryUIDetails::StaticClass()))
+		{
+			if (IModioModTagCategoryUIDetails::Execute_GetIsCategoryHidden(CurrentTag.GetObject()) &&
+				!Execute_GetAllowHiddenTags(this))
+			{
+				continue;
+			}
+			if (IModioModTagCategoryUIDetails::Execute_GetIsCategoryLocked(CurrentTag.GetObject()) &&
+				!Execute_GetAllowLockedTags(this))
+			{
+				continue;
+			}
+		}
+		TagInterfaces.Add(CurrentTag);
+	}
+
+	return TagInterfaces;
 }
 
 void UModioModTagSelectorMenu::AddTagSelectionChangedHandler_Implementation(const FModioOnTagSelectionChanged& Handler)
@@ -71,6 +98,16 @@ void UModioModTagSelectorMenu::RemoveTagSelectionChangedHandler_Implementation(
 	const FModioOnTagSelectionChanged& Handler)
 {
 	OnTagSelectionChanged.Remove(Handler);
+}
+
+bool UModioModTagSelectorMenu::GetAllowHiddenTags_Implementation()
+{
+	return bShowHiddenTags;
+}
+
+bool UModioModTagSelectorMenu::GetAllowLockedTags_Implementation()
+{
+	return bShowLockedTags;
 }
 
 TScriptInterface<IModioUIObjectListWidget> UModioModTagSelectorMenu::GetCategoryContainerWidget_Implementation() const

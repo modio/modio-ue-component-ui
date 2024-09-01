@@ -41,7 +41,6 @@ void IModioUIMediaDownloadCompletedReceiver::CreatorAvatarDownloadHandler(FModio
 				"Super::NativeOnModCreatorAvatarDownloadCompleted to route events to blueprint"));
 }
 
-
 void IModioUIMediaDownloadCompletedReceiver::GalleryImageDownloadHandlerK2Helper(
 	FModioModID ModID, FModioErrorCode ErrorCode, int32 Index, TOptional<FModioImageWrapper> Image,
 	TWeakObjectPtr<UObject> ImplementingObject)
@@ -49,7 +48,8 @@ void IModioUIMediaDownloadCompletedReceiver::GalleryImageDownloadHandlerK2Helper
 	if (ImplementingObject.IsValid())
 	{
 		// Will return nullptr if the object does not implement the interface through C++
-		void* RawInterfacePtr = ImplementingObject->GetNativeInterfaceAddress(UModioUIMediaDownloadCompletedReceiver::StaticClass());
+		void* RawInterfacePtr =
+			ImplementingObject->GetNativeInterfaceAddress(UModioUIMediaDownloadCompletedReceiver::StaticClass());
 		if (RawInterfacePtr != nullptr)
 		{
 			IModioUIMediaDownloadCompletedReceiver* ConcretePtr =
@@ -61,13 +61,14 @@ void IModioUIMediaDownloadCompletedReceiver::GalleryImageDownloadHandlerK2Helper
 		{
 			// the interface wasn't implemented in C++ anywhere so go straight to blueprint, this will silently and
 			// safely fail if the implementing class doesn't implement the interface
-			Execute_OnModGalleryImageDownloadCompleted(ImplementingObject.Get(), ModID, ErrorCode, Index, FModioOptionalImage{Image});
+			Execute_OnModGalleryImageDownloadCompleted(ImplementingObject.Get(), ModID, ErrorCode, Index,
+													   FModioOptionalImage {Image});
 		}
 	}
 }
 
-
-void IModioUIMediaDownloadCompletedReceiver::ModLogoDownloadHandlerK2Helper(FModioModID ModID, FModioErrorCode ErrorCode,
+void IModioUIMediaDownloadCompletedReceiver::ModLogoDownloadHandlerK2Helper(FModioModID ModID,
+																			FModioErrorCode ErrorCode,
 																			TOptional<FModioImageWrapper> Image,
 																			EModioLogoSize LogoSize,
 																			TWeakObjectPtr<UObject> ImplementingObject)
@@ -88,11 +89,11 @@ void IModioUIMediaDownloadCompletedReceiver::ModLogoDownloadHandlerK2Helper(FMod
 		{
 			// the interface wasn't implemented in C++ anywhere so go straight to blueprint, this will silently and
 			// safely fail if the implementing class doesn't implement the interface
-			Execute_OnModLogoDownloadCompleted(ImplementingObject.Get(), ModID, ErrorCode, FModioOptionalImage {Image}, LogoSize);
+			Execute_OnModLogoDownloadCompleted(ImplementingObject.Get(), ModID, ErrorCode, FModioOptionalImage {Image},
+											   LogoSize);
 		}
 	}
 }
-
 
 void IModioUIMediaDownloadCompletedReceiver::CreatorAvatarDownloadHandlerK2Helper(
 	FModioModID ModID, FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image,
@@ -114,12 +115,14 @@ void IModioUIMediaDownloadCompletedReceiver::CreatorAvatarDownloadHandlerK2Helpe
 		{
 			// the interface wasn't implemented in C++ anywhere so go straight to blueprint, this will silently and
 			// safely fail if the implementing class doesn't implement the interface
-			Execute_OnModCreatorAvatarDownloadCompleted(ImplementingObject.Get(), ModID, ErrorCode, FModioOptionalImage{Image});
+			Execute_OnModCreatorAvatarDownloadCompleted(ImplementingObject.Get(), ModID, ErrorCode,
+														FModioOptionalImage {Image});
 		}
 	}
 }
 
-void IModioUIMediaDownloadCompletedReceiver::NativeOnModLogoDownloadCompleted(FModioModID ModID, FModioErrorCode ErrorCode,
+void IModioUIMediaDownloadCompletedReceiver::NativeOnModLogoDownloadCompleted(FModioModID ModID,
+																			  FModioErrorCode ErrorCode,
 																			  TOptional<FModioImageWrapper> Image,
 																			  EModioLogoSize LogoSize)
 {
@@ -131,7 +134,8 @@ void IModioUIMediaDownloadCompletedReceiver::NativeOnModGalleryImageDownloadComp
 	FModioModID ModID, FModioErrorCode ErrorCode, int32 ImageIndex, TOptional<FModioImageWrapper> Image)
 {
 	bRoutedMediaDownloadCompleted = true;
-	Execute_OnModGalleryImageDownloadCompleted(Cast<UObject>(this), ModID, ErrorCode, ImageIndex, FModioOptionalImage {Image});
+	Execute_OnModGalleryImageDownloadCompleted(Cast<UObject>(this), ModID, ErrorCode, ImageIndex,
+											   FModioOptionalImage {Image});
 }
 
 void IModioUIMediaDownloadCompletedReceiver::NativeOnModCreatorAvatarDownloadCompleted(

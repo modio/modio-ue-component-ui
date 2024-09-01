@@ -9,7 +9,6 @@
  */
 
 #include "UI/EventHandlers/IModioUIModEnabledStateChangedReceiver.h"
-#include "ModioUISubsystem.h"
 
 void IModioUIModEnabledStateChangedReceiver::ModEnabledStateChangedHandler(FModioModID ModID, bool bNewEnabledState)
 {
@@ -20,17 +19,17 @@ void IModioUIModEnabledStateChangedReceiver::ModEnabledStateChangedHandler(FModi
 				"to route events to blueprint"));
 }
 
-
-
 void IModioUIModEnabledStateChangedReceiver::ModEnabledStateChangedHandlerK2Helper(
 	FModioModID ModID, bool bNewEnabledState, TWeakObjectPtr<UObject> ImplementingObject)
 {
 	if (ImplementingObject.IsValid())
 	{
-		void* RawInterfacePtr = ImplementingObject->GetNativeInterfaceAddress(UModioUIModEnabledStateChangedReceiver::StaticClass());
+		void* RawInterfacePtr =
+			ImplementingObject->GetNativeInterfaceAddress(UModioUIModEnabledStateChangedReceiver::StaticClass());
 		if (RawInterfacePtr != nullptr)
 		{
-			IModioUIModEnabledStateChangedReceiver* ConcretePtr = static_cast<IModioUIModEnabledStateChangedReceiver*>(RawInterfacePtr);
+			IModioUIModEnabledStateChangedReceiver* ConcretePtr =
+				static_cast<IModioUIModEnabledStateChangedReceiver*>(RawInterfacePtr);
 			ConcretePtr->ModEnabledStateChangedHandler(ModID, bNewEnabledState);
 		}
 		else
@@ -54,7 +53,8 @@ void UModioUIModEnabledStateChangedReceiverLibrary::RegisterModEnabledStateChang
 	}
 }
 
-void UModioUIModEnabledStateChangedReceiverLibrary::DeregisterModEnabledStateChangedReceiver(UObject* ObjectToDeregister)
+void UModioUIModEnabledStateChangedReceiverLibrary::DeregisterModEnabledStateChangedReceiver(
+	UObject* ObjectToDeregister)
 {
 	if (ObjectToDeregister && ObjectToDeregister->Implements<UModioUIModEnabledStateChangedReceiver>())
 	{

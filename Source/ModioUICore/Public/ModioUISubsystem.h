@@ -133,7 +133,7 @@ protected:
 	UObject* ModRatingStateProvider;
 
 	UFUNCTION()
-	void OnUGCSubsystemModEnabledChanged(int64 RawModID, bool bNewEnabledState);
+	void OnModEnabledChanged(int64 RawModID, bool bNewEnabledState);
 
 	UFUNCTION()
 	void SubscriptionHandler(FModioErrorCode ErrorCode, FModioModID ID);
@@ -251,6 +251,12 @@ public:
 		Callback.AddUObject(&ObjectToRegister, FunctionPointer);
 	}
 
+	template<typename DelegateSignature, typename ImplementingClass>
+	void DeregisterEventHandler(TMulticastDelegate<DelegateSignature>& Callback, ImplementingClass& ObjectToRegister)
+	{
+		Callback.RemoveAll(&ObjectToRegister);
+	}
+
 	template<typename DelegateSignature, typename Func>
 	void RegisterEventHandlerFromK2(TMulticastDelegate<DelegateSignature>& Callback, Func* FunctionPointer,
 									TMap<TWeakObjectPtr<>, FDelegateHandle>& Map,
@@ -325,11 +331,7 @@ public:
 	void RequestUserAvatar();
 
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
-	void RequestEmailAuthentication(FModioEmailAuthCode Code);
-
-	/// @brief Special native-only overload for when we want direct notification of success or failure but still want to
-	/// broadcast UI events
-	void RequestEmailAuthentication(FModioEmailAuthCode Code, FOnErrorOnlyDelegateFast DedicatedCallback);
+	void RequestEmailAuthenticationWithHandler(FModioEmailAuthCode Code, const FOnErrorOnlyDelegate Callback);
 
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestGalleryImageDownloadForModID(FModioModID ID, int32 Index,

@@ -56,6 +56,17 @@ protected:
 		}
 	}
 
+	template<typename ImplementingClass>
+	void Deregister()
+	{
+		UModioUISubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
+		if (Subsystem)
+		{
+			Subsystem->DeregisterEventHandler<IModioUIUserChangedReceiver>(Subsystem->OnUserChanged,
+																		   *Cast<ImplementingClass>(this));
+		}
+	}
+
 	static void RegisterFromK2(UObject* ObjectToRegister)
 	{
 		if (ObjectToRegister)
@@ -78,8 +89,8 @@ protected:
 			if (Subsystem)
 			{
 				Subsystem->DeregisterEventHandlerFromK2(Subsystem->OnUserChanged,
-													  &IModioUIUserChangedReceiver::UserChangedHandlerK2Helper,
-													  RegistrationMap, TWeakObjectPtr<>(ObjectToDeregister));
+														&IModioUIUserChangedReceiver::UserChangedHandlerK2Helper,
+														RegistrationMap, TWeakObjectPtr<>(ObjectToDeregister));
 			}
 		}
 	}

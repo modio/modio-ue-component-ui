@@ -34,7 +34,7 @@ struct MODIOUICORE_API FModioUIColorEntry : public FTableRowBase
 	 * @brief The color to use for the entry
 	 */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, category = "mod.io UI Color Entry")
-	FLinearColor Color;
+	FLinearColor Color = FLinearColor::White;
 };
 
 /**

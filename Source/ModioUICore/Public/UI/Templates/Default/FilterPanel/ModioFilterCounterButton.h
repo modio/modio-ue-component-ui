@@ -26,7 +26,7 @@ class MODIOUICORE_API UModioFilterCounterButton : public UModioDefaultIconButton
 	GENERATED_BODY()
 
 protected:
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Filter Button|Widget Getters",
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Filter Counter Button|Widget Getters",
 			  meta = (BlueprintProtected))
 	TScriptInterface<IModioUIDataSourceWidget> GetFilterCounterWidget();
 

@@ -52,6 +52,17 @@ protected:
 		}
 	}
 
+	template<typename ImplementingClass>
+	void Deregister()
+	{
+		UModioUISubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
+		if (Subsystem)
+		{
+			Subsystem->DeregisterEventHandler<IModioUISubscriptionsChangedReceiver>(
+				Subsystem->OnSubscriptionStatusChanged, *Cast<ImplementingClass>(this));
+		}
+	}
+
 	static void RegisterFromK2(UObject* ObjectToRegister)
 	{
 		if (ObjectToRegister)

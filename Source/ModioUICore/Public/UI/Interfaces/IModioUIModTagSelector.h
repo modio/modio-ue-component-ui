@@ -39,6 +39,18 @@ class MODIOUICORE_API IModioUIModTagSelector
 
 public:
 	/**
+	 * @brief Checks if hidden tag categories should be shown by the implementing object
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|TagSelector")
+	bool GetAllowHiddenTags();
+
+	/**
+	 * @brief Checks if locked tag categories should be shown by the implementing object
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|TagSelector")
+	bool GetAllowLockedTags();
+
+	/**
 	 * @brief Populates the tag selector with the tags specified in the provided tag options struct
 	 * @param InOptions Tag data to use to populate the selector
 	 */

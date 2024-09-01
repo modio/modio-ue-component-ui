@@ -10,7 +10,6 @@
 
 #include "UI/EventHandlers/IModioUISubscriptionsChangedReceiver.h"
 #include "Engine/Engine.h"
-#include "ModioUISubsystem.h"
 #include "ProfilingDebugging/CpuProfilerTrace.h"
 
 void IModioUISubscriptionsChangedReceiver::SubscriptionsChangedHandler(FModioModID ModID, bool bNewSubscriptionState)
@@ -54,7 +53,7 @@ void IModioUISubscriptionsChangedReceiver::NativeOnSubscriptionsChanged(FModioMo
 	Execute_OnSubscriptionsChanged(Cast<UObject>(this), ModID, bNewSubscriptionState);
 }
 
-void UModioUISubscriptionsChangedReceiverLibrary::RegisterSubscriptionsChangedReceiver(UObject* ObjectToRegister) 
+void UModioUISubscriptionsChangedReceiverLibrary::RegisterSubscriptionsChangedReceiver(UObject* ObjectToRegister)
 {
 	if (ObjectToRegister && ObjectToRegister->Implements<UModioUISubscriptionsChangedReceiver>())
 	{
@@ -62,7 +61,7 @@ void UModioUISubscriptionsChangedReceiverLibrary::RegisterSubscriptionsChangedRe
 	}
 }
 
-void UModioUISubscriptionsChangedReceiverLibrary::DeregisterSubscriptionsChangedReceiver(UObject* ObjectToDeregister) 
+void UModioUISubscriptionsChangedReceiverLibrary::DeregisterSubscriptionsChangedReceiver(UObject* ObjectToDeregister)
 {
 	if (ObjectToDeregister && ObjectToDeregister->Implements<UModioUISubscriptionsChangedReceiver>())
 	{

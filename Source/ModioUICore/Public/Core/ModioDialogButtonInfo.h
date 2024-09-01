@@ -47,7 +47,7 @@ struct MODIOUICORE_API FModioDialogButtonInfo
 	 * @brief Whether to show a tooltip for the button
 	 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|Dialog")
-	bool bShowTooltip;
+	bool bShowTooltip = false;
 
 	/**
 	 * @brief Title for the tooltip, if shown
@@ -69,6 +69,12 @@ struct MODIOUICORE_API FModioDialogButtonInfo
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|Dialog",
 			  meta = (EditConditionHides, EditCondition = "bShowToolTip"))
 	FText TooltipTagText;
+
+	/**
+	 * @brief Whether the button should be focused by default
+	 */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|Dialog")
+	bool bFocusedByDefault = false;
 };
 
 /**

@@ -88,6 +88,25 @@ protected:
 		}
 	}
 
+	template<typename ImplementingClass>
+	void Deregister(EModioUIModInfoEventType EventType)
+	{
+		UModioUISubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
+		if (Subsystem)
+		{
+			if (EnumHasAllFlags(EventType, EModioUIModInfoEventType::ListAllMods))
+			{
+				Subsystem->DeregisterEventHandler<IModioUIModInfoReceiver>(Subsystem->OnListAllModsRequestCompleted,
+																		   *Cast<ImplementingClass>(this));
+			}
+			if (EnumHasAllFlags(EventType, EModioUIModInfoEventType::GetModInfo))
+			{
+				Subsystem->DeregisterEventHandler<IModioUIModInfoReceiver>(Subsystem->OnModInfoRequestCompleted,
+																		   *Cast<ImplementingClass>(this));
+			}
+		}
+	}
+
 	static void RegisterFromK2(UObject* ObjectToRegister, EModioUIModInfoEventType EventType)
 	{
 		if (ObjectToRegister)
@@ -122,9 +141,9 @@ protected:
 				if (EnumHasAllFlags(EventType, EModioUIModInfoEventType::ListAllMods))
 				{
 					Subsystem->DeregisterEventHandlerFromK2(Subsystem->OnListAllModsRequestCompleted,
-														  &IModioUIModInfoReceiver::ListAllModsRequestHandlerK2Helper,
-														  RegistrationMapListAllMods,
-														  TWeakObjectPtr<>(ObjectToDeregister));
+															&IModioUIModInfoReceiver::ListAllModsRequestHandlerK2Helper,
+															RegistrationMapListAllMods,
+															TWeakObjectPtr<>(ObjectToDeregister));
 				}
 				if (EnumHasAllFlags(EventType, EModioUIModInfoEventType::GetModInfo))
 				{

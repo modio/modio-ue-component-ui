@@ -18,7 +18,12 @@
 #include "ModioCommandMenu.generated.h"
 
 /**
- * @brief A menu that displays a list of commands that can be executed by the user
+ * @default_impl_for Command Menu
+ * @brief The Command Menu is a default implementation of the Command Menu component which uses an internal
+ * sub-component implementing IModioUIObjectSelector to display a set of commands to users and allow them to select one.
+ * When a command is selected, the Command Menu will query the selected command object to check if the command can be
+ * executed and invoke it if so.
+ * @component_display_name Command Menu
  */
 UCLASS()
 class MODIOUICORE_API UModioCommandMenu : public UModioUIComponentBase, public IModioUICommandMenu
@@ -26,11 +31,15 @@ class MODIOUICORE_API UModioCommandMenu : public UModioUIComponentBase, public I
 	GENERATED_BODY()
 protected:
 	/**
-	 * @brief The selector widget for the command menu (e.g. the widget that allows the user to select a command)
+	 * @brief Provides a reference to the internal widget that actually displays the available commands and and tracks
+	 * the user's selection. The default implementation will forward IModioUIObjectSelector messages to this widget if
+	 * it is valid, and assumes that this widget will be responsible for data-binding the command objects to each entry
+	 * widget, and that those entry widgets will be responsible for inspecting their bound object for any information they want to visualize.
 	 * @return The selector widget
 	 * @default_component_widget_getter
 	 */
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Command Menu|Widget Getters", meta = (BlueprintProtected))
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Command Menu|Widget Getters",
+			  meta = (BlueprintProtected))
 	TScriptInterface<IModioUIObjectSelector> GetSelectorWidget() const;
 
 	/**

@@ -46,13 +46,13 @@ struct MODIOUICORE_API FModioFeaturedCategoryParams
 	 * @brief Sort direction for the category
 	 */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "mod.io|UI|Featured Category Params")
-	EModioSortDirection Direction;
+	EModioSortDirection Direction = EModioSortDirection::Ascending;
 
 	/**
 	 * @brief Sort field for the category
 	 */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "mod.io|UI|Featured Category Params")
-	EModioSortFieldType SortField;
+	EModioSortFieldType SortField = EModioSortFieldType::ID;
 
 	/**
 	 * @brief Number of mods to display in the category

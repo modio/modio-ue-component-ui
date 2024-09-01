@@ -233,7 +233,18 @@ FModioUIImageComponentMetadata::FModioUIImageComponentMetadata()
 	}
 {}
 
- FModioUIEnumSelectorComponentMetadata::FModioUIEnumSelectorComponentMetadata()
+FModioUIObjectSelectorComponentMetadata::FModioUIObjectSelectorComponentMetadata()
+	: FModioUIComponentMetadata
+	{	
+		{
+			UModioUIObjectSelector::StaticClass()
+		},
+		EModioUIComponentID::ObjectSelector,
+		FName("Object Selector")
+	}
+{}
+
+FModioUIEnumSelectorComponentMetadata::FModioUIEnumSelectorComponentMetadata()
 	: FModioUIComponentMetadata
 	{	
 		{

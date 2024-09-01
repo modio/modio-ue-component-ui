@@ -47,14 +47,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|ObjectSelector")
 	void SetValues(const TArray<UObject*>& InValues);
 
-	/// TODO: Rename
-	/*
-	GetSelectedValue -> GetSingleSelectedValue,
-	ClearSelectedValue-> ClearSelectedValues,
-	SetSelectionByValue -> SetSingleSelectionByValue,
-	SetSelectionByIndex -> SetSingleSelectionByIndex
-	*/
-
 	/**
 	 * @brief Retrieves the selection of the implementing widget
 	 * @return UObject associated with the current selection of the implementing widget
@@ -157,4 +149,12 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Object Selector")
 	void SetListEntryWidgetClass(TSubclassOf<UWidget> InNewEntryClass);
+
+	/**
+	 * @brief Retrieves the index of the specified value
+	 * @param Value The value to retrieve the index for
+	 * @return The 0-based index of the specified value
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Object Selector")
+	int32 GetIndexForValue(UObject* Value) const;
 };

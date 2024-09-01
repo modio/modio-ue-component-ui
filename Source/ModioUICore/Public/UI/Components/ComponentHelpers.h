@@ -26,7 +26,7 @@
 struct FModioTScriptInterfaceValidator
 {
 	template<typename InterfaceType>
-	static bool __declspec(noinline)
+	static bool
 		Validate(class IWidgetCompilerLog& CompileLog, TScriptInterface<InterfaceType> ImplementingObject)
 	{
 		if (ImplementingObject.GetObject())

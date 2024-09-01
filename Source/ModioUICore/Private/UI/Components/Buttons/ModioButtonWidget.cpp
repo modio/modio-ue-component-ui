@@ -130,11 +130,8 @@ bool UModioButtonWidget::TryGetBoundAction_Implementation(FDataTableRowHandle& I
 
 void UModioButtonWidget::ClearBoundAction_Implementation()
 {
-	if (InputActionWidget)
-	{
-		FDataTableRowHandle EmptyStateHandle;
-		InputActionWidget->SetInputAction(EmptyStateHandle);
-	}
+	FDataTableRowHandle EmptyStateHandle;
+	SetTriggeringInputAction(EmptyStateHandle);
 }
 
 void UModioButtonWidget::AddActionProgressHandler_Implementation(const FModioBoundActionProgressed& Handler)

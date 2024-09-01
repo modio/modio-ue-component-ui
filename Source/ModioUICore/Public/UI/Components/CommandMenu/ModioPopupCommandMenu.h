@@ -16,11 +16,16 @@
 #include "ModioPopupCommandMenu.generated.h"
 
 /**
- * @default_impl_for Popup Command Menu
- * @brief A widget that displays a popup command menu
+ * @default_impl_for Command Menu
+ * @brief The Popup Command Menu is a default implementation of the Command Menu component which is intended as an
+ * abstract base class for a widget that manages an internal sub-component that can be shown and dismissed based on user
+ * input. This base class provides an overridable function to construct the internal menu sub-component that will be
+ * displayed on request, and handles forwarding IModioUICommandMenu messages to that widget. Derived classes should
+ * provide an implementation of ConstructCommandMenuWidget, and their own custom behaviour for showing and dismissing
+ * that widget instance.
  * @component_display_name Popup Command Menu
  */
-UCLASS()
+UCLASS(abstract)
 class MODIOUICORE_API UModioPopupCommandMenu : public UModioUIComponentBase, public IModioUICommandMenu
 {
 	GENERATED_BODY()
@@ -39,8 +44,9 @@ protected:
 	virtual void NativePreConstruct() override;
 	//~ End UUserWidget Interface
 
-	/// @brief Implement this function to construct the actual command menu widget that will be displayed as the menu
-	/// when the popup button is clicked
+	/// @brief Implement this function to construct the actual command menu widget that will be displayed and dismissed
+	/// on user input. Implementing classes are responsible for holding onto this internal sub-component so it is not
+	/// garbage collected.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Popup Command Menu",
 			  meta = (BlueprintProtected))
 	void ConstructCommandMenuWidget();

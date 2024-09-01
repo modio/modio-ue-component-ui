@@ -106,6 +106,16 @@ protected:
 		return false;
 	}
 
+	virtual bool GetIsCategoryHidden_Implementation()
+	{
+		return false;
+	}
+
+	virtual bool GetIsCategoryLocked_Implementation()
+	{
+		return false;
+	}
+
 	virtual TArray<TScriptInterface<UModioModTagUIDetails>> GetCategoryTags_Implementation()
 	{
 		return {};
@@ -149,6 +159,20 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Data Binding|Mod Tag Category")
 	bool GetAllowMultipleSelection();
+
+	/**
+	 * @brief Queries the implementing object if the associated tag category is flagged as hidden
+	 * @return True if only visible by admins
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Data Binding|Mod Tag Category")
+	bool GetIsCategoryHidden();
+
+	/**
+	 * @brief Queries the implementing object if the associated tag category is flagged as locked
+	 * @return True if only editable by admins
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Data Binding|Mod Tag Category")
+	bool GetIsCategoryLocked();
 
 	/**
 	 * @brief Gets the bindable tag objects for this category

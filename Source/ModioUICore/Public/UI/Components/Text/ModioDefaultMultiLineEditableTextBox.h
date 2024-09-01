@@ -16,8 +16,19 @@
 #include "UI/Interfaces/IModioUIHasTooltipWidget.h"
 #include "UI/Interfaces/IModioUIStringInputWidget.h"
 #include "UI/Interfaces/IModioUITextValidator.h"
+#include "Widgets/Input/SMultiLineEditableTextBox.h"
 
 #include "ModioDefaultMultiLineEditableTextBox.generated.h"
+
+
+/**
+ * Multi Line Editable Text Box which supports gamepad navigation
+ */
+class MODIOUICORE_API SModioCommonMultiLineEditableTextBox : public SMultiLineEditableTextBox
+{
+public:
+	virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override;
+};
 
 /**
  * Default implementation of an editable multi line text box that can be used as a component in mod.io UI

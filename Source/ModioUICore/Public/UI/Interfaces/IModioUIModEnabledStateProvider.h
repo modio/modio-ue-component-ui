@@ -15,6 +15,9 @@
 
 #include "IModioUIModEnabledStateProvider.generated.h"
 
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FModioModEnabledStateChangeHandler, int64, RawID, bool, bNewEnabledState);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FModioOnModEnabledStateChangeMulticastDelegate, int64, RawID, bool, bNewEnabledState);
+
 /**
  * @brief Interface for objects that can provide or store the enabled/disabled state for a mod
  */
@@ -40,6 +43,9 @@ protected:
 	{
 		return true;
 	}
+	virtual void NativeAddModEnabledStateChangeHandler(const FModioModEnabledStateChangeHandler& Handler) {}
+	virtual void NativeRemoveModEnabledStateChangeHandler(const FModioModEnabledStateChangeHandler& Handler) {}
+
 	bool QueryIsModEnabled_Implementation(FModioModID ModID)
 	{
 		return NativeQueryIsModEnabled(ModID);
@@ -47,6 +53,14 @@ protected:
 	bool RequestModEnabledStateChange_Implementation(FModioModID ID, bool bNewEnabledState)
 	{
 		return NativeRequestModEnabledStateChange(ID, bNewEnabledState);
+	}
+	void AddModEnabledStateChangeHandler_Implementation(const FModioModEnabledStateChangeHandler& Handler)
+	{
+		NativeAddModEnabledStateChangeHandler(Handler);
+	}
+	void RemoveModEnabledStateChangeHandler_Implementation(const FModioModEnabledStateChangeHandler& Handler)
+	{
+		NativeRemoveModEnabledStateChangeHandler(Handler);
 	}
 
 public:
@@ -66,4 +80,18 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|ModState")
 	bool RequestModEnabledStateChange(FModioModID ID, bool bNewEnabledState);
+
+	/**
+	 * Registers a delegate for notifications when a mod's enabled state changes
+	 * @param Handler Delegate to be notified
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "UGC|Events|Mod Enabled State Provider")
+	void AddModEnabledStateChangeHandler(const FModioModEnabledStateChangeHandler& Handler);
+
+	/**
+	 * Unregisters a delegate for notifications when a mod's enabled state changes
+	 * @param Handler Delegate to be removed from the notification list
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "UGC|Events|Mod Enabled State Provider")
+	void RemoveModEnabledStateChangeHandler(const FModioModEnabledStateChangeHandler& Handler);
 };

@@ -9,25 +9,8 @@
  */
 
 #include "UI/EventHandlers/IModioUIConnectivityChangedReceiver.h"
-#include "ModioUISubsystem.h"
 
-void UModioUIConnectivityChangedReceiverLibrary::RegisterConnectivityChangedReceiver(UObject* ObjectToRegister) 
-{
-	if (ObjectToRegister && ObjectToRegister->Implements<UModioUIConnectivityChangedReceiver>())
-	{
-		IModioUIConnectivityChangedReceiver::RegisterFromK2(ObjectToRegister);
-	}
-}
-
-void UModioUIConnectivityChangedReceiverLibrary::DeregisterConnectivityChangedReceiver(UObject* ObjectToDeregister) 
-{
-	if (ObjectToDeregister && ObjectToDeregister->Implements<UModioUIConnectivityChangedReceiver>())
-	{
-		IModioUIConnectivityChangedReceiver::DeregisterFromK2(ObjectToDeregister);
-	}
-}
-
-void IModioUIConnectivityChangedReceiver::ConnectivityChangedHandler(bool bNewConnectivityState) 
+void IModioUIConnectivityChangedReceiver::ConnectivityChangedHandler(bool bNewConnectivityState)
 {
 	bRoutedConnectivityChanged = false;
 	NativeOnConnectivityChanged(bNewConnectivityState);
@@ -41,10 +24,12 @@ void IModioUIConnectivityChangedReceiver::ConnectivityChangedHandlerK2Helper(boo
 {
 	if (ImplementingObject.IsValid())
 	{
-		void* RawInterfacePtr = ImplementingObject->GetNativeInterfaceAddress(UModioUIConnectivityChangedReceiver::StaticClass());
+		void* RawInterfacePtr =
+			ImplementingObject->GetNativeInterfaceAddress(UModioUIConnectivityChangedReceiver::StaticClass());
 		if (RawInterfacePtr != nullptr)
 		{
-			IModioUIConnectivityChangedReceiver* ConcretePtr = static_cast<IModioUIConnectivityChangedReceiver*>(RawInterfacePtr);
+			IModioUIConnectivityChangedReceiver* ConcretePtr =
+				static_cast<IModioUIConnectivityChangedReceiver*>(RawInterfacePtr);
 			ConcretePtr->ConnectivityChangedHandler(bNewConnectivityState);
 		}
 		else
@@ -54,8 +39,24 @@ void IModioUIConnectivityChangedReceiver::ConnectivityChangedHandlerK2Helper(boo
 	}
 }
 
-void IModioUIConnectivityChangedReceiver::NativeOnConnectivityChanged(bool bNewConnectivityState) 
+void IModioUIConnectivityChangedReceiver::NativeOnConnectivityChanged(bool bNewConnectivityState)
 {
 	bRoutedConnectivityChanged = true;
 	Execute_OnConnectivityChanged(Cast<UObject>(this), bNewConnectivityState);
+}
+
+void UModioUIConnectivityChangedReceiverLibrary::RegisterConnectivityChangedReceiver(UObject* ObjectToRegister)
+{
+	if (ObjectToRegister && ObjectToRegister->Implements<UModioUIConnectivityChangedReceiver>())
+	{
+		IModioUIConnectivityChangedReceiver::RegisterFromK2(ObjectToRegister);
+	}
+}
+
+void UModioUIConnectivityChangedReceiverLibrary::DeregisterConnectivityChangedReceiver(UObject* ObjectToDeregister)
+{
+	if (ObjectToDeregister && ObjectToDeregister->Implements<UModioUIConnectivityChangedReceiver>())
+	{
+		IModioUIConnectivityChangedReceiver::DeregisterFromK2(ObjectToDeregister);
+	}
 }

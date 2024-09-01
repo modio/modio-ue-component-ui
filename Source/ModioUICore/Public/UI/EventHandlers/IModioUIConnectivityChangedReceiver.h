@@ -28,11 +28,11 @@ class MODIOUICORE_API IModioUIConnectivityChangedReceiver : public IInterface
 {
 	GENERATED_BODY()
 
+	friend class UModioUIConnectivityChangedReceiverLibrary;
+
 	bool bRoutedConnectivityChanged = false;
 
 	void ConnectivityChangedHandler(bool bNewConnectivityState);
-
-	friend class UModioUIConnectivityChangedReceiverLibrary;
 
 	static void ConnectivityChangedHandlerK2Helper(bool bNewConnectivityState,
 												   TWeakObjectPtr<UObject> ImplementingObject);
@@ -52,6 +52,17 @@ protected:
 
 			// Update with the "current" connectivity state
 			ConnectivityChangedHandler(Subsystem->bCurrentConnectivityState);
+		}
+	}
+
+	template<typename ImplementingClass>
+	void Deregister()
+	{
+		UModioUISubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
+		if (Subsystem)
+		{
+			Subsystem->DeregisterEventHandler<IModioUIConnectivityChangedReceiver>(Subsystem->OnConnectivityChanged,
+																				   *Cast<ImplementingClass>(this));
 		}
 	}
 

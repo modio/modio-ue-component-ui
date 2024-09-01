@@ -13,6 +13,7 @@
 #include "Engine/DataTable.h"
 #include "Fonts/SlateFontInfo.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Styling/SlateTypes.h"
 #include "Templates/SubclassOf.h"
 #include "Types/SlateEnums.h"
 
@@ -43,7 +44,7 @@ struct FIntegerOverride
 	 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (EditCondition = "bOverride"),
 			  Category = "mod.io|UI|Integer Override")
-	int32 Value;
+	int32 Value = 0;
 };
 
 /**
@@ -69,7 +70,7 @@ struct FFloatOverride
 	 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (EditCondition = "bOverride"),
 			  Category = "mod.io|UI|Float Override")
-	float Value;
+	float Value = 0.0f;
 };
 
 /**
@@ -173,7 +174,7 @@ struct FHAlignOverride
 	 */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (EditCondition = "bOverride"),
 			  Category = "mod.io|UI|Horizontal Alignment Override")
-	TEnumAsByte<EHorizontalAlignment> Value;
+	TEnumAsByte<EHorizontalAlignment> Value = EHorizontalAlignment::HAlign_Fill;
 };
 
 /**
@@ -225,7 +226,7 @@ struct FTextTransformOverride
 	 */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (EditCondition = "bOverride"),
 			  Category = "mod.io|UI|Text Transform Override")
-	ETextTransformPolicy Value;
+	ETextTransformPolicy Value = ETextTransformPolicy::None;
 };
 
 /**

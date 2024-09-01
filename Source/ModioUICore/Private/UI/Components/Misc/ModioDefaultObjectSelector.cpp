@@ -52,6 +52,15 @@ void UModioDefaultObjectSelector::SetSingleSelectionByIndex_Implementation(int32
 void UModioDefaultObjectSelector::ClearSelectedValues_Implementation()
 {
 	ClearSelection();
+	if (GetSelectionMode() == ESelectionMode::Single)
+	{
+		// Sometimes the selection is not fully cleared by ClearSelection for the displayed entries
+		// so we need to manually clear the selection state for each displayed entry
+		for (UUserWidget* CurrentWidget : GetDisplayedEntryWidgets())
+		{
+			IUserListEntry::UpdateItemSelection(*CurrentWidget, false);
+		}
+	}
 	NotifySelectionChanged(nullptr);
 }
 
@@ -196,7 +205,7 @@ void UModioDefaultObjectSelector::NotifySelectionChanged(UObject* SelectedItem)
 
 	if (EmitSelectionEvents.Peek(true))
 	{
-		OnSelectedValueChanged.Broadcast(GetSelectedItem());
+		OnSelectedValueChanged.Broadcast(SelectedItem);
 	}
 }
 
@@ -211,6 +220,11 @@ TArray<UObject*> UModioDefaultObjectSelector::NativeGetObjects()
 	return GetListItems();
 }
 
+UObject* UModioDefaultObjectSelector::NativeGetObjectAt(int32 Index) const
+{
+	return GetItemAt(Index);
+}
+
 void UModioDefaultObjectSelector::NativeAddObjectWidgetCreatedHandler(
 	const FModioObjectListOnObjectWidgetCreated& Handler)
 {
@@ -221,6 +235,22 @@ void UModioDefaultObjectSelector::NativeRemoveObjectWidgetCreatedHandler(
 	const FModioObjectListOnObjectWidgetCreated& Handler)
 {
 	OnWidgetCreated.Remove(Handler);
+}
+
+UWidget* UModioDefaultObjectSelector::NativeGetWidgetToFocus(EUINavigation NavigationType) const
+{
+	if (UObject* SelectedItem = GetSelectedItem())
+	{
+		if (UUserWidget* SelectedWidget = GetEntryWidgetFromItem(SelectedItem))
+		{
+			if (SelectedWidget->GetClass()->ImplementsInterface(UModioFocusableWidget::StaticClass()))
+			{
+				return IModioFocusableWidget::Execute_GetWidgetToFocus(SelectedWidget, NavigationType);
+			}
+			return SelectedWidget;
+		}
+	}
+	return nullptr;
 }
 
 bool UModioDefaultObjectSelector::GetMultiSelectionAllowed_Implementation()
@@ -262,4 +292,9 @@ void UModioDefaultObjectSelector::SetListEntryWidgetClass_Implementation(TSubcla
 {
 	EntryWidgetClass = InNewEntryClass;
 	//some kind of rebuild here maybe?
+}
+
+int32 UModioDefaultObjectSelector::GetIndexForValue_Implementation(UObject* Value) const
+{
+	return GetIndexForItem(Value);
 }

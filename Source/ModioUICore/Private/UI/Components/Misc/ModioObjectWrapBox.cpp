@@ -37,6 +37,15 @@ TArray<UObject*> UModioObjectWrapBox::NativeGetObjects()
 	return BoundObjects;
 }
 
+UObject* UModioObjectWrapBox::NativeGetObjectAt(int32 Index) const
+{
+	if (Index >= 0 && Index < BoundObjects.Num())
+	{
+		return BoundObjects[Index];
+	}
+	return nullptr;
+}
+
 #if WITH_EDITOR
 void UModioObjectWrapBox::ValidateCompiledDefaults(IWidgetCompilerLog& CompileLog) const
 {

@@ -132,7 +132,7 @@ bool UModioUISubsystem::IsUGCFeatureEnabled(EModioUIFeatureFlags Feature)
 	}
 }
 
-void UModioUISubsystem::OnUGCSubsystemModEnabledChanged(int64 RawModID, bool bNewEnabledState)
+void UModioUISubsystem::OnModEnabledChanged(int64 RawModID, bool bNewEnabledState)
 {
 	OnModEnabledStateChanged.Broadcast(FModioModID(RawModID), bNewEnabledState);
 }
@@ -174,6 +174,7 @@ void UModioUISubsystem::UninstallHandler(FModioErrorCode ErrorCode, FModioModID 
 	Event.Event = EModioModManagementEventType::Uninstalled;
 	Event.Status = ErrorCode;
 	OnModManagementEvent.Broadcast(Event);
+
 }
 
 void UModioUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -187,6 +188,13 @@ void UModioUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 void UModioUISubsystem::SetModEnabledStateDataProvider(TScriptInterface<IModioUIModEnabledStateProvider> InModEnabledStateDataProvider)
 {
 	ModEnabledStateDataProvider = InModEnabledStateDataProvider.GetObject();
+
+	if (ModEnabledStateDataProvider)
+	{
+		FModioModEnabledStateChangeHandler Handler;
+		Handler.BindDynamic(this, &UModioUISubsystem::OnModEnabledChanged);
+		IModioUIModEnabledStateProvider::Execute_AddModEnabledStateChangeHandler(ModEnabledStateDataProvider, Handler);
+	}
 }
 
 FModioErrorCode UModioUISubsystem::EnableModManagement()
@@ -384,28 +392,15 @@ void UModioUISubsystem::RequestUserAvatar()
 	}
 }
 
-void UModioUISubsystem::RequestEmailAuthentication(FModioEmailAuthCode Code)
+void UModioUISubsystem::RequestEmailAuthenticationWithHandler(FModioEmailAuthCode Code, const FOnErrorOnlyDelegate Callback)
 {
 	OnAuthenticationChangeStarted.Broadcast();
 
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
 		Subsystem->AuthenticateUserEmailAsync(
-			Code, FOnErrorOnlyDelegateFast::CreateUObject(this, &UModioUISubsystem::OnAuthenticationComplete));
-	}
-}
-
-void UModioUISubsystem::RequestEmailAuthentication(FModioEmailAuthCode Code, FOnErrorOnlyDelegateFast DedicatedCallback)
-{
-	OnAuthenticationChangeStarted.Broadcast();
-
-	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
-	{
-		Subsystem->AuthenticateUserEmailAsync(
-			Code, FOnErrorOnlyDelegateFast::CreateLambda([HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
-															  this, &UModioUISubsystem::OnAuthenticationComplete),
-														  DedicatedCallback](FModioErrorCode ec) {
-				DedicatedCallback.ExecuteIfBound(ec);
+			Code, FOnErrorOnlyDelegateFast::CreateLambda([HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(this, &UModioUISubsystem::OnAuthenticationComplete), Callback](FModioErrorCode ec) {
+				Callback.ExecuteIfBound(ec);
 				HookedHandler.ExecuteIfBound(ec);
 			}));
 	}
@@ -558,9 +553,6 @@ bool UModioUISubsystem::NativeRequestModRatingChange(int64 ID, EModioRating NewR
 
 	return true;
 }
-
-
-
 
 
 #include "Loc/EndModioLocNamespace.h"

@@ -10,7 +10,6 @@
 
 #include "UI/EventHandlers/IModioUIUserChangedReceiver.h"
 #include "Engine/Engine.h"
-#include "ModioUISubsystem.h"
 #include "Types/ModioUser.h"
 
 void IModioUIUserChangedReceiver::UserChangedHandler(TOptional<FModioUser> NewUser)

@@ -34,8 +34,14 @@ class MODIOUICORE_API IModioUIUserAvatarDownloadCompletedReceiver : public IInte
 
 	bool bRoutedAvatarDownloaded = false;
 	void UserAvatarDownloadCompletedHandler(FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image);
+	static void UserAvatarDownloadCompletedHandlerK2Helper(FModioErrorCode ErrorCode,
+														   TOptional<FModioImageWrapper> Image,
+														   TWeakObjectPtr<UObject> ImplementingObject);
+	friend class UModioUIUserAvatarDownloadCompletedReceiverLibrary;
 
 protected:
+	inline static TMap<TWeakObjectPtr<>, FDelegateHandle> RegistrationMap;
+
 	template<typename ImplementingClass>
 	void Register()
 	{
@@ -48,8 +54,67 @@ protected:
 		}
 	}
 
+	template<typename ImplementingClass>
+	void Deregister()
+	{
+		UModioUISubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
+		if (Subsystem)
+		{
+			Subsystem->DeregisterEventHandler<IModioUIUserAvatarDownloadCompletedReceiver>(
+				Subsystem->OnUserAvatarDownloadCompleted, *Cast<ImplementingClass>(this));
+		}
+	}
+
+	static void RegisterFromK2(UObject* ObjectToRegister)
+	{
+		if (ObjectToRegister)
+		{
+			UModioUISubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
+			if (Subsystem)
+			{
+				Subsystem->RegisterEventHandlerFromK2(
+					Subsystem->OnUserAvatarDownloadCompleted,
+					&IModioUIUserAvatarDownloadCompletedReceiver::UserAvatarDownloadCompletedHandlerK2Helper,
+					RegistrationMap, TWeakObjectPtr<>(ObjectToRegister));
+			}
+		}
+	}
+
+	static void DeregisterFromK2(UObject* ObjectToDeregister)
+	{
+		if (ObjectToDeregister)
+		{
+			UModioUISubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
+			if (Subsystem)
+			{
+				Subsystem->DeregisterEventHandlerFromK2(
+					Subsystem->OnUserAvatarDownloadCompleted,
+					&IModioUIUserAvatarDownloadCompletedReceiver::UserAvatarDownloadCompletedHandlerK2Helper,
+					RegistrationMap, TWeakObjectPtr<>(ObjectToDeregister));
+			}
+		}
+	}
+
 	virtual void NativeOnUserAvatarDownloadCompleted(FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "mod.io|UI|Events|Avatar Download", meta = (BlueprintProtected))
 	void OnUserAvatarDownloadCompleted(FModioErrorCode ErrorCode, FModioOptionalImage Image);
+};
+
+UCLASS()
+class MODIOUICORE_API UModioUIUserAvatarDownloadCompletedReceiverLibrary : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+	/// @brief Registers a UObject as a receiver for user avatar download events provided it implements
+	/// UModioUIUserAvatarDownloadCompletedReceiver
+	/// @param ObjectToRegister UObject to register that implements the required interface
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Event Handlers")
+	static void RegisterUserAvatarDownloadCompletedReceiver(UObject* ObjectToRegister);
+
+	/// @brief Deregisters a UObject as a receiver for user avatar download events provided it implements
+	/// UModioUIUserAvatarDownloadCompletedReceiver
+	/// @param ObjectToDeregister UObject to deregister that implements the required interface
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Event Handlers")
+	static void DeregisterUserAvatarDownloadCompletedReceiver(UObject* ObjectToDeregister);
 };

@@ -14,6 +14,7 @@
 #include "CommonActivatableWidget.h"
 #include "CoreMinimal.h"
 #include "UI/Components/ComponentHelpers.h"
+#include "UI/Interfaces/IModioFocusableWidget.h"
 #include "UI/Interfaces/IModioUIDataSourceWidget.h"
 
 #include "UObject/ObjectPtr.h"
@@ -25,7 +26,8 @@
  */
 UCLASS(Abstract, meta = (ModioWidget))
 class MODIOUICORE_API UModioUIComponentBase : public UCommonActivatableWidget,
-											  public IModioUIDataSourceWidget
+											  public IModioUIDataSourceWidget,
+											  public IModioFocusableWidget
 {
 	GENERATED_BODY()
 
@@ -48,4 +50,11 @@ protected:
 	virtual UObject* NativeGetDataSource() override;
 	//~ End IModioUIDataSourceWidget Interface
 
+	//~ Begin IModioFocusableWidget Interface
+	virtual UWidget* NativeGetWidgetToFocus(EUINavigation NavigationType) const override;
+	//~ End IModioFocusableWidget Interface
+
+	//~ Begin UCommonActivatableWidget Interface
+	virtual UWidget* NativeGetDesiredFocusTarget() const override;
+	//~ End UCommonActivatableWidget Interface
 };

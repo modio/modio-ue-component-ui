@@ -20,8 +20,8 @@ void IModioUIModManagementEventReceiver::ModManagementEventHandler(FModioModMana
 				"implementation in order to route notifications to blueprint"));
 }
 
-
-void IModioUIModManagementEventReceiver::ModManagementEventHandlerK2Helper(FModioModManagementEvent Event, TWeakObjectPtr<UObject> ImplementingObject) 
+void IModioUIModManagementEventReceiver::ModManagementEventHandlerK2Helper(FModioModManagementEvent Event,
+																		   TWeakObjectPtr<UObject> ImplementingObject)
 {
 	if (ImplementingObject.IsValid())
 	{

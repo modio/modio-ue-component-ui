@@ -24,8 +24,12 @@ void UModioDefaultTagWidget::NativeSetDataSource(UObject* InDataSource)
 	{
 		if (InDataSource && InDataSource->GetClass()->ImplementsInterface(UModioModTagUIDetails::StaticClass()))
 		{
-			IModioUIHasTextWidget::Execute_SetWidgetText(
-				GetLabelWidget().GetObject(), IModioModTagUIDetails::Execute_GetLocalizedText(InDataSource));
+			const FText LocalizedText = IModioModTagUIDetails::Execute_GetLocalizedText(InDataSource);
+			const FString RawStringValue = IModioModTagUIDetails::Execute_GetRawStringValue(InDataSource);
+			IModioUIHasTextWidget::Execute_SetWidgetText(GetLabelWidget().GetObject(),
+			                                             LocalizedText.IsEmpty()
+				                                             ? FText::FromString(RawStringValue)
+				                                             : LocalizedText);
 		}
 	}
 }

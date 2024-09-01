@@ -43,6 +43,11 @@ protected:
 	{
 		return NativeGetObjects();
 	}
+	virtual UObject* NativeGetObjectAt(int32 Index) const {return nullptr;}
+	UObject* GetObjectAt_Implementation(int32 Index) const
+	{
+		return NativeGetObjectAt(Index);
+	}
 	virtual void NativeAddObjectWidgetCreatedHandler(const FModioObjectListOnObjectWidgetCreated& Handler) {}
 	void AddObjectWidgetCreatedHandler_Implementation(const FModioObjectListOnObjectWidgetCreated& Handler)
 	{
@@ -68,6 +73,14 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Data Binding")
 	TArray<UObject*> GetObjects();
+
+	/**
+	 * @brief Retrieves the object at a specific index in the data source
+	 * @param Index The index of the object to retrieve
+	 * @return The object at the specified index
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Data Binding")
+	UObject* GetObjectAt(int32 Index) const;
 
 	/**
 	 * @brief Registers a delegate to receive callbacks when a new object widget is created

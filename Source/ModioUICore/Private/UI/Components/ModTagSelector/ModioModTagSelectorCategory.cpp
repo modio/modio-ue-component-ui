@@ -64,6 +64,16 @@ bool UModioModTagSelectorCategory::GetMultiSelectionAllowed_Implementation()
 	return false;
 }
 
+int32 UModioModTagSelectorCategory::GetIndexForValue_Implementation(UObject* Value) const
+{
+	if (GetCategoryTagListWidget().GetObject() &&
+		GetCategoryTagListWidget().GetObject()->GetClass()->ImplementsInterface(UModioUIObjectSelector::StaticClass()))
+	{
+		return IModioUIObjectSelector::Execute_GetIndexForValue(GetCategoryTagListWidget().GetObject(), Value);
+	}
+	return INDEX_NONE;
+}
+
 TScriptInterface<IModioUIHasTextWidget> UModioModTagSelectorCategory::GetTagCategoryLabel_Implementation() const
 {
 	return nullptr;
@@ -194,6 +204,26 @@ UObject* UModioModTagSelectorCategory::GetSingleSelectedValue_Implementation()
 		return IModioUIObjectSelector::Execute_GetSingleSelectedValue(GetCategoryTagListWidget().GetObject());
 	}
 	return nullptr;
+}
+
+int32 UModioModTagSelectorCategory::GetNumEntries_Implementation()
+{
+	if (GetCategoryTagListWidget().GetObject() &&
+		GetCategoryTagListWidget().GetObject()->GetClass()->ImplementsInterface(UModioUIObjectSelector::StaticClass()))
+	{
+		return IModioUIObjectSelector::Execute_GetNumEntries(GetCategoryTagListWidget().GetObject());
+	}
+	return 0;
+}
+
+int32 UModioModTagSelectorCategory::GetSingleSelectionIndex_Implementation()
+{
+	if (GetCategoryTagListWidget().GetObject() &&
+		GetCategoryTagListWidget().GetObject()->GetClass()->ImplementsInterface(UModioUIObjectSelector::StaticClass()))
+	{
+		return IModioUIObjectSelector::Execute_GetSingleSelectionIndex(GetCategoryTagListWidget().GetObject());
+	}
+	return INDEX_NONE;
 }
 
 void UModioModTagSelectorCategory::SetValues_Implementation(const TArray<UObject*>& InValues)

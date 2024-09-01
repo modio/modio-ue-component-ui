@@ -85,8 +85,21 @@ bool UModioUIInputValidationLibrary::ValidateNoWhitespace(const FText& TextToVal
 	return true;
 }
 
+bool UModioUIInputValidationLibrary::ValidateNotBlank(const FText& TextToValidate)
+{
+	FString TmpString = TextToValidate.ToString();
+	for (TCHAR CurrentCharacter : TmpString)
+	{
+		if (!FChar::IsWhitespace(CurrentCharacter))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool UModioUIInputValidationLibrary::ValidateUsingRule(const FModioTextValidationRule& Rule,
-													   const FText& TextToValidate, FText& ValidationMessageText)
+                                                       const FText& TextToValidate, FText& ValidationMessageText)
 {
 	switch (Rule.RuleToUse)
 	{
@@ -176,6 +189,17 @@ bool UModioUIInputValidationLibrary::ValidateUsingRule(const FModioTextValidatio
 				return true;
 			}
 			break;
+		case EModioTextValidationRule::ETVR_ValidateNotBlank:
+			if (!ValidateNotBlank(TextToValidate))
+			{
+				ValidationMessageText =
+					FText::Format(Rule.ValidationMessage, FFormatNamedArguments {{"InputText", TextToValidate}});
+				return false;
+			}
+			else
+			{
+				return true;
+			}
 	}
 	return true;
 }

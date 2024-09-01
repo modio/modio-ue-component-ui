@@ -21,12 +21,20 @@ void UModioModBrowser::NativePreConstruct()
 	IModioUIModInfoReceiver::Register<UModioModBrowser>(EModioUIModInfoEventType::ListAllMods);
 	IModioUIDialogDisplayEventReceiver::Register<UModioModBrowser>();
 	IModioUIWalletBalanceUpdatedEventReceiver::Register<UModioModBrowser>();
+	IModioUISubscriptionsChangedReceiver::Register<UModioModBrowser>();
 }
 
 void UModioModBrowser::NativeOnListAllModsRequestCompleted(FString RequestIdentifier, FModioErrorCode ErrorCode,
 														   TOptional<FModioModInfoList> List)
 {
 	IModioUIModInfoReceiver::NativeOnListAllModsRequestCompleted(RequestIdentifier, ErrorCode, List);
+
+	if (CurrentView == EModioModBrowserState::LibraryView)
+	{
+		UE_LOG(ModioUICore, Verbose, TEXT("Library view, used to display local mods, is not expected to be"
+			       " populated by the ListAllMods request. Ignoring."));
+		return;
+	}
 
 	if (ErrorCode || !List.IsSet())
 	{
@@ -47,6 +55,11 @@ void UModioModBrowser::NativeOnDialogDisplayEvent(EModioUIDialogType DialogReque
 void UModioModBrowser::NativeOnWalletBalanceUpdated(uint64 NewBalance)
 {
 	IModioUIWalletBalanceUpdatedEventReceiver::NativeOnWalletBalanceUpdated(NewBalance);
+}
+
+void UModioModBrowser::NativeOnSubscriptionsChanged(FModioModID ModID, bool bNewSubscriptionState)
+{
+	IModioUISubscriptionsChangedReceiver::NativeOnSubscriptionsChanged(ModID, bNewSubscriptionState);
 }
 
 TScriptInterface<IModioUIClickableWidget> UModioModBrowser::GetPresetFilterTabLeftButtonWidget_Implementation() const

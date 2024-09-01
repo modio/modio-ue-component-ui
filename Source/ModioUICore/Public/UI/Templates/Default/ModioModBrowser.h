@@ -15,6 +15,7 @@
 #include "UI/EventHandlers/IModioUIDialogDisplayEventReceiver.h"
 #include "UI/EventHandlers/IModioUIModInfoReceiver.h"
 #include "UI/EventHandlers/IModioUIWalletBalanceUpdatedEventReceiver.h"
+#include "UI/EventHandlers/IModioUISubscriptionsChangedReceiver.h"
 #include "UI/Interfaces/IModioUIClickableWidget.h"
 #include "UI/Interfaces/IModioUIHasTextWidget.h"
 #include "UI/Interfaces/IModioUIModListViewInterface.h"
@@ -39,18 +40,32 @@ class MODIOUICORE_API UModioModBrowser : public UModioUIComponentBase,
 										 public IModioUIModInfoReceiver,
 										 public IModioUIDialogDisplayEventReceiver,
 										 public IModioUIModTagSelector,
-										 public IModioUIWalletBalanceUpdatedEventReceiver
+										 public IModioUIWalletBalanceUpdatedEventReceiver,
+										 public IModioUISubscriptionsChangedReceiver
 {
 	GENERATED_BODY()
 
 protected:
-	void NativePreConstruct() override;
+	//~ Begin UUserWidget Interface
+	virtual void NativePreConstruct() override;
+	//~ End UUserWidget Interface
 
-	// Interface functions
-	void NativeOnListAllModsRequestCompleted(FString RequestIdentifier, FModioErrorCode ErrorCode,
-											 TOptional<FModioModInfoList> List);
-	void NativeOnDialogDisplayEvent(EModioUIDialogType DialogRequested, UObject* InDataSource);
-	void NativeOnWalletBalanceUpdated(uint64 NewBalance);
+	//~ Begin IModioUIModInfoReceiver Interface
+	virtual void NativeOnListAllModsRequestCompleted(FString RequestIdentifier, FModioErrorCode ErrorCode,
+	                                                 TOptional<FModioModInfoList> List) override;
+	//~ End IModioUIModInfoReceiver Interface
+
+	//~ Begin IModioUIDialogDisplayEventReceiver Interface
+	virtual void NativeOnDialogDisplayEvent(EModioUIDialogType DialogRequested, UObject* InDataSource) override;
+	//~ End IModioUIDialogDisplayEventReceiver Interface
+
+	//~ Begin IModioUIWalletBalanceUpdatedEventReceiver Interface
+	virtual void NativeOnWalletBalanceUpdated(uint64 NewBalance) override;
+	//~ End IModioUIWalletBalanceUpdatedEventReceiver Interface
+
+	//~ Begin IModioUISubscriptionsChangedReceiver Interface
+	void NativeOnSubscriptionsChanged(FModioModID ModID, bool bNewSubscriptionState);
+	//~ End IModioUISubscriptionsChangedReceiver Interface
 
 	// Toggle between Mods / Library View
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",

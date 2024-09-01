@@ -53,7 +53,10 @@ enum class EModioTextValidationRule : uint8
 	ETVR_ValidateNotEmpty,
 
 	/** Validate the lack of spaces **/
-	ETVR_ValidateNoWhitespace
+	ETVR_ValidateNoWhitespace,
+
+	/** Validate that there is not only whitespace **/
+	ETVR_ValidateNotBlank
 };
 
 /**
@@ -77,7 +80,7 @@ struct MODIOUICORE_API FModioTextValidationRule
 	FText ValidationMessage;
 
 	/**
-	 * @brief SApply the validation rule to at least minimum lenght
+	 * @brief SApply the validation rule to at least minimum length
 	 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere,
 			  meta = (EditCondition = "RuleToUse==EModioTextValidationRule::ETVR_ValidateLength", EditConditionHides),
@@ -85,7 +88,7 @@ struct MODIOUICORE_API FModioTextValidationRule
 	int32 MinimumLength {};
 
 	/**
-	 * @brief SApply the validation rule to a maximum lenght
+	 * @brief SApply the validation rule to a maximum length
 	 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere,
 			  meta = (EditCondition = "RuleToUse==EModioTextValidationRule::ETVR_ValidateLength", EditConditionHides),
@@ -219,6 +222,14 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, category = "mod.io|UI|ModioUIInputValidationLibrary")
 	static bool ValidateNoWhitespace(const FText& TextToValidate);
+
+	/**
+	 * @brief SConfirm the text provided matches the not blank rule
+	 * @param TextToValidate String to check against the not blank rule
+	 * @return True when string validation passes, false otherwise
+	 */
+	UFUNCTION(BlueprintCallable, category = "mod.io|UI|ModioUIInputValidationLibrary")
+	static bool ValidateNotBlank(const FText& TextToValidate);
 
 	/**
 	 * @brief SConvenience function to check a rule against a text and returns a validation text when the rule was not

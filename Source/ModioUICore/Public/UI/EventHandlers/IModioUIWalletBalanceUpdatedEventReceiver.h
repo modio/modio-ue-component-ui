@@ -13,6 +13,7 @@
 #include "ModioUISubsystem.h"
 #include "Types/ModioCommonTypes.h"
 #include "Types/ModioUnsigned64.h"
+#include "IModioUIConnectivityChangedReceiver.h"
 #include "UObject/Interface.h"
 
 #include "IModioUIWalletBalanceUpdatedEventReceiver.generated.h"
@@ -50,6 +51,17 @@ protected:
 				Subsystem->OnGetUserWalletBalanceRequestCompleted,
 				&IModioUIWalletBalanceUpdatedEventReceiver::WalletBalanceUpdatedHandler,
 				*Cast<ImplementingClass>(this));
+		}
+	}
+
+	template<typename ImplementingClass>
+	void Deregister()
+	{
+		UModioUISubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
+		if (Subsystem)
+		{
+			Subsystem->DeregisterEventHandler<IModioUIConnectivityChangedReceiver>(Subsystem->OnConnectivityChanged,
+																				   *Cast<ImplementingClass>(this));
 		}
 	}
 

@@ -140,9 +140,19 @@ UModioModTagInfoUI* UModioUICommonFunctionLibrary::CreateBindableModTagInfo(cons
 	BindableTagInfo->Underlying = InRawTagInfo;
 	BindableTagInfo->LocalizedCategoryName = GetLocalizedTagCategory(InRawTagInfo);
 	TArray<UModioModTagUI*> BoundTagValues;
-	for (const FModioModTagLocalizationData& CurrentTag : InRawTagInfo.TagGroupValueLocalizationData)
+	if (InRawTagInfo.TagGroupValueLocalizationData.Num() > 0)
 	{
-		BoundTagValues.Add(CreateBindableModTag(CurrentTag));
+		for (const FModioModTagLocalizationData& CurrentTag : InRawTagInfo.TagGroupValueLocalizationData)
+		{
+			BoundTagValues.Add(CreateBindableModTag(CurrentTag));
+		}
+	}
+	else
+	{
+		for (const FString& CurrentTag : InRawTagInfo.TagGroupValues)
+		{
+			BoundTagValues.Add(CreateBindableModTagRawValue({CurrentTag, FText::FromString(CurrentTag)}));
+		}
 	}
 	BindableTagInfo->BindableTags = BoundTagValues;
 	return BindableTagInfo;
@@ -207,23 +217,23 @@ TArray<UModioEnumEntryUI*> UModioUICommonFunctionLibrary::CreateBindableReportTy
 
 UModioModDependencyUI* UModioUICommonFunctionLibrary::CreateBindableModDependency(const FModioModDependency& InModDependency)
 {
-	UModioModDependencyUI* BindableTag = NewObject<UModioModDependencyUI>();
-	BindableTag->Underlying = InModDependency;
-	return BindableTag;
+	UModioModDependencyUI* BindableModeDependency = NewObject<UModioModDependencyUI>();
+	BindableModeDependency->Underlying = InModDependency;
+	return BindableModeDependency;
 }
 
 TArray<UModioModDependencyUI*> UModioUICommonFunctionLibrary::CreateBindableModDependencyArrayFromArray(const TArray<FModioModDependency>& InModDependencyArray)
 {
-	TArray<UModioModDependencyUI*> OutBoundTags;
-	Algo::Transform(InModDependencyArray, OutBoundTags, &CreateBindableModDependency);
-	return OutBoundTags;
+	TArray<UModioModDependencyUI*> OutBoundModDependencies;
+	Algo::Transform(InModDependencyArray, OutBoundModDependencies, &CreateBindableModDependency);
+	return OutBoundModDependencies;
 }
 
 TArray<UModioModDependencyUI*> UModioUICommonFunctionLibrary::CreateBindableModDependencyArrayFromList(const FModioModDependencyList& InModDependencyList)
 {
-	TArray<UModioModDependencyUI*> OutBoundTags;
-	Algo::Transform(InModDependencyList.InternalList, OutBoundTags, &CreateBindableModDependency);
-	return OutBoundTags;
+	TArray<UModioModDependencyUI*> OutBoundModDependencies;
+	Algo::Transform(InModDependencyList.InternalList, OutBoundModDependencies, &CreateBindableModDependency);
+	return OutBoundModDependencies;
 }
 
 FText UModioUICommonFunctionLibrary::GetModioText(FName StringKey)

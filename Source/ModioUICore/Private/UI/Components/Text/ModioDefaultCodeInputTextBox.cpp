@@ -354,7 +354,6 @@ void UModioDefaultCodeInputTextBox::SetTooltipEnabledState_Implementation(bool b
 void UModioDefaultCodeInputTextBox::ConfigureTooltip_Implementation(const FText& TitleText, const FText& InfoText,
 																	const FText& TagText)
 {
-	ToolTipText = TitleText;
 	SetToolTipText(TitleText);
 }
 

@@ -39,13 +39,14 @@ enum class EModioUIComponentID : uint8
 	CommandMenu,
 	FilterSelectorEntry,
 	ModPropertyCollection,
-	UserDisplay
+	UserDisplay,
+	ObjectSelector
 };
 
 /**
  * @brief Internal-only base type for UI Component metadata
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -60,7 +61,7 @@ struct FModioUIComponentMetadata
 	 * @brief The associated EModioUIComponentID for this component
 	 */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "mod.io|UI|ComponentMetadata")
-	EModioUIComponentID ComponentID;
+	EModioUIComponentID ComponentID = EModioUIComponentID::Button;
 
 	/**
 	 * @brief The display name for this component
@@ -80,7 +81,7 @@ struct FModioUIComponentMetadata
  * @required_interface IModioUIHasTooltipWidget|Allows the widget to have its tooltip externally configured
  * @required_interface IModioUIDataSourceWidget|Allows the widget to data-bind to a UObject*
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIButtonComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -96,7 +97,7 @@ struct FModioUIButtonComponentMetadata : public FModioUIComponentMetadata
  * @component_display_name Text
  * @required_interface IModioUIHasTextWidget|Allows the widget to have its associated text externally configured
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUITextComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -109,11 +110,12 @@ struct FModioUITextComponentMetadata : public FModioUIComponentMetadata
  * @brief The Editable Text component is a widget that gathers user-specified text input. It optionally can be
  * configured with validation rules to use to check the user input for conformity.
  * @component_display_name Editable Text
- * @required_interface IModioUIStringInputWidget|Allows the widget to have its user input retrieved, and the hint text configured
+ * @required_interface IModioUIStringInputWidget|Allows the widget to have its user input retrieved, and the hint text
+ * configured
  * @required_interface IModioUITextValidator|Allows the widget to be externally configured with validation rules, or to
  * be queried for the results of validation
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIEditableTextComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -128,7 +130,7 @@ struct FModioUIEditableTextComponentMetadata : public FModioUIComponentMetadata
  * @required_interface IModioUIImageDisplayWidget|Allows the widget to have its associated image/brush externally
  * configured
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIImageComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -143,7 +145,7 @@ struct FModioUIImageComponentMetadata : public FModioUIComponentMetadata
  * @component_display_name Progress
  * @required_interface IModioUIProgressWidget|Allows the widget to have its associated progress value set and queried
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIProgressBarComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -158,7 +160,7 @@ struct FModioUIProgressBarComponentMetadata : public FModioUIComponentMetadata
  * @required_interface IModioUIHasTextWidget|Allows the widget to have its associated label configured with the text
  * representation of the tag
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUITagComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -175,7 +177,7 @@ struct FModioUITagComponentMetadata : public FModioUIComponentMetadata
  * @required_interface IModioUIObjectListWidget|Allows the set of objects to visualize to be configured externally and
  * allows for callback to be registered for internal widget creation/destruction
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIObjectListComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -191,12 +193,28 @@ struct FModioUIObjectListComponentMetadata : public FModioUIComponentMetadata
  * @required_interface IModioUIObjectListWidget|Allows the set of objects to visualize to be configured externally and
  * allows for callback to be registered for internal widget creation/destruction
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIModListComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
 
 	FModioUIModListComponentMetadata();
+};
+
+/**
+ * @base_component
+ * @brief The Object Selector component is a widget that allows a user to make a selection amongst a set of bound
+ * UObjects. It allows other objects to register for notifications when a user selects an object from the list.
+ * @component_display_name Object Selector
+ * @required_interface IModioUIObjectSelector|Allows the set of objects to select from, to be configured externally, and
+ * allows for callback to be registered for selection changes.
+ */
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
+struct FModioUIObjectSelectorComponentMetadata: public FModioUIComponentMetadata
+{
+	GENERATED_BODY()
+
+	FModioUIObjectSelectorComponentMetadata();
 };
 
 /**
@@ -207,7 +225,7 @@ struct FModioUIModListComponentMetadata : public FModioUIComponentMetadata
  * @required_interface IModioUIObjectSelector|Allows the widget to internally track the selection state of the passed-in
  * enum values, which can be externally queried
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIEnumSelectorComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -229,7 +247,7 @@ struct FModioUIEnumSelectorComponentMetadata : public FModioUIComponentMetadata
  * @required_interface IModioUIDataSourceWidget|Allows the widget to be data-bound to a UObject implementing
  * IModioEnumEntryUIDetails
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIEnumSelectorEntryComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -246,7 +264,7 @@ struct FModioUIEnumSelectorEntryComponentMetadata : public FModioUIComponentMeta
  * @required_interface IModioUIObjectSelector|Allows the selection state of the preset filters to be queried or set
  * externally
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIPresetFilterSelectorComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -268,7 +286,7 @@ struct FModioUIPresetFilterSelectorComponentMetadata : public FModioUIComponentM
  * @required_interface IModioUIDataSourceWidget|Allows the widget to be data-bound to a UObject implementing
  * IModioModFilterUIDetails
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIPresetFilterSelectorEntryComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -283,7 +301,7 @@ struct FModioUIPresetFilterSelectorEntryComponentMetadata : public FModioUICompo
  * @required_interface IModioUICommandMenu|Allows the implementing widget to be externally configured with menu builder
  * delegates, and external triggering of a refresh/rebuild of the set of commands via the menu builders.
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUICommandMenuComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -296,11 +314,11 @@ struct FModioUICommandMenuComponentMetadata : public FModioUIComponentMetadata
  * @brief The Mod Property Collection Visualizer is a widget that visualizes a set of properties for a FModioModInfo
  * object.
  * @component_display_name Mod Property Collection Visualizer
- * @required_interface IModioUIDataSourceWidget|Allows the implementing widget to be externally configured with a UObject
- * that implements IModioModInfoUIDetails, which will be queried by the individual property visualizers this widget
- * manages.
+ * @required_interface IModioUIDataSourceWidget|Allows the implementing widget to be externally configured with a
+ * UObject that implements IModioModInfoUIDetails, which will be queried by the individual property visualizers this
+ * widget manages.
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIModPropertyCollectionVisualizerComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -315,10 +333,10 @@ struct FModioUIModPropertyCollectionVisualizerComponentMetadata : public FModioU
  * @component_display_name Mod Tile
  * @required_interface IUserObjectListEntry|Required to allow Mod Tile components to be used as visualization widgets in
  * Mod List View and Mod Tile View components
- * @required_interface IModioUIDataSourceWidget|Allows the implementing widget to be externally configured with a UObject
- * that implements IModioModInfoUIDetails, which can then be displayed on this tile.
+ * @required_interface IModioUIDataSourceWidget|Allows the implementing widget to be externally configured with a
+ * UObject that implements IModioModInfoUIDetails, which can then be displayed on this tile.
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIModTileComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()
@@ -330,10 +348,10 @@ struct FModioUIModTileComponentMetadata : public FModioUIComponentMetadata
  * @base_component
  * @brief The User Display component is a widget that visualizes an FModioUser object.
  * @component_display_name User Display
- * @required_interface IModioUIDataSourceWidget|Allows the implementing widget to be externally configured with a UObject
- * that implements IModioUserUIDetails, which will be queried for properties this widget needs to display.
+ * @required_interface IModioUIDataSourceWidget|Allows the implementing widget to be externally configured with a
+ * UObject that implements IModioUserUIDetails, which will be queried for properties this widget needs to display.
  */
-USTRUCT(BlueprintType, Meta=(NoClassDoc))
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
 struct FModioUIUserDisplayComponentMetadata : public FModioUIComponentMetadata
 {
 	GENERATED_BODY()

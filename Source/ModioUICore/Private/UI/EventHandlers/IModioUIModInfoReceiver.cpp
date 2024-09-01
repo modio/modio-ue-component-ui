@@ -9,8 +9,6 @@
  */
 
 #include "UI/EventHandlers/IModioUIModInfoReceiver.h"
-#include "ModioUISubsystem.h"
-
 
 void IModioUIModInfoReceiver::ModInfoRequestHandler(FModioModID ModID, FModioErrorCode ErrorCode,
 													TOptional<FModioModInfo> Info)
@@ -38,17 +36,18 @@ void IModioUIModInfoReceiver::ModInfoRequestHandlerK2Helper(FModioModID ModID, F
 {
 	if (ImplementingObject.IsValid())
 	{
-		//Will return nullptr if the object does not implement the interface through C++
+		// Will return nullptr if the object does not implement the interface through C++
 		void* RawInterfacePtr = ImplementingObject->GetNativeInterfaceAddress(UModioUIModInfoReceiver::StaticClass());
 		if (RawInterfacePtr != nullptr)
 		{
 			IModioUIModInfoReceiver* ConcretePtr = static_cast<IModioUIModInfoReceiver*>(RawInterfacePtr);
-			//Invoke the C++ implementation, this will bubble up to blueprint if need be
+			// Invoke the C++ implementation, this will bubble up to blueprint if need be
 			ConcretePtr->ModInfoRequestHandler(ModID, ErrorCode, Info);
 		}
 		else
 		{
-			// the interface wasn't implemented in C++ anywhere so go straight to blueprint, this will silently and safely fail if the implementing class doesn't implement the interface
+			// the interface wasn't implemented in C++ anywhere so go straight to blueprint, this will silently and
+			// safely fail if the implementing class doesn't implement the interface
 			Execute_OnModInfoRequestCompleted(ImplementingObject.Get(), ModID, ErrorCode, FModioOptionalModInfo {Info});
 		}
 	}
@@ -60,8 +59,7 @@ void IModioUIModInfoReceiver::ListAllModsRequestHandlerK2Helper(FString RequestI
 {
 	if (ImplementingObject.IsValid())
 	{
-		void* RawInterfacePtr =
-			ImplementingObject->GetNativeInterfaceAddress(UModioUIModInfoReceiver::StaticClass());
+		void* RawInterfacePtr = ImplementingObject->GetNativeInterfaceAddress(UModioUIModInfoReceiver::StaticClass());
 		if (RawInterfacePtr != nullptr)
 		{
 			IModioUIModInfoReceiver* ConcretePtr = static_cast<IModioUIModInfoReceiver*>(RawInterfacePtr);
@@ -99,7 +97,7 @@ void UModioUIModInfoReceiverLibrary::RegisterModInfoReceiver(UObject* ObjectToRe
 }
 
 void UModioUIModInfoReceiverLibrary::DeregisterModInfoReceiver(UObject* ObjectToDeregister,
-															 EModioUIModInfoEventType EventType)
+															   EModioUIModInfoEventType EventType)
 {
 	if (ObjectToDeregister && ObjectToDeregister->Implements<UModioUIModInfoReceiver>())
 	{

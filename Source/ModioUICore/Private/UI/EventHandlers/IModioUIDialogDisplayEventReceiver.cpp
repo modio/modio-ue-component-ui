@@ -12,7 +12,8 @@
 #include "Engine/Engine.h"
 #include "ModioUISubsystem.h"
 
-void IModioUIDialogDisplayEventReceiver::DialogDisplayEventHandler(EModioUIDialogType DialogRequested, UObject* DataSource)
+void IModioUIDialogDisplayEventReceiver::DialogDisplayEventHandler(EModioUIDialogType DialogRequested,
+																   UObject* DataSource)
 {
 	bRoutedDialogDisplayEvent = false;
 	NativeOnDialogDisplayEvent(DialogRequested, DataSource);
@@ -21,8 +22,9 @@ void IModioUIDialogDisplayEventReceiver::DialogDisplayEventHandler(EModioUIDialo
 				"implementation in order to route notifications to blueprint."));
 }
 
-void IModioUIDialogDisplayEventReceiver::DialogDisplayEventHandlerK2Helper(
-	EModioUIDialogType DialogRequested, UObject* DataSource, TWeakObjectPtr<UObject> ImplementingObject)
+void IModioUIDialogDisplayEventReceiver::DialogDisplayEventHandlerK2Helper(EModioUIDialogType DialogRequested,
+																		   UObject* DataSource,
+																		   TWeakObjectPtr<UObject> ImplementingObject)
 {
 	if (ImplementingObject.IsValid())
 	{
@@ -45,13 +47,14 @@ void IModioUIDialogDisplayEventReceiver::DialogDisplayEventHandlerK2Helper(
 	}
 }
 
-void IModioUIDialogDisplayEventReceiver::NativeOnDialogDisplayEvent(EModioUIDialogType DialogRequested, UObject* DataSource)
+void IModioUIDialogDisplayEventReceiver::NativeOnDialogDisplayEvent(EModioUIDialogType DialogRequested,
+																	UObject* DataSource)
 {
 	bRoutedDialogDisplayEvent = true;
-	Execute_OnDialogDisplayEvent(Cast<UObject>(this),DialogRequested, DataSource);
+	Execute_OnDialogDisplayEvent(Cast<UObject>(this), DialogRequested, DataSource);
 }
 
-void UModioUIDialogDisplayEventReceiverLibrary::RegisterDialogDisplayEventReceiver(UObject* ObjectToRegister) 
+void UModioUIDialogDisplayEventReceiverLibrary::RegisterDialogDisplayEventReceiver(UObject* ObjectToRegister)
 {
 	if (ObjectToRegister && ObjectToRegister->Implements<UModioUIDialogDisplayEventReceiver>())
 	{
@@ -59,7 +62,7 @@ void UModioUIDialogDisplayEventReceiverLibrary::RegisterDialogDisplayEventReceiv
 	}
 }
 
-void UModioUIDialogDisplayEventReceiverLibrary::DeregisterDialogDisplayEventReceiver(UObject* ObjectToDeregister) 
+void UModioUIDialogDisplayEventReceiverLibrary::DeregisterDialogDisplayEventReceiver(UObject* ObjectToDeregister)
 {
 	if (ObjectToDeregister && ObjectToDeregister->Implements<UModioUIDialogDisplayEventReceiver>())
 	{

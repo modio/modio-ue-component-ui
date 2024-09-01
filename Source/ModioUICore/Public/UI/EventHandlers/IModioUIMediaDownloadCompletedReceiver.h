@@ -108,6 +108,30 @@ protected:
 		}
 	}
 
+	template<typename ImplementingClass>
+	void Deregister(EModioUIMediaDownloadEventType DownloadTypes)
+	{
+		UModioUISubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
+		if (Subsystem)
+		{
+			if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModGalleryImages))
+			{
+				Subsystem->DeregisterEventHandler<&IModioUIMediaDownloadCompletedReceiver::GalleryImageDownloadHandler>(
+					Subsystem->OnModGalleryImageDownloadCompleted, *Cast<ImplementingClass>(this));
+			}
+			if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModLogo))
+			{
+				Subsystem->DeregisterEventHandler<&IModioUIMediaDownloadCompletedReceiver::GalleryImageDownloadHandler>(
+					Subsystem->OnModLogoDownloadCompleted, *Cast<ImplementingClass>(this));
+			}
+			if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModCreatorAvatarImage))
+			{
+				Subsystem->DeregisterEventHandler<&IModioUIMediaDownloadCompletedReceiver::GalleryImageDownloadHandler>(
+					Subsystem->OnModCreatorAvatarDownloadCompleted, *Cast<ImplementingClass>(this));
+			}
+		}
+	}
+
 	static void RegisterFromK2(UObject* ObjectToRegister, EModioUIMediaDownloadEventType DownloadTypes)
 	{
 		if (ObjectToRegister)
@@ -120,15 +144,13 @@ protected:
 					Subsystem->RegisterEventHandlerFromK2(
 						Subsystem->OnModGalleryImageDownloadCompleted,
 						&IModioUIMediaDownloadCompletedReceiver::GalleryImageDownloadHandlerK2Helper,
-						RegistrationMapGallery,
-						TWeakObjectPtr<>(ObjectToRegister));
+						RegistrationMapGallery, TWeakObjectPtr<>(ObjectToRegister));
 				}
 				if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModLogo))
 				{
 					Subsystem->RegisterEventHandlerFromK2(
 						Subsystem->OnModLogoDownloadCompleted,
-						&IModioUIMediaDownloadCompletedReceiver::ModLogoDownloadHandlerK2Helper,
-						RegistrationMapLogo,
+						&IModioUIMediaDownloadCompletedReceiver::ModLogoDownloadHandlerK2Helper, RegistrationMapLogo,
 						TWeakObjectPtr<>(ObjectToRegister));
 				}
 				if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModCreatorAvatarImage))
@@ -136,8 +158,7 @@ protected:
 					Subsystem->RegisterEventHandlerFromK2(
 						Subsystem->OnModCreatorAvatarDownloadCompleted,
 						&IModioUIMediaDownloadCompletedReceiver::CreatorAvatarDownloadHandlerK2Helper,
-						RegistrationMapAvatar,
-						TWeakObjectPtr<>(ObjectToRegister));
+						RegistrationMapAvatar, TWeakObjectPtr<>(ObjectToRegister));
 				}
 			}
 		}
@@ -155,15 +176,13 @@ protected:
 					Subsystem->DeregisterEventHandlerFromK2(
 						Subsystem->OnModGalleryImageDownloadCompleted,
 						&IModioUIMediaDownloadCompletedReceiver::GalleryImageDownloadHandlerK2Helper,
-						RegistrationMapGallery,
-						TWeakObjectPtr<>(ObjectToDeregister));
+						RegistrationMapGallery, TWeakObjectPtr<>(ObjectToDeregister));
 				}
 				if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModLogo))
 				{
 					Subsystem->DeregisterEventHandlerFromK2(
 						Subsystem->OnModLogoDownloadCompleted,
-						&IModioUIMediaDownloadCompletedReceiver::ModLogoDownloadHandlerK2Helper,
-						RegistrationMapLogo,
+						&IModioUIMediaDownloadCompletedReceiver::ModLogoDownloadHandlerK2Helper, RegistrationMapLogo,
 						TWeakObjectPtr<>(ObjectToDeregister));
 				}
 				if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModCreatorAvatarImage))
@@ -171,8 +190,7 @@ protected:
 					Subsystem->DeregisterEventHandlerFromK2(
 						Subsystem->OnModCreatorAvatarDownloadCompleted,
 						&IModioUIMediaDownloadCompletedReceiver::CreatorAvatarDownloadHandlerK2Helper,
-						RegistrationMapAvatar,
-						TWeakObjectPtr<>(ObjectToDeregister));
+						RegistrationMapAvatar, TWeakObjectPtr<>(ObjectToDeregister));
 				}
 			}
 		}
@@ -216,5 +234,5 @@ class MODIOUICORE_API UModioUIMediaDownloadCompletedReceiverLibrary : public UBl
 	/// @param DownloadTypes Which type of event to register for
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Event Handlers")
 	static void DeregisterMediaDownloadCompletedReceiver(UObject* ObjectToDeregister,
-													   EModioUIMediaDownloadEventType DownloadTypes);
+														 EModioUIMediaDownloadEventType DownloadTypes);
 };
