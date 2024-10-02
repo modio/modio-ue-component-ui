@@ -23,9 +23,42 @@ public class ModioUIEditor : ModuleRules
 		bEnforceIWYU = true;
 #endif
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "UnrealEd", "Modio", "ModioUI","ModioUICore", "DetailCustomizations", "PropertyEditor", "PropertyPath" });
+        PublicDependencyModuleNames.AddRange(new string[]
+        {
+	        "Core",
+	        "CoreUObject",
+	        "Engine",
+	        "UnrealEd",
+	        "Modio",
+	        "ModioUI",
+	        "ModioUICore",
+	        "DetailCustomizations",
+	        "PropertyEditor",
+	        "PropertyPath",
+	        "UMGEditor",
+	        "MainFrame",
+	        "UnrealEd",
+	        "UMG",
+	        "Blutility",
+	        "DesktopPlatform",
+	        "AssetTools",
+	        "ModioEditor",
+			"Settings"
 
-        PrivateDependencyModuleNames.AddRange(new string[] { "UMG", "Slate", "SlateCore", "UnrealEd", "AssetTools", "AssetRegistry", "AppFramework", "InputCore" });
+        });
+
+        PrivateDependencyModuleNames.AddRange(new string[]
+        {
+	        "UMG",
+	        "Slate",
+	        "SlateCore",
+	        "UnrealEd",
+	        "AssetTools",
+	        "AssetRegistry",
+	        "AppFramework",
+	        "InputCore",
+	        "SharedSettingsWidgets"
+        });
 
         PublicIncludePaths.AddRange(new string[] { Path.Combine(ModuleDirectory, "Public") });
         PrivateIncludePaths.AddRange(new string[] { Path.Combine(ModuleDirectory, "Private")

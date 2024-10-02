@@ -8,8 +8,8 @@
  *
  */
 
-
 #include "Core/LinearColorRef.h"
+#include "Core/ModioAssetPaths.h"
 
 
 FLinearColorRefColorChangeDelegate FLinearColorRef::ColorChangeHandlers;
@@ -17,8 +17,7 @@ FLinearColorRefColorChangeDelegate FLinearColorRef::ColorChangeHandlers;
 FLinearColor ULinearColorRefLibrary::Resolve(const FLinearColorRef& Target, bool& bResolved)
 {
 	bResolved = false;
-	FSoftObjectPath DefaultColorTablePath =
-		FSoftObjectPath("/ModioComponentUI/UI/Data/DT_UIColors.DT_UIColors");
+	FSoftObjectPath DefaultColorTablePath = ModioUI::AssetPaths::GetUiColorsTablePath();
 	UDataTable* DefaultColorTable = Cast<UDataTable>(DefaultColorTablePath.TryLoad());
 	if (DefaultColorTable)
 	{
@@ -67,8 +66,7 @@ FLinearColor ULinearColorRefLibrary::ResolveOverrideAsExec(const FLinearColorRef
 TArray<FName> ULinearColorRefLibrary::GetValidColorKeys()
 {
 	TArray<FName> ColorKeys;
-	FSoftObjectPath DefaultColorTablePath =
-		FSoftObjectPath("/ModioComponentUI/UI/Data/DT_UIColors.DT_UIColors");
+	FSoftObjectPath DefaultColorTablePath = ModioUI::AssetPaths::GetUiColorsTablePath();
 	UDataTable* DefaultColorTable = Cast<UDataTable>(DefaultColorTablePath.TryLoad());
 	if (DefaultColorTable)
 	{

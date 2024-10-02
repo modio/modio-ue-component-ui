@@ -9,6 +9,8 @@
  */
 
 #include "UI/Interfaces/IModioUICommandMenu.h"
+#include "Core/ModioAssetPaths.h"
+
 #include "Brushes/SlateNoResource.h"
 #include "Engine/DataTable.h"
 
@@ -16,7 +18,7 @@ const FModioUICommandAssetEntry& UModioUICommandLibrary::GetCommandAssetEntry(co
 {
 	static const FModioUICommandAssetEntry DefaultEntry {};
 	bResolved = false;
-	FSoftObjectPath DefaultCommandTablePath = FSoftObjectPath("/ModioComponentUI/UI/Data/DT_UICommands.DT_UICommands");
+	FSoftObjectPath DefaultCommandTablePath = ModioUI::AssetPaths::GetUiCommandsTablePath();
 	UDataTable* DefaultCommandTable = Cast<UDataTable>(DefaultCommandTablePath.TryLoad());
 	if (DefaultCommandTable)
 	{

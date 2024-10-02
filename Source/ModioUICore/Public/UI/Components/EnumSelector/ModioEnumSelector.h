@@ -30,7 +30,11 @@ class MODIOUICORE_API UModioEnumSelector : public UModioUIComponentBase, public 
 protected:
 	IMPLEMENT_MODIO_WIDGET_GETTER_VALIDATION(GetSelectorMenuWidget(), GetMenuToggleClickableWidget());
 
-	UPROPERTY(BlueprintAssignable, meta = (BlueprintProtected))
+	/**
+	 * @brief Passes `this` as SelectedValue
+	 * @default_component_event FModioOnObjectSelectionChanged
+	 */
+	UPROPERTY()
 	FModioOnObjectSelectionChangedMulticast OnSelectionChanged;
 
 	/**

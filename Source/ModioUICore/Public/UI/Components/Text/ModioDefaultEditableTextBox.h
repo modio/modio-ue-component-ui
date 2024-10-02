@@ -13,6 +13,7 @@
 #include "Components/EditableTextBox.h"
 #include "CoreMinimal.h"
 #include "UI/Components/ComponentHelpers.h"
+#include "UI/Interfaces/IModioFocusableWidget.h"
 #include "UI/Interfaces/IModioUIHasTooltipWidget.h"
 #include "UI/Interfaces/IModioUIStringInputWidget.h"
 #include "UI/Interfaces/IModioUITextValidator.h"
@@ -45,9 +46,10 @@ public:
  */
 UCLASS(meta = (ModioWidget))
 class MODIOUICORE_API UModioDefaultEditableTextBox : public UEditableTextBox,
-													 public IModioUIStringInputWidget,
-													 public IModioUITextValidator,
-													 public IModioUIHasTooltipWidget
+                                                     public IModioUIStringInputWidget,
+                                                     public IModioUITextValidator,
+                                                     public IModioUIHasTooltipWidget,
+                                                     public IModioFocusableWidget
 {
 	GENERATED_BODY()
 
@@ -66,13 +68,44 @@ protected:
 	virtual FString NativeGatherInput() override;
 	virtual void NativeSetHintText(FText InHintText) override;
 	virtual void NativeSetInput(const FString& Input) override;
+	virtual void NativeAddTextCommittedHandler(const FModioOnTextCommitted& Handler) override;
+	virtual void NativeRemoveTextCommittedHandler(const FModioOnTextCommitted& Handler) override;
+	virtual void NativeAddTextChangedHandler(const FModioOnTextChanged& Handler) override;
+	virtual void NativeRemoveTextChangedHandler(const FModioOnTextChanged& Handler) override;
 	//~ End IModioUIStringInputWidget Interface
+
+	/**
+	 * @brief Passes `this` as Context, `Text` as the new text, `CommitMethod` as the method used to commit the text
+	 * @default_component_event FModioOnTextCommitted
+	 */
+	UPROPERTY()
+	FModioOnTextCommittedMulticast OnModioTextCommitted;
+
+	/**
+	 * @brief Passes `this` as Context, `Text` as the new text
+	 * @default_component_event FModioOnTextChanged
+	 */
+	UPROPERTY()
+	FModioOnTextChangedMulticast OnModioTextChanged;
 
 	//~ Begin IModioUIHasTooltipWidget Interface
 	virtual void SetTooltipEnabledState_Implementation(bool bNewEnabledState) override;
 	virtual void ConfigureTooltip_Implementation(const FText& TitleText, const FText& InfoText,
 												 const FText& TagText) override;
 	//~ End IModioUIHasTooltipWidget Interface
+
+	//~ Begin IModioFocusableWidget Interface
+	virtual UWidget* NativeGetWidgetToFocus(EUINavigation NavigationType) const override;
+	virtual void NativeAddFocusPathChangedHandler(const FModioOnFocusPathChanged& Handler) override;
+	virtual void NativeRemoveFocusPathChangedHandler(const FModioOnFocusPathChanged& Handler) override;
+	//~ End IModioFocusableWidget Interface
+
+	/**
+	 * @brief Passes `this` as FocusContext, `InFocusEvent` as the focus event, `bIsFocused` as the new focus state
+	 * @default_component_event FModioOnFocusPathChanged
+	 */
+	UPROPERTY()
+	FModioOnFocusPathChangedMulticast OnModioFocusPathChanged;
 
 	//~ Begin UWidget Interface
 	virtual TSharedRef<SWidget> RebuildWidget() override;

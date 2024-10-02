@@ -10,8 +10,10 @@
 
 #pragma once
 
+#include "Widgets/SWindow.h"
+#include "Templates/SharedPointer.h"
+
 #include "Modules/ModuleManager.h"
-#include "Logging/LogMacros.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(ModioUIEditor, All, All);
 
@@ -22,4 +24,5 @@ class FModioUIEditor : public IModuleInterface
 
 	/* Called when the module is unloaded */
 	virtual void ShutdownModule() override;
+
 };

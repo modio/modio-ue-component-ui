@@ -35,7 +35,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "mod.io|UI|TagSelectorMenu")
 	bool bShowLockedTags = true;
 
-	UPROPERTY(BlueprintAssignable, meta = (BlueprintProtected))
+	/**
+	 * @default_component_event FModioOnTagSelectionChanged
+	 */
+	UPROPERTY()
 	FModioOnTagSelectionChangedMulticast OnTagSelectionChanged;
 
 	UPROPERTY(Transient, meta = (BlueprintProtected))

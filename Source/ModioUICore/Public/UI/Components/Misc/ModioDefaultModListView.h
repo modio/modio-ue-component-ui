@@ -73,6 +73,7 @@ protected:
 	virtual bool GetMultiSelectionAllowed_Implementation() override;
 	virtual void SetListEntryWidgetClass_Implementation(TSubclassOf<UWidget> InNewEntryClass) override;
 	virtual int32 GetIndexForValue_Implementation(UObject* Value) const override;
+	virtual UUserWidget* GetWidgetForValue_Implementation(UObject* Value) const override;
 	//~ End IModioUIObjectSelector Interface
 
 	virtual UUserWidget& OnGenerateEntryWidgetInternal(UObject* Item, TSubclassOf<UUserWidget> DesiredEntryClass,

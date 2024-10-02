@@ -38,6 +38,26 @@ void UModioDefaultMultiLineEditableTextBox::NativeSetInput(const FString& Input)
 	SetText(FText::FromString(Input));
 }
 
+void UModioDefaultMultiLineEditableTextBox::NativeAddTextCommittedHandler(const FModioOnTextCommitted& Handler)
+{
+	OnModioTextCommitted.AddUnique(Handler);
+}
+
+void UModioDefaultMultiLineEditableTextBox::NativeRemoveTextCommittedHandler(const FModioOnTextCommitted& Handler)
+{
+	OnModioTextCommitted.Remove(Handler);
+}
+
+void UModioDefaultMultiLineEditableTextBox::NativeAddTextChangedHandler(const FModioOnTextChanged& Handler)
+{
+	OnModioTextChanged.AddUnique(Handler);
+}
+
+void UModioDefaultMultiLineEditableTextBox::NativeRemoveTextChangedHandler(const FModioOnTextChanged& Handler)
+{
+	OnModioTextChanged.Remove(Handler);
+}
+
 void UModioDefaultMultiLineEditableTextBox::SetTooltipEnabledState_Implementation(bool bNewEnabledState)
 {
 	SetToolTipText(bNewEnabledState ? GetToolTipText() : FText::GetEmpty());
@@ -60,8 +80,16 @@ TSharedRef<SWidget> UModioDefaultMultiLineEditableTextBox::RebuildWidget()
 		.ClearKeyboardFocusOnCommit(ClearKeyboardFocusOnCommit)
 		.SelectAllTextOnCommit(SelectAllTextOnCommit)
 		.AllowContextMenu(AllowContextMenu)
-		.OnTextChanged(BIND_UOBJECT_DELEGATE(FOnTextChanged, HandleOnTextChanged))
-		.OnTextCommitted(BIND_UOBJECT_DELEGATE(FOnTextCommitted, HandleOnTextCommitted))
+		.OnTextChanged(FOnTextChanged::CreateWeakLambda(this, [this](const FText& InText)
+		{
+			HandleOnTextChanged(InText);
+			OnModioTextChanged.Broadcast(this, InText);
+		}))
+		.OnTextCommitted(FOnTextCommitted::CreateWeakLambda(this, [this](const FText& InText, ETextCommit::Type CommitMethod)
+		{
+			HandleOnTextCommitted(InText, CommitMethod);
+			OnModioTextCommitted.Broadcast(this, InText, CommitMethod);
+		}))
 		//.VirtualKeyboardType(EVirtualKeyboardType::AsKeyboardType(KeyboardType.GetValue()))
 		.VirtualKeyboardOptions(VirtualKeyboardOptions)
 		.VirtualKeyboardTrigger(VirtualKeyboardTrigger)

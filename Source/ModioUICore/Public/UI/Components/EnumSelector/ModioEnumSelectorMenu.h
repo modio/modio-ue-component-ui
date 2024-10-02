@@ -28,7 +28,11 @@ class MODIOUICORE_API UModioEnumSelectorMenu : public UModioUIComponentBase, pub
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(BlueprintAssignable, meta = (BlueprintProtected))
+	/**
+	 * @brief Passes `UObject*` as SelectedValue
+	 * @default_component_event FModioOnObjectSelectionChanged
+	 */
+	UPROPERTY()
 	FModioOnObjectSelectionChangedMulticast OnSelectionChanged;
 
 	/**

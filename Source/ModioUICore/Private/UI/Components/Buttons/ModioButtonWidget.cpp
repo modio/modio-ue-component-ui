@@ -12,7 +12,6 @@
 
 #include "Blueprint/WidgetTree.h"
 #include "CommonActionWidget.h"
-#include "Components/NamedSlot.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Misc/EngineVersionComparison.h"
 #include "Widgets/Input/SButton.h"
@@ -20,7 +19,7 @@
 
 void UModioButtonWidget::SetCommonUIButtonFocus()
 {
-#if UE_VERSION_OLDER_THAN(5, 3, 0)
+#if UE_VERSION_OLDER_THAN(5, 2, 0)
 	if (bIsFocusable)
 #else
 	if (IsFocusable())
@@ -31,7 +30,7 @@ void UModioButtonWidget::SetCommonUIButtonFocus()
 			if (SlateButton->SupportsKeyboardFocus())
 			{
 				FSlateApplication::Get().SetKeyboardFocus(SlateButton, EFocusCause::Mouse);
-				UE_LOG(ModioUICore, Log, TEXT("Set focus on button '%s' (extended way)"), *GetName());
+				UE_LOG(ModioUICore, Verbose, TEXT("Set focus on button '%s' (extended way)"), *GetName());
 			}
 			else
 			{
@@ -170,6 +169,21 @@ void UModioButtonWidget::RemoveActionCompletedHandler_Implementation(const FModi
 	OnModioActionCompleted.Clear();
 }
 
+UWidget* UModioButtonWidget::NativeGetWidgetToFocus(EUINavigation NavigationType) const
+{
+	return const_cast<UModioButtonWidget*>(this);
+}
+
+void UModioButtonWidget::NativeAddFocusPathChangedHandler(const FModioOnFocusPathChanged& Handler)
+{
+	OnModioFocusPathChanged.AddUnique(Handler);
+}
+
+void UModioButtonWidget::NativeRemoveFocusPathChangedHandler(const FModioOnFocusPathChanged& Handler)
+{
+	OnModioFocusPathChanged.Remove(Handler);
+}
+
 void UModioButtonWidget::NativeOnClicked()
 {
 	Super::NativeOnClicked();
@@ -216,6 +230,18 @@ void UModioButtonWidget::NativeOnUnhovered()
 		Super::NativeOnUnhovered();
 		OnHoverStateChanged.Broadcast(this, false);
 	}
+}
+
+void UModioButtonWidget::NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent)
+{
+	Super::NativeOnAddedToFocusPath(InFocusEvent);
+	OnModioFocusPathChanged.Broadcast(this, InFocusEvent, true);
+}
+
+void UModioButtonWidget::NativeOnRemovedFromFocusPath(const FFocusEvent& InFocusEvent)
+{
+	Super::NativeOnRemovedFromFocusPath(InFocusEvent);
+	OnModioFocusPathChanged.Broadcast(this, InFocusEvent, false);
 }
 
 void UModioButtonWidget::NativeOnActionComplete()

@@ -52,15 +52,17 @@ protected:
 	void NotifyClicked();
 
 	/**
-	 * @brief Delegate to call when the selection state of this entry changes (called via NotifySelectionChanged)
+	 * @brief Passes `this` as SelectionContext, `bNewSelectedState` is new selection state
+	 * @default_component_event FModioSelectableOnSelectionChanged
 	 */
-	UPROPERTY(BlueprintAssignable, meta = (BlueprintProtected))
+	UPROPERTY()
 	FModioSelectableOnSelectionChangedMulticast OnSelectionStateChanged;
 	
 	/**
-	 * @brief Delegate to call when this entry is clicked (called via NotifyClicked)
+	 * @brief Passes `this` as ClickContext
+	 * @default_component_event FModioClickableOnClicked
 	 */
-	UPROPERTY(BlueprintAssignable, meta = (BlueprintProtected))
+	UPROPERTY()
 	FModioClickableOnClickedMulticast OnClicked;
 
 	//~ Begin UUserWidget Interface

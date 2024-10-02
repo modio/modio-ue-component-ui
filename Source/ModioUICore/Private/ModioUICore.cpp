@@ -13,8 +13,12 @@
 #include "Engine/Engine.h"
 #include "ModioErrorCondition.h"
 #include "ModioSubsystem.h"
+#include "ModioUISettings.h"
 #include "ModioUISubsystem.h"
 
+#include "ISettingsModule.h"
+#include "Modules/ModuleManager.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
 
 DEFINE_LOG_CATEGORY(ModioUICore);
 
@@ -22,6 +26,14 @@ DEFINE_LOG_CATEGORY(ModioUICore);
 
 void FModioUICore::StartupModule()
 {
+	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+	{
+		SettingsModule->RegisterSettings(
+			"Project", "Plugins", "mod.io UI", LOCTEXT("UISettingsName", "mod.io UI"),
+			LOCTEXT("UISettingsDescription",
+					"Configure the mod.io Component UI plugin's global settings."),
+			GetMutableDefault<UModioUISettings>());
+	}
 
 	ConsoleCommands.Add(IConsoleManager::Get().RegisterConsoleCommand(
 		TEXT("Modio.RequestEmailAuthCode"),
@@ -47,6 +59,11 @@ void FModioUICore::ShutdownModule()
 	for (IConsoleCommand* Command : ConsoleCommands)
 	{
 		IConsoleManager::Get().UnregisterConsoleObject(Command);
+	}
+
+	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
+	{
+		SettingsModule->UnregisterSettings("Project", "Plugins", "mod.io UI");
 	}
 }
 

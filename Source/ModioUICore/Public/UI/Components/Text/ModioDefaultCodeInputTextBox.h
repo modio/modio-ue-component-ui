@@ -173,6 +173,11 @@ public:
 	 */
 	FOnCodeSubmit OnCodeSubmit;
 
+	/**
+	 * Called when the text in the input field changes
+	 */
+	FOnTextChanged OnTextChanged;
+
 	SLATE_BEGIN_ARGS(SModioDefaultCodeInputTextBox) : _NumChildren(5) {}
 
 	/** The style of the code input text box */
@@ -183,6 +188,8 @@ public:
 
 	/** Called when the user submits the code */
 	SLATE_EVENT(FOnCodeSubmit, OnCodeSubmit)
+
+	SLATE_EVENT(FOnTextChanged, OnTextChanged)
 
 	/** Text flow direction (how text is laid out) */
 	SLATE_ARGUMENT(TOptional<ETextFlowDirection>, TextFlowDirection)
@@ -275,13 +282,31 @@ public:
 			  meta = (BlueprintProtected))
 	EVirtualKeyboardDismissAction VirtualKeyboardDismissAction;
 
-public:
+protected:
 	//~ Begin IModioUIStringInputWidget Interface
 	virtual FString NativeGatherInput() override;
 	virtual void NativeSetHintText(FText InHintText) override;
 	virtual void NativeSetInput(const FString& Input) override;
+	virtual void NativeAddTextCommittedHandler(const FModioOnTextCommitted& Handler) override;
+	virtual void NativeRemoveTextCommittedHandler(const FModioOnTextCommitted& Handler) override;
+	virtual void NativeAddTextChangedHandler(const FModioOnTextChanged& Handler) override;
+	virtual void NativeRemoveTextChangedHandler(const FModioOnTextChanged& Handler) override;
 	//~ End IModioUIStringInputWidget Interface
 
+	/**
+	 * @brief Passes `this` as Context, `Text` as the new text, `CommitMethod` as the method used to commit the text
+	 * @default_component_event FModioOnTextCommitted
+	 */
+	UPROPERTY()
+	FModioOnTextCommittedMulticast OnModioTextCommitted;
+
+	/**
+	 * @brief Passes `this` as Context, `Text` as the new text
+	 * @default_component_event FModioOnTextChanged
+	 */
+	UPROPERTY()
+	FModioOnTextChangedMulticast OnModioTextChanged;
+	
 	//~ Begin IModioUITextValidator Interface
 	virtual void GetTextValidationRules_Implementation(TArray<FModioTextValidationRule>& Rules) override;
 	virtual void SetValidationError_Implementation(const FText& ErrorText) override;

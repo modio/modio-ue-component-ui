@@ -10,6 +10,8 @@
 
 #include "UI/Components/ModTile/ModioDefaultModTile.h"
 
+#include "Engine/GameInstance.h"
+#include "Input/CommonUIActionRouterBase.h"
 #include "ModioSubsystem.h"
 #include "UI/Interfaces/IModioModInfoUIDetails.h"
 #include "UI/Interfaces/IModioUICommandMenu.h"
@@ -68,6 +70,20 @@ void UModioDefaultModTile::NativeOnItemSelectionChanged(bool bIsSelected)
 		bSelected = bIsSelected;
 		// Emits our external selection event
 		OnSelected.Broadcast(this, bIsSelected);
+
+		// During the selection change, some Common UI-specific actions may need to be updated
+		// This doesn't lead to performance issues, as it's only called when the selection state changes
+		if (const UGameInstance* GameInstance = GetGameInstance())
+		{
+			for (const ULocalPlayer* LocalPlayer : GameInstance->GetLocalPlayers())
+			{
+				if (const UCommonUIActionRouterBase* ActionRouter =
+						ULocalPlayer::GetSubsystem<UCommonUIActionRouterBase>(LocalPlayer))
+				{
+					ActionRouter->OnBoundActionsUpdated().Broadcast();
+				}
+			}
+		}
 	}
 }
 
@@ -129,10 +145,10 @@ void UModioDefaultModTile::PopulateExtraOptionsCommands_Implementation(TArray<UO
 					{
 						UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>();
 						if (Subsystem &&
-						    (ModInfo.Price == 0 || Subsystem->QueryUserPurchasedMods().Contains(ModInfo.ModId)))
+							(ModInfo.Price == 0 || Subsystem->QueryUserPurchasedMods().Contains(ModInfo.ModId)))
 						{
-							UModioUIManageModSubscriptionCommand* ManageSubCommand = NewObject<
-								UModioUIManageModSubscriptionCommand>();
+							UModioUIManageModSubscriptionCommand* ManageSubCommand =
+								NewObject<UModioUIManageModSubscriptionCommand>();
 							IModioUICommandObject::Execute_SetDataSource(ManageSubCommand, CommandContextDataSource);
 							Commands.Add(ManageSubCommand);
 						}

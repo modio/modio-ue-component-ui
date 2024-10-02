@@ -9,6 +9,7 @@
  */
 
 #include "UI/Components/Text/ModioDefaultCodeInputTextBox.h"
+#include "Core/ModioAssetPaths.h"
 
 #include "Brushes/SlateBorderBrush.h"
 #include "Framework/Application/SlateApplication.h"
@@ -31,10 +32,8 @@ FModioDefaultCodeInputTextBoxStyle::FModioDefaultCodeInputTextBoxStyle()
 	SetShadowColorAndOpacity(FLinearColor::Transparent);
 	TransformPolicy = ETextTransformPolicy::None;
 
-	UObject* UnderlineMaterial =
-		FSoftObjectPath(TEXT("/ModioComponentUI/UI/Materials/M_UI_Underline.M_UI_Underline")).TryLoad();
-	UObject* FakeKaretMaterial =
-		FSoftObjectPath(TEXT("/ModioComponentUI/UI/Materials/M_UI_FakeCaret.M_UI_FakeCaret")).TryLoad();
+	UObject* UnderlineMaterial = ModioUI::AssetPaths::GetUnderlineMaterialPath().TryLoad();
+	UObject* FakeCaretMaterial = ModioUI::AssetPaths::GetFakeCaretMaterialPath().TryLoad();
 
 	if (UnderlineMaterial)
 	{
@@ -42,9 +41,9 @@ FModioDefaultCodeInputTextBoxStyle::FModioDefaultCodeInputTextBoxStyle()
 		CharacterBorderBrushFocused.SetResourceObject(UnderlineMaterial);
 	}
 
-	if (FakeKaretMaterial)
+	if (FakeCaretMaterial)
 	{
-		FakeCaretBrush.SetResourceObject(FakeKaretMaterial);
+		FakeCaretBrush.SetResourceObject(FakeCaretMaterial);
 	}
 
 	CharacterBorderBrushBase.TintColor = FLinearColor::White;
@@ -138,6 +137,8 @@ void SModioDefaultCodeInputTextBox::OnInputTextChanged(const FText& NewText)
 	{
 		HiddenInputField->SetText(FText::FromString(TruncatedText));
 	}
+
+	OnTextChanged.ExecuteIfBound(NewText);
 }
 
 FText SModioDefaultCodeInputTextBox::GetCharacterAtIndex(int32 Index) const
@@ -237,6 +238,8 @@ void SModioDefaultCodeInputTextBox::Construct(const FArguments& InArgs)
 	CodeInputStyle = InArgs._Style;
 	MyCharacterGrid->SetSlotPadding(CodeInputStyle.CharacterSpacing);
 	OnCodeSubmit = InArgs._OnCodeSubmit;
+	OnTextChanged = InArgs._OnTextChanged;
+	
 	TextFlowDirection = InArgs._TextFlowDirection;
 
 	RebuildChildren(InArgs._NumChildren);
@@ -321,6 +324,26 @@ void UModioDefaultCodeInputTextBox::NativeSetInput(const FString& Input)
 	}
 }
 
+void UModioDefaultCodeInputTextBox::NativeAddTextCommittedHandler(const FModioOnTextCommitted& Handler)
+{
+	OnModioTextCommitted.AddUnique(Handler);
+}
+
+void UModioDefaultCodeInputTextBox::NativeRemoveTextCommittedHandler(const FModioOnTextCommitted& Handler)
+{
+	OnModioTextCommitted.Remove(Handler);
+}
+
+void UModioDefaultCodeInputTextBox::NativeAddTextChangedHandler(const FModioOnTextChanged& Handler)
+{
+	OnModioTextChanged.AddUnique(Handler);
+}
+
+void UModioDefaultCodeInputTextBox::NativeRemoveTextChangedHandler(const FModioOnTextChanged& Handler)
+{
+	OnModioTextChanged.Remove(Handler);
+}
+
 void UModioDefaultCodeInputTextBox::GetTextValidationRules_Implementation(TArray<FModioTextValidationRule>& Rules)
 {
 	FModioTextValidationRule Rule;
@@ -367,7 +390,13 @@ TSharedRef<SWidget> UModioDefaultCodeInputTextBox::RebuildWidget()
 																		   [this]() {
 																			   OnCodeSubmit.Broadcast();
 																			   OnCodeSubmitDynamic.Broadcast();
+																			   OnModioTextCommitted.Broadcast(this, FText::FromString(Execute_GatherInput(this)), ETextCommit::OnEnter);
 																		   }))
+		.OnTextChanged(
+			FOnTextChanged::CreateWeakLambda(this,
+			                                 [this](const FText& InText) {
+				                                 OnModioTextChanged.Broadcast(this, InText);
+			                                 }))
 		.TextFlowDirection(TextFlowDirection)
 		.VirtualKeyboardOptions(VirtualKeyboardOptions)
 		.VirtualKeyboardTrigger(VirtualKeyboardTrigger)

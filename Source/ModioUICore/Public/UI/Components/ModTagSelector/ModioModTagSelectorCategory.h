@@ -65,6 +65,7 @@ protected:
 	virtual void SetMultiSelectionAllowed_Implementation(bool bMultiSelectionAllowed) override;
 	virtual bool GetMultiSelectionAllowed_Implementation() override;
 	virtual int32 GetIndexForValue_Implementation(UObject* Value) const override;
+	virtual UUserWidget* GetWidgetForValue_Implementation(UObject* Value) const override;
 	//~ End IModioUIObjectSelector Interface
 
 	/**

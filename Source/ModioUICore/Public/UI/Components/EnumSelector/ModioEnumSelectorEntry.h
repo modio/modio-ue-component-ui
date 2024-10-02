@@ -39,9 +39,10 @@ protected:
 	IMPLEMENT_MODIO_WIDGET_GETTER_VALIDATION(GetLabelWidget(), GetClickableWidget());
 
 	/**
-	 * @brief Broadcasts when the clickable widget is clicked
+	 * @brief Passes `this` as ClickContext
+	 * @default_component_event FModioClickableOnClicked
 	 */
-	UPROPERTY(BlueprintAssignable, meta = (BlueprintProtected))
+	UPROPERTY()
 	FModioClickableOnClickedMulticast OnClicked;
 
 	bool bEmitClickEvents = true;
@@ -56,9 +57,10 @@ protected:
 	void NotifyClicked();
 
 	/**
-	 * @brief Broadcasts when the selection state of the entry changes
+	 * @brief Passes `this` as SelectionContext, `bNewSelectedState` is new selection state
+	 * @default_component_event FModioSelectableOnSelectionChanged
 	 */
-	UPROPERTY(BlueprintAssignable, meta = (BlueprintProtected))
+	UPROPERTY()
 	FModioSelectableOnSelectionChangedMulticast OnSelectionChanged;
 
 	UFUNCTION(meta = (BlueprintProtected))

@@ -39,6 +39,15 @@ This plugin requires the core mod.io plugin to be installed alongside it. Suppor
 
 . This plugin relies on the mod.io core plugin, available at https://github.com/modio/modio-ue. Please ensure you have downloaded and installed and configured the plugin prior to installing the Component UI plugin. 
 
+. To use this initial release of the Component UI plugin, you will need to remove our Legacy UE5 UI from the core plugin. Please delete the following folders from the core plugin's directories before proceeding:
+
+	* Modio/Source/ModioUI
+	* Modio/Source/ModioUICore
+	* Modio/Source/ModioUIEditor
+	* Modio/Content/UI5
+. Please remove the ModioUI, ModioUICore and ModioUIEditor module elements from Modio/Modio.uplugin file
+
+NOTE: The Legacy UE5 UI will be migrated to its own dedicated repository in the future - after that point, this manual cleanup will no longer be required. 
 
 === Adding plugin files to your project
 ==== As a git submodule

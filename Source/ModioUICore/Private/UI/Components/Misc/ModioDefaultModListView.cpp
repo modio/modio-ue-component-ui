@@ -207,6 +207,11 @@ int32 UModioDefaultModListView::GetIndexForValue_Implementation(UObject* Value) 
 	return GetIndexForItem(Value);
 }
 
+UUserWidget* UModioDefaultModListView::GetWidgetForValue_Implementation(UObject* Value) const
+{
+	return GetEntryWidgetFromItem(Value);
+}
+
 UUserWidget& UModioDefaultModListView::OnGenerateEntryWidgetInternal(UObject* Item,
                                                                      TSubclassOf<UUserWidget> DesiredEntryClass,
                                                                      const TSharedRef<STableViewBase>& OwnerTable)

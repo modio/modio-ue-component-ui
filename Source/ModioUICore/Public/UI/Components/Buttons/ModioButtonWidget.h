@@ -13,6 +13,7 @@
 #include "CommonButtonBase.h"
 #include "CoreMinimal.h"
 #include "UI/Components/ComponentHelpers.h"
+#include "UI/Interfaces/IModioFocusableWidget.h"
 #include "UI/Interfaces/IModioUIBoundActionWidget.h"
 #include "UI/Interfaces/IModioUIDataSourceWidget.h"
 #include "UI/Interfaces/IModioUIHasTooltipWidget.h"
@@ -39,7 +40,8 @@ class MODIOUICORE_API UModioButtonWidget : public UCommonButtonBase,
 										   public IModioUISelectableWidget,
 										   public IModioUIHoverableWidget,
 										   public IModioUIHasTooltipWidget,
-										   public IModioUIDataSourceWidget
+										   public IModioUIDataSourceWidget,
+										   public IModioFocusableWidget
 {
 	GENERATED_BODY()
 
@@ -106,6 +108,19 @@ protected:
 	virtual void RemoveActionCompletedHandler_Implementation(const FModioBoundActionCompleted& Handler) override;
 	//~ End IModioUIBoundActionWidget Interface
 
+	//~ Begin IModioFocusableWidget Interface
+	virtual UWidget* NativeGetWidgetToFocus(EUINavigation NavigationType) const override;
+	virtual void NativeAddFocusPathChangedHandler(const FModioOnFocusPathChanged& Handler) override;
+	virtual void NativeRemoveFocusPathChangedHandler(const FModioOnFocusPathChanged& Handler) override;
+	//~ End IModioFocusableWidget Interface
+
+	/**
+	 * @brief Passes `this` as FocusContext, `InFocusEvent` as the focus event, `bIsFocused` as the new focus state
+	 * @default_component_event FModioOnFocusPathChanged
+	 */
+	UPROPERTY()
+	FModioOnFocusPathChangedMulticast OnModioFocusPathChanged;
+
 	/**
 	 * @brief Passes `this` as SelectionContext, `bNewSelectedState` is new selection state
 	 * @default_component_event FModioSelectableOnSelectionChanged
@@ -159,6 +174,11 @@ protected:
 	virtual void NativeOnHovered() override;
 	virtual void NativeOnUnhovered() override;
 	//~ End UCommonButtonBase Interface
+
+	//~ Begin UUserWidget Interface
+	virtual void NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent) override;
+	virtual void NativeOnRemovedFromFocusPath(const FFocusEvent& InFocusEvent) override;
+	//~ End UUserWidget Interface
 
 	MODIO_WIDGET_PALETTE_OVERRIDE();
 };

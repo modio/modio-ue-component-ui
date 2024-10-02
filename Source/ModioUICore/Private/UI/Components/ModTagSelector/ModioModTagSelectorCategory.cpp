@@ -74,6 +74,16 @@ int32 UModioModTagSelectorCategory::GetIndexForValue_Implementation(UObject* Val
 	return INDEX_NONE;
 }
 
+UUserWidget* UModioModTagSelectorCategory::GetWidgetForValue_Implementation(UObject* Value) const
+{
+	if (GetCategoryTagListWidget().GetObject() &&
+        GetCategoryTagListWidget().GetObject()->GetClass()->ImplementsInterface(UModioUIObjectSelector::StaticClass()))
+    {
+        return IModioUIObjectSelector::Execute_GetWidgetForValue(GetCategoryTagListWidget().GetObject(), Value);
+    }
+    return nullptr;
+}
+
 TScriptInterface<IModioUIHasTextWidget> UModioModTagSelectorCategory::GetTagCategoryLabel_Implementation() const
 {
 	return nullptr;

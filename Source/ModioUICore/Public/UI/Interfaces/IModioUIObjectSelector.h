@@ -157,4 +157,12 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Object Selector")
 	int32 GetIndexForValue(UObject* Value) const;
+
+	/**
+	 * @brief Retrieves the widget associated with the specified value
+	 * @param Value The value to retrieve the widget for
+	 * @return The widget associated with the specified value
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Object Selector")
+	UUserWidget* GetWidgetForValue(UObject* Value) const;
 };

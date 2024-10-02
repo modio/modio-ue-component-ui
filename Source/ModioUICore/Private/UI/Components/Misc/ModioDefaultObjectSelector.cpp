@@ -298,3 +298,8 @@ int32 UModioDefaultObjectSelector::GetIndexForValue_Implementation(UObject* Valu
 {
 	return GetIndexForItem(Value);
 }
+
+UUserWidget* UModioDefaultObjectSelector::GetWidgetForValue_Implementation(UObject* Value) const
+{
+	return GetEntryWidgetFromItem(Value);
+}

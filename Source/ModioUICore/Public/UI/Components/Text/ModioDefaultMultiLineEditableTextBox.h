@@ -84,7 +84,25 @@ protected:
 	virtual FString NativeGatherInput() override;
 	virtual void NativeSetHintText(FText InHintText) override;
 	virtual void NativeSetInput(const FString& Input) override;
+	virtual void NativeAddTextCommittedHandler(const FModioOnTextCommitted& Handler) override;
+	virtual void NativeRemoveTextCommittedHandler(const FModioOnTextCommitted& Handler) override;
+	virtual void NativeAddTextChangedHandler(const FModioOnTextChanged& Handler) override;
+	virtual void NativeRemoveTextChangedHandler(const FModioOnTextChanged& Handler) override;
 	//~ End IModioUIStringInputWidget Interface
+
+	/**
+	 * @brief Passes `this` as Context, `Text` as the new text, `CommitMethod` as the method used to commit the text
+	 * @default_component_event FModioOnTextCommitted
+	 */
+	UPROPERTY()
+	FModioOnTextCommittedMulticast OnModioTextCommitted;
+
+	/**
+	 * @brief Passes `this` as Context, `Text` as the new text
+	 * @default_component_event FModioOnTextChanged
+	 */
+	UPROPERTY()
+	FModioOnTextChangedMulticast OnModioTextChanged;
 
 	//~ Begin IModioUIHasTooltipWidget Interface
 	virtual void SetTooltipEnabledState_Implementation(bool bNewEnabledState) override;

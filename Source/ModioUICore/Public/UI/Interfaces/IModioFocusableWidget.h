@@ -15,6 +15,9 @@
 
 #include "IModioFocusableWidget.generated.h"
 
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FModioOnFocusPathChanged, UObject*, FocusContext, FFocusEvent, InFocusEvent, bool, bIsFocused);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FModioOnFocusPathChangedMulticast, UObject*, FocusContext, FFocusEvent, InFocusEvent, bool, bIsFocused);
+
 /**
  * @brief Interface indicating the implementing widget (or it's children) can receive focus
  */
@@ -35,10 +38,21 @@ protected:
 	{
 		return nullptr;
 	}
-
-	virtual UWidget* GetWidgetToFocus_Implementation(EUINavigation NavigationType) const
+	UWidget* GetWidgetToFocus_Implementation(EUINavigation NavigationType) const
 	{
 		return NativeGetWidgetToFocus(NavigationType);
+	}
+
+	virtual void NativeAddFocusPathChangedHandler(const FModioOnFocusPathChanged& Handler) {}
+	void AddFocusPathChangedHandler_Implementation(const FModioOnFocusPathChanged& Handler)
+	{
+		NativeAddFocusPathChangedHandler(Handler);
+	}
+
+	virtual void NativeRemoveFocusPathChangedHandler(const FModioOnFocusPathChanged& Handler) {}
+	void RemoveFocusPathChangedHandler_Implementation(const FModioOnFocusPathChanged& Handler)
+	{
+		NativeRemoveFocusPathChangedHandler(Handler);
 	}
 
 public:
@@ -49,4 +63,19 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Focusable")
 	UWidget* GetWidgetToFocus(EUINavigation NavigationType) const;
+
+	/**
+	 * @brief Registers a delegate to receive callbacks when the focus path changes
+	 * The delegate is assumed to be invoked both when the implementing widget gains focus and when children of the widget gain focus
+	 * @param Handler Delegate to invoke on focus path change
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Focusable")
+	void AddFocusPathChangedHandler(const FModioOnFocusPathChanged& Handler);
+
+	/**
+	 * @brief Unregisters a delegate from receiving callbacks when the focus path changes
+	 * @param Handler Delegate to remove from focus path change
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Focusable")
+	void RemoveFocusPathChangedHandler(const FModioOnFocusPathChanged& Handler);
 };

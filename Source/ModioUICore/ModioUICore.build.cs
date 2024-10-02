@@ -7,7 +7,7 @@ public class ModioUICore : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "UMG", "Slate", "SlateCore", "InputCore", "Modio", "CommonUI"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "UMG", "Slate", "SlateCore", "InputCore", "Modio", "CommonUI", "GameplayTags", "Settings"});
  
 		PublicIncludePaths.AddRange(new string[] { Path.Combine(ModuleDirectory, "Public") });
         PrivateIncludePaths.AddRange(new string[] { Path.Combine(ModuleDirectory, "Private")});
