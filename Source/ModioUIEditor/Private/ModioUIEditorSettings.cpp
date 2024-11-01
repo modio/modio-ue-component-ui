@@ -1,10 +1,10 @@
 /*
  *  Copyright (C) 2024 mod.io Pty Ltd. <https://mod.io>
  *
- *  This file is part of the mod.io UE4 Plugin.
+ *  This file is part of the mod.io UE Plugin.
  *
  *  Distributed under the MIT License. (See accompanying file LICENSE or
- *   view online at <https://github.com/modio/modio-ue4/blob/main/LICENSE>)
+ *   view online at <https://github.com/modio/modio-ue/blob/main/LICENSE>)
  *
  */
 
@@ -17,12 +17,20 @@
 #include "IDesktopPlatform.h"
 #include "ModioUISettings.h"
 #include "Core/ModioAssetPaths.h"
+#include "Objects/ModioOpenEditorWidgetAction.h"
 
 #define LOCTEXT_NAMESPACE "FModioUIEditorSettings"
 
 UModioUIEditorSettings::UModioUIEditorSettings(const FObjectInitializer& Initializer)
 	: Super(Initializer)
-{}
+{
+	//Maybe move this to some other class for neatness, in case we need to add more later.
+	GettingStartedEntries.Add(FModioGettingStartedEntry(
+		true, LOCTEXT("MigrationEntryName", "Component UI Migration"),
+		LOCTEXT("MigrationEntryDescription", "The Component UI framework is designed with the expectation that you will migrate (copy) our framework for customization."),
+		TSoftObjectPtr<UTexture2D>(FSoftObjectPath("/Modio/GettingStarted/T_modbrowser_D.T_modbrowser_D")),
+		UModioOpenEditorWidgetAction::StaticClass(), "/Script/Blutility.EditorUtilityWidgetBlueprint'/ModioComponentUI/UI/Editor/ComponentUiOnboarding.ComponentUiOnboarding'"));
+}
 
 FString UModioUIEditorSettings::OpenDestinationSelector()
 {

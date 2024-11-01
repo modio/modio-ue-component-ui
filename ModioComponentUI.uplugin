@@ -32,6 +32,11 @@
 			"Name": "ModioUIEditor",
 			"Type": "Editor",
 			"LoadingPhase": "PostEngineInit"
+		},
+		{
+			"Name": "ModioUILocalization",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
 		}
 	],
 	"LocalizationTargets": [

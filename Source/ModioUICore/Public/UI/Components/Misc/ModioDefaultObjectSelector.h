@@ -17,6 +17,7 @@
 #include "UI/Interfaces/IModioFocusableWidget.h"
 #include "UI/Interfaces/IModioUIObjectListWidget.h"
 #include "UI/Interfaces/IModioUIObjectSelector.h"
+#include "UI/Interfaces/IModioScrollableWidget.h"
 
 #include "ModioDefaultObjectSelector.generated.h"
 
@@ -33,7 +34,8 @@ UCLASS(meta = (ModioWidget))
 class MODIOUICORE_API UModioDefaultObjectSelector : public UListView,
 													public IModioUIObjectSelector,
 													public IModioUIObjectListWidget,
-													public IModioFocusableWidget
+													public IModioFocusableWidget,
+													public IModioScrollableWidget
 {
 	GENERATED_BODY()
 
@@ -95,6 +97,13 @@ protected:
 	virtual int32 GetIndexForValue_Implementation(UObject* Value) const override;
 	virtual UUserWidget* GetWidgetForValue_Implementation(UObject* Value) const override;
 	//~ End IModioUIObjectSelector Interface
+
+	//~ Begin IModioScrollableWidget Interface
+	virtual void ScrollToTop_Implementation() override;
+	virtual void ScrollToBottom_Implementation() override;
+	virtual void SetScrollOffset_Implementation(float Offset) override;
+	virtual float GetScrollOffset_Implementation() const override;
+	//~ End IModioScrollableWidget Interface
 
 	void NotifySelectionChanged(UObject* SelectedItem);
 

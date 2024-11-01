@@ -17,6 +17,7 @@
 #include "UI/Interfaces/IModioUIModListViewInterface.h"
 #include "UI/Interfaces/IModioUIObjectListWidget.h"
 #include "UI/Interfaces/IModioUIObjectSelector.h"
+#include "UI/Interfaces/IModioScrollableWidget.h"
 
 #include "ModioDefaultModTileView.generated.h"
 
@@ -29,7 +30,8 @@ UCLASS(meta = (ModioWidget))
 class MODIOUICORE_API UModioDefaultModTileView : public UTileView,
                                                  public IModioUIModListViewInterface,
                                                  public IModioUIObjectListWidget,
-                                                 public IModioUIObjectSelector
+                                                 public IModioUIObjectSelector,
+                                                 public IModioScrollableWidget
 {
 	GENERATED_BODY()
 
@@ -76,6 +78,13 @@ protected:
 	virtual int32 GetIndexForValue_Implementation(UObject* Value) const override;
 	virtual UUserWidget* GetWidgetForValue_Implementation(UObject* Value) const override;
 	//~ End IModioUIObjectSelector Interface
+
+	//~ Begin IModioScrollableWidget Interface
+	virtual void ScrollToTop_Implementation() override;
+	virtual void ScrollToBottom_Implementation() override;
+	virtual void SetScrollOffset_Implementation(float Offset) override;
+	virtual float GetScrollOffset_Implementation() const override;
+	//~ End IModioScrollableWidget Interface
 
 	virtual UUserWidget& OnGenerateEntryWidgetInternal(UObject* Item, TSubclassOf<UUserWidget> DesiredEntryClass,
 											   const TSharedRef<STableViewBase>& OwnerTable) override;

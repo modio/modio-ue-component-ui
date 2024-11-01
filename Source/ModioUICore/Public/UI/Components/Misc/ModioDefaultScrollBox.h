@@ -20,9 +20,9 @@
 class UWidgetNavigation;
 
 /**
- * Default implementation of a scroll box
- * Apart from the default scroll box functionality, this scroll box also supports scrolling by controller/keyboard
- * navigation
+ * @default_impl_for Scroll Box
+ * @brief A widget that allows scrolling of its content. Apart from the default scroll box functionality, this scroll box also supports scrolling by controller/keyboard navigation
+ * @component_display_name Scroll Box
  */
 UCLASS(meta = (ModioWidget))
 class MODIOUICORE_API UModioDefaultScrollBox : public UScrollBox

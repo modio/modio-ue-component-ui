@@ -303,3 +303,23 @@ UUserWidget* UModioDefaultObjectSelector::GetWidgetForValue_Implementation(UObje
 {
 	return GetEntryWidgetFromItem(Value);
 }
+
+void UModioDefaultObjectSelector::ScrollToTop_Implementation()
+{
+	Cast<UListViewBase>(this)->ScrollToTop();
+}
+
+void UModioDefaultObjectSelector::ScrollToBottom_Implementation()
+{
+	Cast<UListViewBase>(this)->ScrollToBottom();
+}
+
+void UModioDefaultObjectSelector::SetScrollOffset_Implementation(float Offset)
+{
+	Cast<UListViewBase>(this)->SetScrollOffset(Offset);
+}
+
+float UModioDefaultObjectSelector::GetScrollOffset_Implementation() const
+{
+	return Cast<UListViewBase>(this)->GetScrollOffset();
+}

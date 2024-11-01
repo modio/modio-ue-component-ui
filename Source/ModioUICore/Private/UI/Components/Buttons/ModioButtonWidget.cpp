@@ -232,6 +232,12 @@ void UModioButtonWidget::NativeOnUnhovered()
 	}
 }
 
+void UModioButtonWidget::HandleFocusReceived()
+{
+	Super::HandleFocusReceived();
+	SetCommonUIButtonFocus();
+}
+
 void UModioButtonWidget::NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent)
 {
 	Super::NativeOnAddedToFocusPath(InFocusEvent);

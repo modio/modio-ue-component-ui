@@ -1,0 +1,1212 @@
+﻿# Game English translation.
+# Fill out your copyright notice in the Description page of Project Settings.
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: Game\n"
+"POT-Creation-Date: 2024-09-05 07:02\n"
+"PO-Revision-Date: 2024-09-05 07:02\n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Key:	Agree
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Agree"
+msgid "Agree"
+msgstr "Agree"
+
+#. Key:	Back
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Back"
+msgid "Back"
+msgstr "Back"
+
+#. Key:	BrowseMods
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,BrowseMods"
+msgid "Browse Mods"
+msgstr "Browse Mods"
+
+#. Key:	Cancel
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Cancel"
+msgid "Cancel"
+msgstr "Cancel"
+
+#. Key:	ClearAll
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ClearAll"
+msgid "Clear All"
+msgstr "Clear All"
+
+#. Key:	CollapseDescriptionAction
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,CollapseDescriptionAction"
+msgid "Collapse Description"
+msgstr "Collapse Description"
+
+#. Key:	Confirm
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Confirm"
+msgid "Confirm"
+msgstr "Confirm"
+
+#. Key:	ConfirmPurchase_Heading
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ConfirmPurchase_Heading"
+msgid "Confirm Purchase"
+msgstr "Confirm Purchase"
+
+#. Key:	ConfirmPurchase_SubInfo
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ConfirmPurchase_SubInfo"
+msgid "This mod will be added to your subscriptions and begin downloading after purchasing"
+msgstr "This mod will be added to your subscriptions and begin downloading after purchasing"
+
+#. Key:	DependencyConfirmText
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,DependencyConfirmText"
+msgid "Do you want to Subscribe and Download these mods?"
+msgstr "Do you want to Subscribe and Download these mods?"
+
+#. Key:	DisableModAction
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,DisableModAction"
+msgid "Disable Mod"
+msgstr "Disable Mod"
+
+#. Key:	DownloadRetry
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,DownloadRetry"
+msgid "Retry Download"
+msgstr "Retry Download"
+
+#. Key:	Downloads
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Downloads"
+msgid "Downloads"
+msgstr "Downloads"
+
+#. Key:	DownloadsFormatText
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,DownloadsFormatText"
+msgid "{0}{1}"
+msgstr "{0}{1}"
+
+#. Key:	EmailAuth_ChangeEmail
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,EmailAuth_ChangeEmail"
+msgid "Use Another Email"
+msgstr "Use Another Email"
+
+#. Key:	EmailAuth_CodePrompt
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,EmailAuth_CodePrompt"
+msgid "Enter Code"
+msgstr "Enter Code"
+
+#. Key:	EmailAuth_CodePromptFailedText
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,EmailAuth_CodePromptFailedText"
+msgid "Invalid security code. Please check your email for your code and try again."
+msgstr "Invalid security code. Please check your email for your code and try again."
+
+#. Key:	EmailAuth_CodePromptText
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,EmailAuth_CodePromptText"
+msgid "Please check your email for your code and enter it below."
+msgstr "Please check your email for your code and enter it below."
+
+#. Key:	EmailAuth_EmailPromptText
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,EmailAuth_EmailPromptText"
+msgid "Please enter your email address."
+msgstr "Please enter your email address."
+
+#. Key:	EmailAuth_EnterCode
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,EmailAuth_EnterCode"
+msgid "I Have A Code"
+msgstr "I Have A Code"
+
+#. Key:	EmailAuth_RequestCode
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,EmailAuth_RequestCode"
+msgid "Send Code"
+msgstr "Send Code"
+
+#. Key:	EmailAuth_SubmitCode
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,EmailAuth_SubmitCode"
+msgid "Submit"
+msgstr "Submit"
+
+#. Key:	EmailAuth_Title
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,EmailAuth_Title"
+msgid "Authentication"
+msgstr "Authentication"
+
+#. Key:	EmailAuth_TitleFailed
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,EmailAuth_TitleFailed"
+msgid "Authentication Failed"
+msgstr "Authentication Failed"
+
+#. Key:	EnableModAction
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,EnableModAction"
+msgid "Enable Mod"
+msgstr "Enable Mod"
+
+#. Key:	ErrorGeneric
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ErrorGeneric"
+msgid "Something Went Wrong!"
+msgstr "Something Went Wrong!"
+
+#. Key:	ErrorHeader
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ErrorHeader"
+msgid "Error"
+msgstr "Error"
+
+#. Key:	ExpandDescriptionAction
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ExpandDescriptionAction"
+msgid "Expand Description"
+msgstr "Expand Description"
+
+#. Key:	Filesize
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Filesize"
+msgid "File size"
+msgstr "File size"
+
+#. Key:	Filter
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Filter"
+msgid "Filter"
+msgstr "Filter"
+
+#. Key:	FilterClearAll
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,FilterClearAll"
+msgid "Clear All Filters"
+msgstr "Clear All Filters"
+
+#. Key:	InsufficientFunds_Confirm
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,InsufficientFunds_Confirm"
+msgid "Token Packs"
+msgstr "Token Packs"
+
+#. Key:	InsufficientTokens_Desc
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,InsufficientTokens_Desc"
+msgid "You have insufficient tokens to buy this mod."
+msgstr "You have insufficient tokens to buy this mod."
+
+#. Key:	InsufficientTokens_Heading
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,InsufficientTokens_Heading"
+msgid "Insufficient Tokens"
+msgstr "Insufficient Tokens"
+
+#. Key:	InsufficientTokens_SubInfo
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,InsufficientTokens_SubInfo"
+msgid "Would you like to buy a token pack?"
+msgstr "Would you like to buy a token pack?"
+
+#. Key:	ModDependenciesAction
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModDependenciesAction"
+msgid "Mod Dependencies"
+msgstr "Mod Dependencies"
+
+#. Key:	ModDependenciesError
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModDependenciesError"
+msgid "You do not have enough storage available to perform this subscription."
+msgstr "You do not have enough storage available to perform this subscription."
+
+#. Key:	ModDependenciesErrorDownload
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModDependenciesErrorDownload"
+msgid "There are Mod Dependencies that are not downloaded."
+msgstr "There are Mod Dependencies that are not downloaded."
+
+#. Key:	ModDependenciesErrorMissing
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModDependenciesErrorMissing"
+msgid "There are Mod Dependencies that are currently unavailable."
+msgstr "There are Mod Dependencies that are currently unavailable."
+
+#. Key:	ModDependenciesInspect
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModDependenciesInspect"
+msgid "Inspect Dependencies"
+msgstr "Inspect Dependencies"
+
+#. Key:	ModDependenciesMissing
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModDependenciesMissing"
+msgid "Missing Dependencies"
+msgstr "Missing Dependencies"
+
+#. Key:	ModDependenciesSubscribe
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModDependenciesSubscribe"
+msgid "Subscribe To Mods"
+msgstr "Subscribe To Mods"
+
+#. Key:	ModDependenciesText
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModDependenciesText"
+msgid "This mod has Mod Dependencies which are required for it to be installed."
+msgstr "This mod has Mod Dependencies which are required for it to be installed."
+
+#. Key:	ModDescription
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModDescription"
+msgid "Mod Description"
+msgstr "Mod Description"
+
+#. Key:	ModOptions
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModOptions"
+msgid "Mod Options"
+msgstr "Mod Options"
+
+#. Key:	ModProp_TimePassedFormat
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModProp_TimePassedFormat"
+msgid "{0} ago"
+msgstr "{0} ago"
+
+#. Key:	ModProp_Updated
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModProp_Updated"
+msgid "Updated"
+msgstr "Updated"
+
+#. Key:	ModStatus_Disabled
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Disabled"
+msgid "Disabled"
+msgstr "Disabled"
+
+#. Key:	ModStatus_Downloading
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Downloading"
+msgid "Downloading"
+msgstr "Downloading"
+
+#. Key:	ModStatus_Enabled
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Enabled"
+msgid "Enabled"
+msgstr "Enabled"
+
+#. Key:	ModStatus_Error
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Error"
+msgid "Download Failed"
+msgstr "Download Failed"
+
+#. Key:	ModStatus_Extracting
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Extracting"
+msgid "Extracting"
+msgstr "Extracting"
+
+#. Key:	ModStatus_Initializing
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Initializing"
+msgid "Initializing"
+msgstr "Initializing"
+
+#. Key:	ModStatus_Installed
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Installed"
+msgid "Installed"
+msgstr "Installed"
+
+#. Key:	ModStatus_Installing
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Installing"
+msgid "Installing"
+msgstr "Installing"
+
+#. Key:	ModStatus_InSystemInstallation
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_InSystemInstallation"
+msgid "Installed by Others"
+msgstr "Installed by Others"
+
+#. Key:	ModStatus_Purchased
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Purchased"
+msgid "Purchased"
+msgstr "Purchased"
+
+#. Key:	ModStatus_Queued
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Queued"
+msgid "Queued"
+msgstr "Queued"
+
+#. Key:	ModStatus_Uninstalling
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Uninstalling"
+msgid "Uninstalling"
+msgstr "Uninstalling"
+
+#. Key:	ModStatus_Updating
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Updating"
+msgid "Updating"
+msgstr "Updating"
+
+#. Key:	ModStatus_Uploaded
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Uploaded"
+msgid "Uploaded"
+msgstr "Uploaded"
+
+#. Key:	ModStatus_Uploading
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ModStatus_Uploading"
+msgid "Uploading"
+msgstr "Uploading"
+
+#. Key:	MoreFromCreatorAction
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,MoreFromCreatorAction"
+msgid "More From Creator"
+msgstr "More From Creator"
+
+#. Key:	OK
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,OK"
+msgid "OK"
+msgstr "OK"
+
+#. Key:	PageLibrary
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,PageLibrary"
+msgid "Library"
+msgstr "Library"
+
+#. Key:	PageMods
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,PageMods"
+msgid "Mods"
+msgstr "Mods"
+
+#. Key:	PlatformUsernameFormat
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,PlatformUsernameFormat"
+msgid "by ({0})"
+msgstr "by ({0})"
+
+#. Key:	PremiumMod
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,PremiumMod"
+msgid "Premium Mod"
+msgstr "Premium Mod"
+
+#. Key:	PrioritizeModAction
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,PrioritizeModAction"
+msgid "Prioritize Mod"
+msgstr "Prioritize Mod"
+
+#. Key:	PrivacyPolicyText
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,PrivacyPolicyText"
+msgid "Privacy Policy"
+msgstr "Privacy Policy"
+
+#. Key:	PurchaseModAction
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,PurchaseModAction"
+msgid "Purchase Mods"
+msgstr "Purchase Mods"
+
+#. Key:	Quit
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Quit"
+msgid "QUIT"
+msgstr "QUIT"
+
+#. Key:	Rating
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Rating"
+msgid "Rating"
+msgstr "Rating"
+
+#. Key:	Released
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Released"
+msgid "Released"
+msgstr "Released"
+
+#. Key:	ReportContent_DetailPrompt
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ReportContent_DetailPrompt"
+msgid "Enter Report Details..."
+msgstr "Enter Report Details..."
+
+#. Key:	ReportContent_Details
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ReportContent_Details"
+msgid "Report Details (required)"
+msgstr "Report Details (required)"
+
+#. Key:	ReportContent_EmailAddress
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ReportContent_EmailAddress"
+msgid "Email Address"
+msgstr "Email Address"
+
+#. Key:	ReportContent_Heading
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ReportContent_Heading"
+msgid "Report A Problem"
+msgstr "Report A Problem"
+
+#. Key:	ReportContent_ReasonDescription
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ReportContent_ReasonDescription"
+msgid "To help us process your report, please provide as much detail and evidence as possible."
+msgstr "To help us process your report, please provide as much detail and evidence as possible."
+
+#. Key:	ReportContent_ReasonPrompt
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ReportContent_ReasonPrompt"
+msgid "Please choose one of the following reasons:"
+msgstr "Please choose one of the following reasons:"
+
+#. Key:	ReportContent_Submit
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ReportContent_Submit"
+msgid "Submit"
+msgstr "Submit"
+
+#. Key:	ReportModAction
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ReportModAction"
+msgid "Report Mod"
+msgstr "Report Mod"
+
+#. Key:	ReportSending
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ReportSending"
+msgid "Sending Report..."
+msgstr "Sending Report..."
+
+#. Key:	ReportSuccess
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ReportSuccess"
+msgid "Your Report Was Successfully Submitted."
+msgstr "Your Report Was Successfully Submitted."
+
+#. Key:	Search
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Search"
+msgid "Search"
+msgstr "Search"
+
+#. Key:	SearchClear
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,SearchClear"
+msgid "Clear Search"
+msgstr "Clear Search"
+
+#. Key:	SearchExample
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,SearchExample"
+msgid "Search for Mods..."
+msgstr "Search for Mods..."
+
+#. Key:	SearchNoResults
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,SearchNoResults"
+msgid "No Results Found"
+msgstr "No Results Found"
+
+#. Key:	SearchResults
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,SearchResults"
+msgid "Results for:"
+msgstr "Results for:"
+
+#. Key:	Select
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Select"
+msgid "Select"
+msgstr "Select"
+
+#. Key:	SortPopular
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,SortPopular"
+msgid "Popular"
+msgstr "Popular"
+
+#. Key:	SortPurchases
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,SortPurchases"
+msgid "Purchases"
+msgstr "Purchases"
+
+#. Key:	SortRecent
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,SortRecent"
+msgid "Recent"
+msgstr "Recent"
+
+#. Key:	SortSubscriptions
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,SortSubscriptions"
+msgid "Subscriptions"
+msgstr "Subscriptions"
+
+#. Key:	SortTrending
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,SortTrending"
+msgid "Trending"
+msgstr "Trending"
+
+#. Key:	SubscribeAction
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,SubscribeAction"
+msgid "Subscribe"
+msgstr "Subscribe"
+
+#. Key:	Subscribers
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Subscribers"
+msgid "Subscribers"
+msgstr "Subscribers"
+
+#. Key:	TagsClear
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,TagsClear"
+msgid "Clear Tags"
+msgstr "Clear Tags"
+
+#. Key:	Terms_Header
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Terms_Header"
+msgid "Terms Of Use"
+msgstr "Terms Of Use"
+
+#. Key:	TermsConditionsText
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,TermsConditionsText"
+msgid "Terms & Conditions"
+msgstr "Terms & Conditions"
+
+#. Key:	TermsConsentText
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,TermsConsentText"
+msgid "By continuing you agree to the Terms of Use and Privacy Policy and must be 13 years of age or older."
+msgstr "By continuing you agree to the Terms of Use and Privacy Policy and must be 13 years of age or older."
+
+#. Key:	TermsText
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,TermsText"
+msgid "We use mod.io to support user-generated content in-game. By clicking “I agree” you agree to mod.io Terms of Use and a mod.io account will be created for you (using your display name, avatar and ID). Please see the mod.io Privacy Policy on how mod.io processes your personal data."
+msgstr "We use mod.io to support user-generated content in-game. By clicking “I agree” you agree to mod.io Terms of Use and a mod.io account will be created for you (using your display name, avatar and ID). Please see the mod.io Privacy Policy on how mod.io processes your personal data."
+
+#. Key:	Timespan_Days
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Timespan_Days"
+msgid "{2}d ago"
+msgstr "{2}d ago"
+
+#. Key:	Timespan_Months
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Timespan_Months"
+msgid "{1}m ago"
+msgstr "{1}m ago"
+
+#. Key:	Timespan_Today
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Timespan_Today"
+msgid "Today"
+msgstr "Today"
+
+#. Key:	Timespan_Years
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Timespan_Years"
+msgid "{0}y ago"
+msgstr "{0}y ago"
+
+#. Key:	Total
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Total"
+msgid "Total"
+msgstr "Total"
+
+#. Key:	UnsubscribeAction
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,UnsubscribeAction"
+msgid "Unsubscribe"
+msgstr "Unsubscribe"
+
+#. Key:	UpdateRetry
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,UpdateRetry"
+msgid "Retry Update"
+msgstr "Retry Update"
+
+#. Key:	Version
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Version"
+msgid "Version"
+msgstr "Version"
+
+#. Key:	ViewModAction
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,ViewModAction"
+msgid "View Mod"
+msgstr "View Mod"
+
+#. Key:	Waiting_SubInfo
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Waiting_SubInfo"
+msgid "Please wait while we process your purchase."
+msgstr "Please wait while we process your purchase."
+
+#. Key:	Waiting_Title
+#. SourceLocation:	/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+#: /ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText
+msgctxt "ST_ModioModBrowserDefaultText,Waiting_Title"
+msgid "Waiting"
+msgstr "Waiting"
+
+#. Key:	B
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,B"
+msgid "B"
+msgstr "B"
+
+#. Key:	EModioErrorCondition::ApiErrorRefSuccess
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::ApiErrorRefSuccess"
+msgid "No Error"
+msgstr "No Error"
+
+#. Key:	EModioErrorCondition::ConfigurationError
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::ConfigurationError"
+msgid "Configuration Error"
+msgstr "Configuration Error"
+
+#. Key:	EModioErrorCondition::EntityNotFoundError
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::EntityNotFoundError"
+msgid "Item not found"
+msgstr "Item not found"
+
+#. Key:	EModioErrorCondition::FilesystemError
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::FilesystemError"
+msgid "Filesystem Error"
+msgstr "Filesystem Error"
+
+#. Key:	EModioErrorCondition::InsufficientPermissions
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::InsufficientPermissions"
+msgid "Access denied"
+msgstr "Access denied"
+
+#. Key:	EModioErrorCondition::InsufficientSpace
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::InsufficientSpace"
+msgid "Insufficient space"
+msgstr "Insufficient space"
+
+#. Key:	EModioErrorCondition::InternalError
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::InternalError"
+msgid "System Error"
+msgstr "System Error"
+
+#. Key:	EModioErrorCondition::InvalidArgsError
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::InvalidArgsError"
+msgid "Invalid Parameter"
+msgstr "Invalid Parameter"
+
+#. Key:	EModioErrorCondition::ModBeingProcessed
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::ModBeingProcessed"
+msgid "Mod is being processed"
+msgstr "Mod is being processed"
+
+#. Key:	EModioErrorCondition::NetworkError
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::NetworkError"
+msgid "Network Error"
+msgstr "Network Error"
+
+#. Key:	EModioErrorCondition::NoError
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::NoError"
+msgid "No Error"
+msgstr "No Error"
+
+#. Key:	EModioErrorCondition::OperationCanceled
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::OperationCanceled"
+msgid "Canceled"
+msgstr "Canceled"
+
+#. Key:	EModioErrorCondition::RateLimited
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::RateLimited"
+msgid "Rate Limit hit"
+msgstr "Rate Limit hit"
+
+#. Key:	EModioErrorCondition::SubmitReportError
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::SubmitReportError"
+msgid "Report submission error"
+msgstr "Report submission error"
+
+#. Key:	EModioErrorCondition::SystemError
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::SystemError"
+msgid "System Error"
+msgstr "System Error"
+
+#. Key:	EModioErrorCondition::UserNotAuthenticatedError
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::UserNotAuthenticatedError"
+msgid "Authentication failure"
+msgstr "Authentication failure"
+
+#. Key:	EModioErrorCondition::UserTermsOfUseError
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioErrorCondition::UserTermsOfUseError"
+msgid "Terms of Use not accepted"
+msgstr "Terms of Use not accepted"
+
+#. Key:	EModioModManagementEventType::BeginInstall
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModManagementEventType::BeginInstall"
+msgid "Begin Install"
+msgstr "Begin Install"
+
+#. Key:	EModioModManagementEventType::BeginUninstall
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModManagementEventType::BeginUninstall"
+msgid "Begin Uninstall"
+msgstr "Begin Uninstall"
+
+#. Key:	EModioModManagementEventType::BeginUpdate
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModManagementEventType::BeginUpdate"
+msgid "Begin Update"
+msgstr "Begin Update"
+
+#. Key:	EModioModManagementEventType::BeginUpload
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModManagementEventType::BeginUpload"
+msgid "Begin Upload"
+msgstr "Begin Upload"
+
+#. Key:	EModioModManagementEventType::Installed
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModManagementEventType::Installed"
+msgid "Installed"
+msgstr "Installed"
+
+#. Key:	EModioModManagementEventType::Uninstalled
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModManagementEventType::Uninstalled"
+msgid "Uninstalled"
+msgstr "Uninstalled"
+
+#. Key:	EModioModManagementEventType::Updated
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModManagementEventType::Updated"
+msgid "Updated"
+msgstr "Updated"
+
+#. Key:	EModioModManagementEventType::Uploaded
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModManagementEventType::Uploaded"
+msgid "Uploaded"
+msgstr "Uploaded"
+
+#. Key:	EModioModProgressState::Compressing
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModProgressState::Compressing"
+msgid "Compressing"
+msgstr "Compressing"
+
+#. Key:	EModioModProgressState::Downloading
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModProgressState::Downloading"
+msgid "Downloading"
+msgstr "Downloading"
+
+#. Key:	EModioModProgressState::Extracting
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModProgressState::Extracting"
+msgid "Extracting"
+msgstr "Extracting"
+
+#. Key:	EModioModProgressState::Initializing
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModProgressState::Initializing"
+msgid "Initializing"
+msgstr "Initializing"
+
+#. Key:	EModioModProgressState::Uploading
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModProgressState::Uploading"
+msgid "Uploading"
+msgstr "Uploading"
+
+#. Key:	EModioModState::Downloading
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModState::Downloading"
+msgid "Downloading"
+msgstr "Downloading"
+
+#. Key:	EModioModState::Extracting
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModState::Extracting"
+msgid "Extracting"
+msgstr "Extracting"
+
+#. Key:	EModioModState::InstallationPending
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModState::InstallationPending"
+msgid "Installation Pending"
+msgstr "Installation Pending"
+
+#. Key:	EModioModState::Installed
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModState::Installed"
+msgid "Installed"
+msgstr "Installed"
+
+#. Key:	EModioModState::UninstallPending
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModState::UninstallPending"
+msgid "Uninstall Pending"
+msgstr "Uninstall Pending"
+
+#. Key:	EModioModState::UpdatePending
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioModState::UpdatePending"
+msgid "Update Pending"
+msgstr "Update Pending"
+
+#. Key:	EModioReportType::DMCA
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioReportType::DMCA"
+msgid "DMCA"
+msgstr "DMCA"
+
+#. Key:	EModioReportType::FalseInformation
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioReportType::FalseInformation"
+msgid "False Information"
+msgstr "False Information"
+
+#. Key:	EModioReportType::Generic
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioReportType::Generic"
+msgid "Generic"
+msgstr "Generic"
+
+#. Key:	EModioReportType::IllegalContent
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioReportType::IllegalContent"
+msgid "Illegal Content"
+msgstr "Illegal Content"
+
+#. Key:	EModioReportType::NotWorking
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioReportType::NotWorking"
+msgid "Not Working"
+msgstr "Not Working"
+
+#. Key:	EModioReportType::Other
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioReportType::Other"
+msgid "Other"
+msgstr "Other"
+
+#. Key:	EModioReportType::RudeContent
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioReportType::RudeContent"
+msgid "Rude Content"
+msgstr "Rude Content"
+
+#. Key:	EModioReportType::StolenContent
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioReportType::StolenContent"
+msgid "Stolen Content"
+msgstr "Stolen Content"
+
+#. Key:	EModioSortDirection::Ascending
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioSortDirection::Ascending"
+msgid "Ascending"
+msgstr "Ascending"
+
+#. Key:	EModioSortDirection::Descending
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioSortDirection::Descending"
+msgid "Descending"
+msgstr "Descending"
+
+#. Key:	EModioSortFieldType::DateMarkedLive
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioSortFieldType::DateMarkedLive"
+msgid "Date Marked Live"
+msgstr "Date Marked Live"
+
+#. Key:	EModioSortFieldType::DateUpdated
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioSortFieldType::DateUpdated"
+msgid "Date Updated"
+msgstr "Date Updated"
+
+#. Key:	EModioSortFieldType::DownloadsToday
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioSortFieldType::DownloadsToday"
+msgid "Downloads Today"
+msgstr "Downloads Today"
+
+#. Key:	EModioSortFieldType::DownloadsTotal
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioSortFieldType::DownloadsTotal"
+msgid "Downloads Total"
+msgstr "Downloads Total"
+
+#. Key:	EModioSortFieldType::ID
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioSortFieldType::ID"
+msgid "ID"
+msgstr "ID"
+
+#. Key:	EModioSortFieldType::Rating
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioSortFieldType::Rating"
+msgid "Rating"
+msgstr "Rating"
+
+#. Key:	EModioSortFieldType::SubscriberCount
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,EModioSortFieldType::SubscriberCount"
+msgid "Subscriber Count"
+msgstr "Subscriber Count"
+
+#. Key:	GB
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,GB"
+msgid "GB"
+msgstr "GB"
+
+#. Key:	KB
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,KB"
+msgid "KB"
+msgstr "KB"
+
+#. Key:	Largest
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,Largest"
+msgid "Largest"
+msgstr "Largest"
+
+#. Key:	MB
+#. SourceLocation:	/modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+#: /modio/ST_ModioStaticLocData.ST_ModioStaticLocData
+msgctxt "ST_ModioStaticLocData,MB"
+msgid "MB"
+msgstr "MB"
+

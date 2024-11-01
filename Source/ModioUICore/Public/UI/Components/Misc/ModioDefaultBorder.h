@@ -17,7 +17,7 @@
 #include "ModioDefaultBorder.generated.h"
 
 /**
- *
+ * @brief Default implementation of a border that can be used as a component in mod.io UI
  */
 UCLASS()
 class MODIOUICORE_API UModioDefaultBorder : public UBorder, public IModioUIHasConfigurableColor

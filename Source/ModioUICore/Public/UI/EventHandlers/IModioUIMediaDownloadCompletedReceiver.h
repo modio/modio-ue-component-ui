@@ -46,7 +46,7 @@ class MODIOUICORE_API UModioUIMediaDownloadCompletedReceiver : public UInterface
 	GENERATED_BODY()
 };
 
-// TODO: @modio-ue4 make sure this interface is consistent with that used in other interfaces regarding how the native
+// TODO: @modio-ue make sure this interface is consistent with that used in other interfaces regarding how the native
 // methods interact with the blueprintimplementable ones etc
 
 class MODIOUICORE_API IModioUIMediaDownloadCompletedReceiver : public IInterface

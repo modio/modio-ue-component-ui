@@ -198,6 +198,26 @@ UUserWidget* UModioDefaultModTileView::GetWidgetForValue_Implementation(UObject*
 	return GetEntryWidgetFromItem(Value);
 }
 
+void UModioDefaultModTileView::ScrollToTop_Implementation()
+{
+	Cast<UListViewBase>(this)->ScrollToTop();
+}
+
+void UModioDefaultModTileView::ScrollToBottom_Implementation()
+{
+	Cast<UListViewBase>(this)->ScrollToBottom();
+}
+
+void UModioDefaultModTileView::SetScrollOffset_Implementation(float Offset)
+{
+	Cast<UListViewBase>(this)->SetScrollOffset(Offset);
+}
+
+float UModioDefaultModTileView::GetScrollOffset_Implementation() const
+{
+	return Cast<UListViewBase>(this)->GetScrollOffset();
+}
+
 UUserWidget& UModioDefaultModTileView::OnGenerateEntryWidgetInternal(UObject* Item,
                                                                      TSubclassOf<UUserWidget> DesiredEntryClass,
                                                                      const TSharedRef<STableViewBase>& OwnerTable)

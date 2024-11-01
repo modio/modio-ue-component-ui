@@ -12,7 +12,7 @@
 
 #include "Core/ModioFilterParamsUI.h"
 #include "Loc/ModioEnumLocalizationHelpers.h"
-#include "ModioSettings.h"
+#include "ModioUISettings.h"
 #include "UI/ModioUICommonFunctionLibrary.h"
 
 void UModioPresetFilterSelector::SetValues_Implementation(const TArray<UObject*>& InValues)
@@ -106,7 +106,7 @@ TArray<TScriptInterface<IModioModFilterUIDetails>> UModioPresetFilterSelector::G
 {
 	CachedBoundPresets.Empty();
 	// Query the plugin settings for named filters to display
-	if (const UModioSettings* Settings = GetDefault<UModioSettings>())
+	if (const UModioUISettings* Settings = GetDefault<UModioUISettings>())
 	{
 		// Wrap each named filter in a UObject for data binding purposes
 		TArray<TScriptInterface<IModioModFilterUIDetails>> BindablePresets;

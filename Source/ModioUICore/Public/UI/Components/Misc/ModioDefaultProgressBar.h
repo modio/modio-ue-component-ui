@@ -19,7 +19,7 @@
 #include "ModioDefaultProgressBar.generated.h"
 
 /**
- * @default_impl_for Progress
+ * @default_impl_for Progress Bar
  * @brief The Progress Bar is a default implementation of the Progress component which utilizes UProgressBar for the underlying functionality.
  * @component_display_name Progress Bar
  */

@@ -17,19 +17,23 @@
 #include "UI/Interfaces/IModioUIModListViewInterface.h"
 #include "UI/Interfaces/IModioUIObjectListWidget.h"
 #include "UI/Interfaces/IModioUIObjectSelector.h"
+#include "UI/Interfaces/IModioScrollableWidget.h"
 
 #include "ModioDefaultModListView.generated.h"
 
 /**
+ * @default_impl_for Mod List View
  * @brief A default implementation of IModioUIModListViewInterface which displays mods as a simple list. This widget
  * inherits from UListView and forwards calls from IModioUIModListViewInterface and IModioUIObjectListWidget to the
  * existing ListView implementation.
+ * @component_display_name Mod List View
  */
 UCLASS(meta = (ModioWidget))
 class MODIOUICORE_API UModioDefaultModListView : public UListView,
                                                  public IModioUIModListViewInterface,
                                                  public IModioUIObjectListWidget,
-                                                 public IModioUIObjectSelector
+                                                 public IModioUIObjectSelector,
+                                                 public IModioScrollableWidget
 {
 	GENERATED_BODY()
 
@@ -75,6 +79,13 @@ protected:
 	virtual int32 GetIndexForValue_Implementation(UObject* Value) const override;
 	virtual UUserWidget* GetWidgetForValue_Implementation(UObject* Value) const override;
 	//~ End IModioUIObjectSelector Interface
+
+	//~ Begin IModioScrollableWidget Interface
+	virtual void ScrollToTop_Implementation() override;
+	virtual void ScrollToBottom_Implementation() override;
+	virtual void SetScrollOffset_Implementation(float Offset) override;
+	virtual float GetScrollOffset_Implementation() const override;
+	//~ End IModioScrollableWidget Interface
 
 	virtual UUserWidget& OnGenerateEntryWidgetInternal(UObject* Item, TSubclassOf<UUserWidget> DesiredEntryClass,
 											   const TSharedRef<STableViewBase>& OwnerTable) override;

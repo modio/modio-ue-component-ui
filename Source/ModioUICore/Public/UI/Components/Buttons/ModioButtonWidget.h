@@ -72,7 +72,6 @@ protected:
 	 * This function performs the "deep" focus on the Common UI button, which means that it will set the focus on the button itself
 	 * This is useful since UCommonButtonBase is derived from UUserWidget, which doesn't support focus when setting it directly
 	 */
-	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Button", DisplayName = "Set Button Focus (Common UI)")
 	void SetCommonUIButtonFocus();
 
 	/**
@@ -176,6 +175,7 @@ protected:
 	//~ End UCommonButtonBase Interface
 
 	//~ Begin UUserWidget Interface
+	virtual void HandleFocusReceived() override;
 	virtual void NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent) override;
 	virtual void NativeOnRemovedFromFocusPath(const FFocusEvent& InFocusEvent) override;
 	//~ End UUserWidget Interface
