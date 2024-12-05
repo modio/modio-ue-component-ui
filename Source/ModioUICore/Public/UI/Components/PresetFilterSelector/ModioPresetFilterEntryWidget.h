@@ -42,10 +42,6 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Widget Getters", meta = (BlueprintProtected))
 	TScriptInterface<IModioUIHasTextWidget> GetLabelWidget() const;
 
-	//~ Begin IUserObjectListEntry Interface
-	virtual void NativeOnListItemObjectSet(UObject* InObject) override;
-	//~ End IUserObjectListEntry Interface
-
 	//~ Begin IModioUIDataSourceWidget Interface
 	virtual void NativeSetDataSource(UObject* InDataSource) override;
 	//~ End IModioUIDataSourceWidget Interface

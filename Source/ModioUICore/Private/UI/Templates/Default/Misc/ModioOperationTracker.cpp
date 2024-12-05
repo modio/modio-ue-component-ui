@@ -10,9 +10,10 @@
 
 #include "UI/Templates/Default/Misc/ModioOperationTracker.h"
 
-#include "Math/UnrealMathUtility.h"
-#include "Types/ModioUnsigned64.h"
+#include "Internationalization/Text.h"
+#include "Libraries/ModioSDKLibrary.h"
 #include "TimerManager.h"
+#include "Types/ModioUnsigned64.h"
 
 void UModioOperationTracker::NativePreConstruct()
 {
@@ -27,14 +28,25 @@ void UModioOperationTracker::NativeTick(const FGeometry& MyGeometry, float InDel
 	Super::NativeTick(MyGeometry, InDeltaTime);
 	if (bPollInstallProgress)
 	{
-		if (UWidget* RadialProgressWidget = ModioUI::GetInterfaceWidgetChecked(GetRadialProgressWidget()))
+		if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 		{
-			IModioUIProgressWidget::Execute_SetProgress(RadialProgressWidget, GetInstallProgressPercent());
-		}
-		if (UWidget* ProgressTextWidget = ModioUI::GetInterfaceWidgetChecked(GetProgressTextWidget()))
-		{
-			IModioUIHasTextWidget::Execute_SetWidgetText(ProgressTextWidget,
-														 FText::AsPercent(GetInstallProgressPercent()));
+			if (TOptional<FModioModProgressInfo> ProgressInfo = Subsystem->QueryCurrentModUpdate())
+			{
+				RefreshSizeAndSpeedText(ProgressInfo.GetValue(), InDeltaTime);
+
+				if (UWidget* RadialProgressWidget = ModioUI::GetInterfaceWidgetChecked(GetRadialProgressWidget()))
+				{
+					IModioUIProgressWidget::Execute_SetProgress(RadialProgressWidget,
+																GetInstallProgressPercent(ProgressInfo.GetValue()));
+				}
+				if (UWidget* PercentProgressTextWidget =
+						ModioUI::GetInterfaceWidgetChecked(GetPercentProgressTextWidget()))
+				{
+					IModioUIHasTextWidget::Execute_SetWidgetText(
+						PercentProgressTextWidget,
+						FText::AsPercent(GetInstallProgressPercent(ProgressInfo.GetValue())));
+				}
+			}
 		}
 		RefreshQueueData();
 	}
@@ -69,7 +81,7 @@ void UModioOperationTracker::SetInitialVisualState()
 	{
 		IModioUIProgressWidget::Execute_SetProgress(RadialProgress, 0.0f);
 	}
-	if (UWidget* ProgressText = ModioUI::GetInterfaceWidgetChecked(GetProgressTextWidget()))
+	if (UWidget* ProgressText = ModioUI::GetInterfaceWidgetChecked(GetPercentProgressTextWidget()))
 	{
 		IModioUIHasTextWidget::Execute_SetWidgetText(ProgressText, FText::AsPercent(0.f));
 	}
@@ -77,23 +89,52 @@ void UModioOperationTracker::SetInitialVisualState()
 	{
 		IModioUIImageDisplayWidget::Execute_SetBrushDirectly(OperationTypeIcon, FSlateNoResource());
 	}
+	if (UWidget* DownloadSpeedTextWidget = ModioUI::GetInterfaceWidgetChecked(GetDownloadSpeedTextWidget()))
+	{
+		IModioUIHasTextWidget::Execute_SetWidgetText(DownloadSpeedTextWidget, FText());
+	}
+	if (UWidget* DownloadSizeTextWidget = ModioUI::GetInterfaceWidgetChecked(GetDownloadSizeTextWidget()))
+	{
+		IModioUIHasTextWidget::Execute_SetWidgetText(DownloadSizeTextWidget, FText());
+	}
 }
 void UModioOperationTracker::HandleOperationBegin()
 {
 	bPollInstallProgress = true;
+	bPollSpeed = true;
+
+	DownloadProgressSize = FModioUnsigned64(0);
+	DownloadTotalSize = FModioUnsigned64(0);
+	TimeElapsed = 0.0f;
+	SizePerSecond = FModioUnsigned64(0);
+
 	SetInitialVisualState();
+	ShowSubWidgets();
 }
 void UModioOperationTracker::HandleOperationComplete_Implementation()
 {
 	bPollInstallProgress = false;
+	bPollSpeed = false;
+
+	// Some installations (e.g. small or fast) may skip setting the final bit of progress
+	// The below acts as a fallback ensuring we always display a complete installation state
 	if (UWidget* RadialProgress = ModioUI::GetInterfaceWidgetChecked(GetRadialProgressWidget()))
 	{
 		IModioUIProgressWidget::Execute_SetProgress(RadialProgress, 1.0f);
 	}
-	if (UWidget* ProgressTextWidget = ModioUI::GetInterfaceWidgetChecked(GetProgressTextWidget()))
+	if (UWidget* ProgressTextWidget = ModioUI::GetInterfaceWidgetChecked(GetPercentProgressTextWidget()))
 	{
 		IModioUIHasTextWidget::Execute_SetWidgetText(ProgressTextWidget, FText::AsPercent(1.0f));
 	}
+	if (DownloadProgressSize < DownloadTotalSize)
+	{
+		DownloadProgressSize = DownloadTotalSize;
+		SetDownloadSizeText();
+	}
+}
+void UModioOperationTracker::OnAllOperationsComplete()
+{
+	HideSubWidgets();
 }
 void UModioOperationTracker::RefreshQueueData_Implementation()
 {
@@ -115,36 +156,84 @@ void UModioOperationTracker::RefreshQueueData_Implementation()
 		IModioUIHasTextWidget::Execute_SetWidgetText(QueueCountTextWidget,
 													 FText::FromString(FString::FromInt(NumQueuedMods)));
 	}
-	ShowSubWidgets();
 }
-void UModioOperationTracker::OnAllOperationsComplete()
+void UModioOperationTracker::RefreshSizeAndSpeedText(FModioModProgressInfo ProgressInfo, float InDeltaTime)
 {
-	HideSubWidgets();
-	SetInitialVisualState();
-}
-float UModioOperationTracker::GetInstallProgressPercent()
-{
-	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	if (ProgressInfo.GetCurrentState() == EModioModProgressState::Downloading)
 	{
-		if (TOptional<FModioModProgressInfo> ProgressInfo = Subsystem->QueryCurrentModUpdate())
-		{
-			switch (ProgressInfo.GetValue().GetCurrentState())
-			{
-				case EModioModProgressState::Downloading:
-					return UModioUnsigned64Library::DivideToFloat(
-						ProgressInfo.GetValue().GetCurrentProgress(EModioModProgressState::Downloading),
-						ProgressInfo.GetValue().GetTotalProgress(EModioModProgressState::Downloading));
-					break;
+		FModioUnsigned64 SizeLastTick = DownloadProgressSize;
+		DownloadTotalSize = ProgressInfo.GetTotalProgress(EModioModProgressState::Downloading);
+		DownloadProgressSize = ProgressInfo.GetCurrentProgress(EModioModProgressState::Downloading);
+		SetDownloadSizeText();
 
-				case EModioModProgressState::Extracting:
-					return UModioUnsigned64Library::DivideToFloat(
-						ProgressInfo.GetValue().GetCurrentProgress(EModioModProgressState::Extracting),
-						ProgressInfo.GetValue().GetTotalProgress(EModioModProgressState::Extracting));
-					break;
+		if (bPollSpeed)
+		{
+			SizePerSecond += DownloadProgressSize - SizeLastTick;
+			TimeElapsed += InDeltaTime;
+
+			if (TimeElapsed >= 1.0f)
+			{
+				if (UWidget* DownloadSpeedTextWidget = ModioUI::GetInterfaceWidgetChecked(GetDownloadSpeedTextWidget()))
+				{
+					IModioUIHasTextWidget::Execute_SetWidgetText(
+						DownloadSpeedTextWidget,
+						FText::Format(FTextFormat(SpeedFormatText),
+									  UModioSDKLibrary::Filesize_ToString(SizePerSecond.Underlying, 2, 2,
+																		  EFileSizeUnit::Largest, true)));
+				}
+				SizePerSecond = FModioUnsigned64(0);
+				TimeElapsed = 0;
 			}
 		}
+		return;
+	}
+	// if bPollSpeed is still true, we have just transistioned from Downloading to Extracting
+	if (ProgressInfo.GetCurrentState() == EModioModProgressState::Extracting && bPollSpeed)
+	{
+		// No longer installing, so download speed should be cleared
+		if (UWidget* DownloadSpeedTextWidget = ModioUI::GetInterfaceWidgetChecked(GetDownloadSpeedTextWidget()))
+		{
+			IModioUIHasTextWidget::Execute_SetWidgetText(DownloadSpeedTextWidget, FText());
+		}
+		// Ensure the download size represents a complete state
+		if (DownloadProgressSize < DownloadTotalSize)
+		{
+			DownloadProgressSize = DownloadTotalSize;
+			SetDownloadSizeText();
+		}
+		// Ensure we don't enter this block of code again until a new operation begins
+		bPollSpeed = false;
+	}
+}
+float UModioOperationTracker::GetInstallProgressPercent(FModioModProgressInfo ProgressInfo)
+{
+	switch (ProgressInfo.GetCurrentState())
+	{
+		case EModioModProgressState::Downloading:
+			return UModioUnsigned64Library::DivideToFloat(
+				ProgressInfo.GetCurrentProgress(EModioModProgressState::Downloading),
+				ProgressInfo.GetTotalProgress(EModioModProgressState::Downloading));
+			break;
+
+		case EModioModProgressState::Extracting:
+			return UModioUnsigned64Library::DivideToFloat(
+				ProgressInfo.GetCurrentProgress(EModioModProgressState::Extracting),
+				ProgressInfo.GetTotalProgress(EModioModProgressState::Extracting));
+			break;
 	}
 	return 0;
+}
+void UModioOperationTracker::SetDownloadSizeText()
+{
+	if (UWidget* DownloadSizeWidget = ModioUI::GetInterfaceWidgetChecked(GetDownloadSizeTextWidget()))
+	{
+		IModioUIHasTextWidget::Execute_SetWidgetText(
+			DownloadSizeWidget, FText::Format(FTextFormat(SizeFormatText),
+											  UModioSDKLibrary::Filesize_ToString(DownloadProgressSize.Underlying, 2, 2,
+																				  EFileSizeUnit::Largest, true),
+											  UModioSDKLibrary::Filesize_ToString(DownloadTotalSize.Underlying, 2, 2,
+																				  EFileSizeUnit::Largest, true)));
+	}
 }
 int32 UModioOperationTracker::GetNumUserSubscriptions() const
 {
@@ -166,7 +255,7 @@ int32 UModioOperationTracker::GetNumUserInstallations() const
 }
 void UModioOperationTracker::HideSubWidgets()
 {
-	if (UWidget* ProgressTextWidget = ModioUI::GetInterfaceWidgetChecked(GetProgressTextWidget()))
+	if (UWidget* ProgressTextWidget = ModioUI::GetInterfaceWidgetChecked(GetPercentProgressTextWidget()))
 	{
 		ProgressTextWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
@@ -182,14 +271,26 @@ void UModioOperationTracker::HideSubWidgets()
 	{
 		ModCountTextWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
+	if (UWidget* ModCountTextWidget = ModioUI::GetInterfaceWidgetChecked(GetQueueLabelTextWidget()))
+	{
+		ModCountTextWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 	if (UWidget* OperationIconWidget = ModioUI::GetInterfaceWidgetChecked(GetOperationTypeIconWidget()))
 	{
 		OperationIconWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
+	if (UWidget* DownloadSizeTextWidget = ModioUI::GetInterfaceWidgetChecked(GetDownloadSizeTextWidget()))
+	{
+		DownloadSizeTextWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	if (UWidget* DownloadSpeedTextWidget = ModioUI::GetInterfaceWidgetChecked(GetDownloadSpeedTextWidget()))
+	{
+		DownloadSpeedTextWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 void UModioOperationTracker::ShowSubWidgets()
 {
-	if (UWidget* ProgressTextWidget = ModioUI::GetInterfaceWidgetChecked(GetProgressTextWidget()))
+	if (UWidget* ProgressTextWidget = ModioUI::GetInterfaceWidgetChecked(GetPercentProgressTextWidget()))
 	{
 		ProgressTextWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	}
@@ -205,12 +306,24 @@ void UModioOperationTracker::ShowSubWidgets()
 	{
 		ModCountTextWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	}
+	if (UWidget* ModCountTextWidget = ModioUI::GetInterfaceWidgetChecked(GetQueueLabelTextWidget()))
+	{
+		ModCountTextWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
 	if (UWidget* OperationIconWidget = ModioUI::GetInterfaceWidgetChecked(GetOperationTypeIconWidget()))
 	{
 		OperationIconWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	}
+	if (UWidget* DownloadSizeTextWidget = ModioUI::GetInterfaceWidgetChecked(GetDownloadSizeTextWidget()))
+	{
+		DownloadSizeTextWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
+	if (UWidget* DownloadSpeedTextWidget = ModioUI::GetInterfaceWidgetChecked(GetDownloadSpeedTextWidget()))
+	{
+		DownloadSpeedTextWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
 }
-TScriptInterface<IModioUIHasTextWidget> UModioOperationTracker::GetProgressTextWidget_Implementation() const
+TScriptInterface<IModioUIHasTextWidget> UModioOperationTracker::GetPercentProgressTextWidget_Implementation() const
 {
 	return nullptr;
 }
@@ -226,7 +339,19 @@ TScriptInterface<IModioUIHasTextWidget> UModioOperationTracker::GetQueueCountTex
 {
 	return nullptr;
 }
+TScriptInterface<IModioUIHasTextWidget> UModioOperationTracker::GetQueueLabelTextWidget_Implementation() const
+{
+	return nullptr;
+}
 TScriptInterface<IModioUIImageDisplayWidget> UModioOperationTracker::GetOperationTypeIconWidget_Implementation() const
+{
+	return nullptr;
+}
+TScriptInterface<IModioUIHasTextWidget> UModioOperationTracker::GetDownloadSizeTextWidget_Implementation() const
+{
+	return nullptr;
+}
+TScriptInterface<IModioUIHasTextWidget> UModioOperationTracker::GetDownloadSpeedTextWidget_Implementation() const
 {
 	return nullptr;
 }

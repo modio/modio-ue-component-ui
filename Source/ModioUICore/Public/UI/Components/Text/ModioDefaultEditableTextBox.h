@@ -57,12 +57,6 @@ public:
 	/** Delegate that fires when the focus of the editable text box changes */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEditableTextBoxFocusChanged, bool, bIsFocused);
 
-	/**
-	 * @brief Delegate that fires when the text in the editable text box changes
-	 */
-	UPROPERTY(BlueprintAssignable, Category = "Modio UI|Editable Text Box")
-	FOnEditableTextBoxFocusChanged OnFocusChanged;
-
 protected:
 	//~ Begin IModioUIStringInputWidget Interface
 	virtual FString NativeGatherInput() override;

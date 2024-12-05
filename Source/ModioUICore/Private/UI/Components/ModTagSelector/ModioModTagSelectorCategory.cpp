@@ -15,17 +15,6 @@
 
 #include "Components/ListView.h"
 
-void UModioModTagSelectorCategory::NativeOnListItemObjectSet(UObject* ListItemObject)
-{
-	IModioUIDataSourceWidget::Execute_SetDataSource(this, ListItemObject);
-	if(GetTagCategoryLabel().GetObject() && ListItemObject->Implements<UModioModTagCategoryUIDetails>())
-	{
-		IModioUIHasTextWidget::Execute_SetWidgetText(
-			GetTagCategoryLabel().GetObject(),
-			IModioModTagCategoryUIDetails::Execute_GetLocalizedCategoryName(ListItemObject));
-	}
-}
-
 TScriptInterface<IModioUIObjectSelector> UModioModTagSelectorCategory::GetCategoryTagListWidget_Implementation() const
 {
 	return nullptr;
@@ -34,6 +23,14 @@ TScriptInterface<IModioUIObjectSelector> UModioModTagSelectorCategory::GetCatego
 void UModioModTagSelectorCategory::NativeSetDataSource(UObject* InDataSource)
 {
 	Super::NativeSetDataSource(InDataSource);
+
+	if(GetTagCategoryLabel().GetObject() && InDataSource->Implements<UModioModTagCategoryUIDetails>())
+	{
+		IModioUIHasTextWidget::Execute_SetWidgetText(
+			GetTagCategoryLabel().GetObject(),
+			IModioModTagCategoryUIDetails::Execute_GetLocalizedCategoryName(InDataSource));
+	}
+	
 	// Ensure the data source is capable of providing information about a tag category
 	if (DataSource && DataSource->GetClass()->ImplementsInterface(UModioModTagCategoryUIDetails::StaticClass()))
 	{

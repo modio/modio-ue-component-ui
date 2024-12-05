@@ -42,7 +42,6 @@ void UModioModTagSelectorEntry::NativeConstruct()
 
 void UModioModTagSelectorEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
-	IModioUIDataSourceWidget::Execute_SetDataSource(this, ListItemObject);
 	if (ListItemObject && ListItemObject->Implements<UModioModTagUIDetails>())
 	{
 		IModioUIHasTextWidget::Execute_SetWidgetText(this,

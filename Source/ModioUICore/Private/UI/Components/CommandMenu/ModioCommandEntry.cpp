@@ -12,11 +12,6 @@
 
 #include "UI/Interfaces/IModioUICommandMenu.h"
 
-void UModioCommandEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
-{
-	IModioUIDataSourceWidget::Execute_SetDataSource(this, ListItemObject);
-}
-
 void UModioCommandEntry::NativeSetDataSource(UObject* InDataSource)
 {
 	if (InDataSource && InDataSource->GetClass()->ImplementsInterface(UModioUICommandObject::StaticClass()))

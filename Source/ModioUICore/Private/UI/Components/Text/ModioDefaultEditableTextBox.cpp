@@ -118,7 +118,6 @@ TSharedRef<SWidget> UModioDefaultEditableTextBox::RebuildWidget()
 	if (TSharedPtr<SModioEditableTextBox> ModioEditableTextBox = StaticCastSharedPtr<SModioEditableTextBox>(MyEditableTextBlock))
 	{
 		ModioEditableTextBox->OnFocusChanged.BindWeakLambda(this, [this](bool bIsFocused) {
-			OnFocusChanged.Broadcast(bIsFocused);
 			OnModioFocusPathChanged.Broadcast(this, FFocusEvent(), bIsFocused);
 		});
 	}

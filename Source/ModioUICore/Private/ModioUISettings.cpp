@@ -28,11 +28,4 @@ UModioUISettings::UModioUISettings()
 	SortRecent.SortField = EModioSortFieldType::DateMarkedLive;
 	SortRecent.Count = 100;
 	PresetNamedFilters.Add(MoveTemp(SortRecent));
-
-	FModioPresetFilterParams SortPopular;
-	SortPopular.PresetName = LOCTABLE("/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText", "SortPopular");
-	SortPopular.Direction = EModioSortDirection::Descending;
-	SortPopular.SortField = EModioSortFieldType::SubscriberCount;
-	SortPopular.Count = 100;
-	PresetNamedFilters.Add(MoveTemp(SortPopular));
 }

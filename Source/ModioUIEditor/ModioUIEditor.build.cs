@@ -16,11 +16,11 @@ public class ModioUIEditor : ModuleRules
 {
     public ModioUIEditor(ReadOnlyTargetRules Target) : base(Target)
     {
-        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-#if UE_5_3_OR_LATER
+	    PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+#if UE_5_2_OR_LATER
 	    IWYUSupport = IWYUSupport.Full;
-        #else
-		bEnforceIWYU = true;
+#else
+	    bEnforceIWYU = true;
 #endif
 
         PublicDependencyModuleNames.AddRange(new string[]

@@ -33,10 +33,6 @@ class MODIOUICORE_API UModioModTagSelectorCategory : public UModioUIComponentBas
 	GENERATED_BODY()
 
 protected:
-	//~ Begin IUserObjectListEntry Interface
-	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
-	//~ End IUserObjectListEntry Interface
-
 	/**
 	 * @brief Provides a reference to the internal widget that actually displays the tags for this category
 	 * @return The widget that displays the tags

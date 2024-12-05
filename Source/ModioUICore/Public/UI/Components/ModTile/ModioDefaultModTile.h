@@ -79,8 +79,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Events|Mod Tile", meta = (BlueprintProtected))
 	void NotifyHoverStateChanged(bool bNewHoveredState);
 
-	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
-
 	virtual void NativeOnItemSelectionChanged(bool bIsSelected) override;
 
 	virtual void AddSelectedStateChangedHandler_Implementation(

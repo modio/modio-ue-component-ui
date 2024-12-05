@@ -10,6 +10,7 @@
 
 #include "UI/Components/ModTile/ModioDefaultModTileView.h"
 
+#include "UI/Components/Slate/SModioDataSourceAwareTableRow.h"
 #include "UI/Interfaces/IModioModInfoUIDetails.h"
 #include "UI/Interfaces/IModioUIDataSourceWidget.h"
 #include "UI/Interfaces/IModioUISelectableWidget.h"
@@ -102,7 +103,12 @@ UObject* UModioDefaultModTileView::GetSingleSelectedValue_Implementation()
 
 int32 UModioDefaultModTileView::GetSingleSelectionIndex_Implementation()
 {
-	return GetIndexForItem(GetSelectedItem());
+	int32 Index = GetIndexForItem(GetSelectedItem());
+	if (Index == INDEX_NONE)
+	{
+		Index = LastSelectedIndex;
+	}
+	return Index;
 }
 
 void UModioDefaultModTileView::ClearSelectedValues_Implementation()
@@ -172,6 +178,11 @@ TArray<UObject*> UModioDefaultModTileView::GetSelectedValues_Implementation()
 	return OutArray;
 }
 
+int32 UModioDefaultModTileView::GetLastSelectionIndex_Implementation()
+{
+	return LastSelectedIndex;
+}
+
 void UModioDefaultModTileView::SetMultiSelectionAllowed_Implementation(bool bMultiSelectionAllowed)
 {
 	SetSelectionMode(bMultiSelectionAllowed ? ESelectionMode::Multi : ESelectionMode::Single);
@@ -222,7 +233,14 @@ UUserWidget& UModioDefaultModTileView::OnGenerateEntryWidgetInternal(UObject* It
                                                                      TSubclassOf<UUserWidget> DesiredEntryClass,
                                                                      const TSharedRef<STableViewBase>& OwnerTable)
 {
-	UUserWidget& GeneratedEntryWidget = Super::OnGenerateEntryWidgetInternal(Item, DesiredEntryClass, OwnerTable);
+	UUserWidget& GeneratedEntryWidget = [this, DesiredEntryClass, OwnerTable, Item]() -> UUserWidget&
+	{
+		if (DesiredEntryClass->ImplementsInterface(UModioUIDataSourceWidget::StaticClass()))
+		{
+			return GenerateTypedEntry<UUserWidget, SModioDataSourceAwareTableRow<UObject*>>(DesiredEntryClass, OwnerTable);
+		}
+		return Super::OnGenerateEntryWidgetInternal(Item, DesiredEntryClass, OwnerTable);
+	}();
 	OnWidgetCreated.Broadcast(&GeneratedEntryWidget, Item);
 	return GeneratedEntryWidget;
 }
@@ -247,6 +265,8 @@ void UModioDefaultModTileView::NotifySelectionChanged(UObject* SelectedItem)
 	{
 		OnSelectedValueChanged.Broadcast(SelectedItem);
 	}
+
+	LastSelectedIndex = GetIndexForItem(SelectedItem);
 }
 
 #if WITH_EDITOR

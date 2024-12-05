@@ -5,6 +5,7 @@ public class ModioUICore : ModuleRules
 {
 	public ModioUICore(ReadOnlyTargetRules Target) : base(Target)
 	{
+		PrivateDependencyModuleNames.AddRange(new string[] { "OnlineSubsystem" });
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(new string[]

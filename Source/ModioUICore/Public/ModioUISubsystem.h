@@ -21,6 +21,9 @@
 #include "Types/ModioErrorCode.h"
 #include "Types/ModioModInfo.h"
 #include "Types/ModioModTagOptions.h"
+#include "Types/ModioOpenStoreResult.h"
+#include "Types/ModioTokenPack.h"
+#include "Types/ModioTokenPackList.h"
 #include "UI/Interfaces/IModioModInfoUIDetails.h"
 #include "UI/Interfaces/IModioUIDialog.h"
 #include "UI/Interfaces/IModioUIModEnabledStateProvider.h"
@@ -71,6 +74,19 @@ DECLARE_MULTICAST_DELEGATE(FOnAuthenticationChangeStarted);
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnConnectivityChanged, bool);
 
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnShowTokenPurchaseUIResult, bool, bResult, FString, Message);
+
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnTokenPackRequestCompleted, FModioTokenPackID, FModioErrorCode,
+									   TOptional<FModioTokenPack>);
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnListAllTokenPacksRequestCompleted, FModioErrorCode,
+									   TOptional<FModioTokenPackList>);
+
+DECLARE_DELEGATE_TwoParams(FOnListAllTokenPacksDelegateFast, FModioErrorCode, TOptional<FModioTokenPackList>);
+DECLARE_DELEGATE_TwoParams(FOnGetTokenPackDelegateFast, FModioErrorCode, TOptional<FModioTokenPack>);
+
+DECLARE_MULTICAST_DELEGATE(FOnEntitlementRefreshRequest);
+
 
 UENUM(BlueprintType)
 enum class EModioUIFeatureFlags : uint8
@@ -113,6 +129,8 @@ protected:
 	friend class IModioUIDialogDisplayEventReceiver;
 	friend class IModioUIConnectivityChangedReceiver;
 	friend class IModioUIWalletBalanceUpdatedEventReceiver;
+	friend class IModioUITokenPackReceiver;
+	friend class IModioUIEntitlementRefreshEventReceiver;
 
 #if WITH_EDITOR
 	// These test widgets are friends so they can manually trigger subsystem delegates to emit mock events for in-editor
@@ -125,6 +143,7 @@ protected:
 	FOnModEnabledChanged OnModEnabledStateChanged;
 
 	FOnDisplayDialogRequest OnDialogDisplayEvent;
+	FOnEntitlementRefreshRequest OnEntitlementRefreshEvent;
 
 	UPROPERTY(Transient)
 	UObject* ModEnabledStateDataProvider;
@@ -176,6 +195,13 @@ protected:
 	FOnListAllModsRequestCompleted OnListAllModsRequestCompleted;
 	void ListAllModsCompletedHandler(FModioErrorCode ErrorCode, TOptional<FModioModInfoList> ModInfos,
 									 FString RequestIdentifier);
+
+	FOnTokenPackRequestCompleted OnTokenPackRequestCompleted;
+	void TokenPackRequestCompletedHandler(FModioErrorCode ErrorCode, TOptional<FModioTokenPackList> TokenPacks,
+										TArray<FModioTokenPackID> IDs);
+
+	FOnListAllTokenPacksRequestCompleted OnListAllTokenPacksRequestCompleted;
+	void ListAllTokenPacksCompletedHandler(FModioErrorCode ErrorCode, TOptional<FModioTokenPackList> TokenPacks);
 
 	FOnModManagementEventUI OnModManagementEvent;
 
@@ -243,7 +269,6 @@ public:
 	{
 		if (FunctionPointer == nullptr)
 		{
-			UE_LOG(ModioUICore, Warning, TEXT("Attempting to register a null function pointer to delegate"));
 			return;
 		}
 
@@ -354,6 +379,22 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestListAllMods(FModioFilterParams Params, FString RequestIdentifier);
 
+	/**
+	 * Requests a list of all purchasable Token Packs via the currently active online portal provider
+	 * The result is received by any class implementing the ModioTokenPackReceiver interface via OnListAllTokenPacksRequestCompleted
+	 */
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
+	void RequestListAllTokenPacks();
+
+	/**
+	 * Requests the purchase of the given Token Pack via the currently active online portal provider
+	 * @param TokenPackID ID of the pack to purchase
+	 * @param Callback Executed upon completion of the purchase process, indicating success and any additional information
+	 * @return Whether the purchase process was successfully started. Does not indicate status of the purchase itself.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
+	bool RequestPurchaseTokenPack(FModioTokenPackID TokenPackID, const FOnPlatformCheckoutDelegate& Callback);
+
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	bool QueryIsModEnabled(FModioModID ID);
 
@@ -390,6 +431,25 @@ public:
 
 	virtual bool NativeRequestModRatingChange(int64 ID, EModioRating NewRating) override;
 	virtual EModioRating NativeQueryModRating(int64 ModID) override;
+
+	/**
+	 * Attempts to invoke the store for the current platform.
+	 * @return Indicates if the native store UI is supported on the current platform,
+	 * i.e if the store has opened, *not* if a purchase was made.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
+	EModioOpenStoreResult RequestShowTokenPurchaseUI();
+
+	/**
+	 * Attempts to invoke the store for the current platform.
+	 * @param Callback A callback that returns a bool indicating whether the user made a purchase in the store
+	 * @return Indicates if the native store UI is supported on the current platform, i.e if the store has opened, *not* if a purchase was made.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
+	EModioOpenStoreResult RequestShowTokenPurchaseUIWithHandler(const FOnShowTokenPurchaseUIResult& Callback);
+
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
+	void RequestRefreshEntitlements();
 
 private:
 	TMap<int64, EModioRating> ModRatingMap;

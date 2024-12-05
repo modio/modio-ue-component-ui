@@ -36,7 +36,7 @@
 		{
 			"Name": "ModioUILocalization",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "EarliestPossible"
 		}
 	],
 	"LocalizationTargets": [
@@ -57,6 +57,10 @@
 		},
 		{
 			"Name": "Modio",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystem",
 			"Enabled": true
 		}
 	]

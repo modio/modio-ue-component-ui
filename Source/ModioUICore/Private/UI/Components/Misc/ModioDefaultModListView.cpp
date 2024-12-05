@@ -10,6 +10,7 @@
 
 #include "UI/Components/Misc/ModioDefaultModListView.h"
 
+#include "UI/Components/Slate/SModioDataSourceAwareTableRow.h"
 #include "UI/Interfaces/IModioUIDataSourceWidget.h"
 #include "UI/Interfaces/IModioUISelectableWidget.h"
 
@@ -186,6 +187,11 @@ TArray<UObject*> UModioDefaultModListView::GetSelectedValues_Implementation()
 	return OutArray;
 }
 
+int32 UModioDefaultModListView::GetLastSelectionIndex_Implementation()
+{
+	return LastSelectedIndex;
+}
+
 void UModioDefaultModListView::SetMultiSelectionAllowed_Implementation(bool bMultiSelectionAllowed)
 {
 	SetSelectionMode(bMultiSelectionAllowed ? ESelectionMode::Multi : ESelectionMode::Single);
@@ -236,7 +242,14 @@ UUserWidget& UModioDefaultModListView::OnGenerateEntryWidgetInternal(UObject* It
                                                                      TSubclassOf<UUserWidget> DesiredEntryClass,
                                                                      const TSharedRef<STableViewBase>& OwnerTable)
 {
-	UUserWidget& GeneratedEntryWidget = Super::OnGenerateEntryWidgetInternal(Item, DesiredEntryClass, OwnerTable);
+	UUserWidget& GeneratedEntryWidget = [this, DesiredEntryClass, OwnerTable, Item]() -> UUserWidget&
+	{
+		if (DesiredEntryClass->ImplementsInterface(UModioUIDataSourceWidget::StaticClass()))
+		{
+			return GenerateTypedEntry<UUserWidget, SModioDataSourceAwareTableRow<UObject*>>(DesiredEntryClass, OwnerTable);
+		}
+		return Super::OnGenerateEntryWidgetInternal(Item, DesiredEntryClass, OwnerTable);
+	}();
 	OnWidgetCreated.Broadcast(&GeneratedEntryWidget, Item);
 	return GeneratedEntryWidget;
 }
@@ -261,4 +274,6 @@ void UModioDefaultModListView::NotifySelectionChanged(UObject* SelectedItem)
 	{
 		OnSelectedValueChanged.Broadcast(SelectedItem);
 	}
+
+	LastSelectedIndex = GetIndexForItem(SelectedItem);
 }

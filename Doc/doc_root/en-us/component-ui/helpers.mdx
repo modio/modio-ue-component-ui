@@ -1,0 +1,44 @@
+---
+id: ue-helpers
+title: Helper Functionality
+slug: /unreal/component-ui/helpers/
+custom_edit_url: https://github.com/modio/modio-ue4-internal/tree/main/Plugins/ModioComponentUI/Doc/component-ui/helpers.mdx
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+## Subwidget component validators
+
+The `UI/Components/ComponentHelpers.h` file provides a number of utility functions in the `ModioUI` namespace to simplify validating that a valid subwidget is being returned from a getter function:
+
+```cpp
+template<typename WidgetType = class UWidget, typename InterfaceType>
+inline WidgetType* GetInterfaceWidgetChecked(TScriptInterface<InterfaceType> TargetWidget);
+
+template<typename WidgetType = class UWidget, typename InterfaceType>
+inline WidgetType* GetInterfaceWidgetAsDataSourceWidget(TScriptInterface<InterfaceType> TargetWidget);
+```
+
+They can be easily invoked as part of a conditional:
+
+```cpp
+if (UWidget* ImageWidget = ModioUI::GetInterfaceWidgetChecked(GetAvatarImageWidget()))
+{
+    // Make an interface call on ImageWidget using the interface type passed in to GetInterfaceWidgetChecked 
+}
+```
+
+These functions use template deduction to infer the correct interface type from the `TScriptInterface` object you pass in, and will perform a more extended check than `TScriptInterface` normally does to accommodate pure Blueprint interface implementations as well. Using `GetInterfaceWidgetChecked` will mean you do not need to perform additional safety checks before invoking an `Execute_` method from an interface, which will normally throw an error if the target object does not in fact implement the required interface.
+
+## Color references and property overrides
+
+While primarily intended as implementation details of our template UI implementation, the plugin also provides the following helper structs:
+
+- **`FLinearColorRef`**
+
+    - This struct is a simple name-based reference to a color defined in a data table, to help implement palette support in the default mod.io components and template design. The default implementation looks colors up by name in a data table at a fixed location, but this can be altered by editing the definition of `ULinearColorRefLibrary::Resolve`.
+
+- **`FIntegerOverride`, `FFloatOverride`, `FTextOverride`, `FInputActionOverride`, `FClassPathOverride`**
+
+    - These are small helper classes to allow the default components to add properties at the Blueprint level which behave like they have an `EditConditionToggle/EditConditionHides/EditConditionInline` applied to a relevant bool. They make it easier to provide instanced overrides to class properties in a way that makes it very unambiguous something's being overridden. As with `FLinearColorRef`, each of these overrides has functional-style helpers defined in a Blueprint function library that avoid the need for divergent Blueprint logic based on an override being set, and simplify applying an override to a default value without having to add more conditional logic to your implementation.

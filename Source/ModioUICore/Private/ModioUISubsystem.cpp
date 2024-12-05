@@ -9,6 +9,8 @@
  */
 
 #include "ModioUISubsystem.h"
+
+#include "Modio.h"
 #include "ModioSubsystem.h"
 #include "Blueprint/UserWidget.h"
 #include "Core/ModioModInfoUI.h"
@@ -24,6 +26,15 @@
 #include "ModioSettings.h"
 #include "ModioSubsystem.h"
 #include "ModioUICore.h"
+#include "OnlineSubsystem.h"
+
+#include "Interfaces/OnlineExternalUIInterface.h"
+#include "Interfaces/OnlineStoreInterfaceV2.h"
+#include "Interfaces/OnlineIdentityInterface.h"
+#include "Interfaces/OnlinePurchaseInterface.h"
+#include "Interfaces/OnlineEntitlementsInterface.h"
+#include "Libraries/ModioPlatformHelpersLibrary.h"
+#include "Libraries/ModioSDKLibrary.h"
 
 void UModioUISubsystem::GetPreloadDependencies(TArray<UObject*>& OutDeps)
 {
@@ -371,8 +382,104 @@ void UModioUISubsystem::RequestListAllMods(FModioFilterParams Params, FString Re
 	}
 }
 
+void UModioUISubsystem::RequestListAllTokenPacks()
+{
+
+	if (IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::GetByPlatform())
+	{
+		if (UModioSubsystem* ModioSubsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+		{
+			if (OnlineSubsystem->GetStoreV2Interface().IsValid())
+			{
+				if (OnlineSubsystem->GetIdentityInterface().IsValid())
+				{
+					EModioPortal CurrentPortal = ModioSubsystem->GetCurrentPortal();
+
+					FUniqueNetIdPtr Id = OnlineSubsystem->GetIdentityInterface()->GetUniquePlayerId(0);
+					FOnlineStoreFilter Filter;
+					Filter.IncludeCategories.Add({});
+					FOnQueryOnlineStoreOffersComplete OnQueryOffersComplete;
+
+					OnQueryOffersComplete.BindLambda([this, Id, OnlineSubsystem](bool bWasSuccessful,
+																				 const TArray<FUniqueOfferId>& OfferIds,
+																				 const FString& Error) {
+						if (bWasSuccessful && !OfferIds.IsEmpty())
+						{
+							TArray<FModioTokenPack> Offers;
+							for (const FUniqueOfferId& Offer : OfferIds)
+							{
+								// We get the details of the offers from the cache, this is not async
+								Offers.Add(
+									FModioTokenPack(*OnlineSubsystem->GetStoreV2Interface()->GetOffer(Offer).Get()));
+							}
+							FModioTokenPackList OffersList = FModioTokenPackList(Offers);
+							ListAllTokenPacksCompletedHandler(FModioErrorCode(), FModioTokenPackList(Offers));
+						}
+						else
+						{
+							ListAllTokenPacksCompletedHandler(FModioErrorCode::SystemError(), {});
+						}
+					});
+					// This callback is guaranteed
+					OnlineSubsystem->GetStoreV2Interface()->QueryOffersByFilter(*Id.Get(), Filter,
+																				OnQueryOffersComplete);
+					return;
+				}
+			}
+		}
+	}
+
+	// We failed somewhere, so call the handler with Error
+	ListAllTokenPacksCompletedHandler(FModioErrorCode::SystemError(), {});
+	
+}
+
+bool UModioUISubsystem::RequestPurchaseTokenPack(FModioTokenPackID TokenPackID, const FOnPlatformCheckoutDelegate& Callback)
+{
+	if (TokenPackID.ToString().IsEmpty())
+	{
+		Callback.Execute(false, "Tried to purchase a token pack with an invalid ID");
+		return false;
+	}
+
+	if (IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::GetByPlatform())
+	{
+		if (UModioSubsystem* ModioSubsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+		{
+			if (OnlineSubsystem->GetPurchaseInterface().IsValid()
+				&& OnlineSubsystem->GetIdentityInterface().IsValid())
+			{
+				EModioPortal CurrentPortal = ModioSubsystem->GetCurrentPortal();
+				FUniqueNetIdPtr Id = OnlineSubsystem->GetIdentityInterface()->GetUniquePlayerId(0);
+				FPurchaseCheckoutRequest PurchaseRequest;
+				PurchaseRequest.AddPurchaseOffer("", TokenPackID.ToString(), 1, true);
+				FOnPurchaseCheckoutComplete CheckoutCallback;
+				CheckoutCallback.BindLambda(
+					[this, ModioSubsystem, OnlineSubsystem, Callback, Id](const FOnlineError& Error,
+																		  const TSharedRef<FPurchaseReceipt>& Receipt) {
+						if (!Error.WasSuccessful())
+						{
+							Callback.Execute(false, "Checkout failed with error: " + Error.ErrorRaw);
+							return;
+						}
+						OnlineSubsystem->GetPurchaseInterface()->FinalizePurchase(*Id.Get(), Receipt.Get().TransactionId);
+						Callback.Execute(true, "Successfully purchased offer.");
+					});
+				OnlineSubsystem->GetPurchaseInterface()->Checkout(*Id.Get(), PurchaseRequest, CheckoutCallback);
+				return true;
+			}
+			Callback.Execute(false, "No purchase, entitlement, or identity interface");
+			return false;
+		}
+		Callback.Execute(false, "No modio subsystem");
+		return false;
+	}
+	Callback.Execute(false, "No online subsystem");
+	return false;
+}
+
 void UModioUISubsystem::LogoDownloadHandler(FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image,
-											FModioModID ID, EModioLogoSize LogoSize)
+                                            FModioModID ID, EModioLogoSize LogoSize)
 {
 	OnModLogoDownloadCompleted.Broadcast(ID, ErrorCode, Image, LogoSize);
 }
@@ -467,6 +574,32 @@ void UModioUISubsystem::ListAllModsCompletedHandler(FModioErrorCode ErrorCode, T
 	OnListAllModsRequestCompleted.Broadcast(RequestIdentifier, ErrorCode, ModInfos);
 }
 
+void UModioUISubsystem::TokenPackRequestCompletedHandler(FModioErrorCode ErrorCode,
+	TOptional<FModioTokenPackList> TokenPacks, TArray<FModioTokenPackID> IDs)
+{
+	if (ErrorCode)
+	{
+		// Got an error, notify anybody that the specified IDs got errors when requesting mod info
+		for (FModioTokenPackID& ID : IDs)
+		{
+			OnTokenPackRequestCompleted.Broadcast(ID, ErrorCode, {});
+		}
+	}
+	else
+	{
+		for (FModioTokenPack Pack : TokenPacks.GetValue().GetRawList())
+		{
+			OnTokenPackRequestCompleted.Broadcast(Pack.GetId(), {}, Pack);
+		}
+	}
+}
+
+void UModioUISubsystem::ListAllTokenPacksCompletedHandler(FModioErrorCode ErrorCode,
+	TOptional<FModioTokenPackList> TokenPacks)
+{
+	OnListAllTokenPacksRequestCompleted.Broadcast(ErrorCode, TokenPacks);
+}
+
 void UModioUISubsystem::LogOut(FOnErrorOnlyDelegateFast DedicatedCallback)
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
@@ -538,6 +671,90 @@ EModioRating UModioUISubsystem::NativeQueryModRating(int64 ModID)
 	}
 
 	return EModioRating::Neutral;
+}
+
+EModioOpenStoreResult UModioUISubsystem::RequestShowTokenPurchaseUI()
+{
+	return RequestShowTokenPurchaseUIWithHandler({});
+}
+
+EModioOpenStoreResult UModioUISubsystem::RequestShowTokenPurchaseUIWithHandler(
+	const FOnShowTokenPurchaseUIResult& Callback)
+{
+	if (!IsUGCFeatureEnabled(EModioUIFeatureFlags::Monetization))
+	{
+		Callback.Execute(false, "Tried to invoke store but Monetization is not enabled for the project.");
+		return EModioOpenStoreResult::FailedInactive;
+	}
+
+	if (IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::GetByPlatform())
+	{
+		if (UModioSubsystem* ModioSubsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+		{
+			EModioPortal CurrentPortal = ModioSubsystem->GetCurrentPortal();
+
+			if (CurrentPortal == EModioPortal::XboxLive)
+			{
+				// Early out because Xbox doesn't support displaying the store from engine
+				Callback.Execute(false, "Xbox Live does not support invoking store.");
+				return EModioOpenStoreResult::FailedUnsupportedPlatform;
+			}
+
+			if (OnlineSubsystem->GetExternalUIInterface().IsValid())
+			{
+				// If the current platform is Steam, we have to show the Item Store via a website URL, as there is
+				// no abstraction for showing the item store within the OSS.
+				if (CurrentPortal == EModioPortal::Steam)
+				{
+					FString StoreUrl = "https://store.steampowered.com/itemstore/" +
+									   UModioSDKLibrary::GetMonetizationPurchaseCategory(CurrentPortal) +
+										"/?beta=1";
+					FShowWebUrlParams WebParams;
+					FOnShowWebUrlClosedDelegate OnWebUrlClosedHandler;
+
+					OnWebUrlClosedHandler.BindLambda([Callback](const FString& FinalUrl)
+					{
+						Callback.Execute(true, FinalUrl);
+					});
+					return (OnlineSubsystem->GetExternalUIInterface()->ShowWebURL(StoreUrl, WebParams, OnWebUrlClosedHandler) ? 
+																EModioOpenStoreResult::Success : EModioOpenStoreResult::FailedUnknown);
+				}
+
+				// If we are not Steam, use the OSS ExternalUIInterface
+				FOnShowStoreUIClosedDelegate OnStoreClosedHandler;
+				OnStoreClosedHandler.BindLambda(
+					[this, Callback, ModioSubsystem](bool bResult) 
+					{
+						Callback.Execute(bResult, bResult ? "Successfully opened store" : "Failed to open store");
+					});
+
+				FShowStoreParams Params;
+				Params.Category = UModioSDKLibrary::GetMonetizationPurchaseCategory(CurrentPortal);
+				Params.bAddToCart = false;
+
+				return (OnlineSubsystem->GetExternalUIInterface()->ShowStoreUI(0, Params, OnStoreClosedHandler) ? 
+																EModioOpenStoreResult::Success : EModioOpenStoreResult::FailedUnknown);
+			}
+			else
+			{
+				Callback.Execute(false, "Failed to get External UI Interface when invoking store.");
+				return EModioOpenStoreResult::FailedUnknown;
+			}
+		}
+		else
+		{
+			Callback.Execute(false, "Failed to get Modio Subsystem when invoking store.");
+			return EModioOpenStoreResult::FailedUnknown;
+		}
+	}
+
+	Callback.Execute(false, "Failed to get Online Subsystem when invoking store.");
+	return EModioOpenStoreResult::FailedUnknown;
+}
+
+void UModioUISubsystem::RequestRefreshEntitlements()
+{
+	OnEntitlementRefreshEvent.Broadcast();
 }
 
 bool UModioUISubsystem::NativeRequestModRatingChange(int64 ID, EModioRating NewRating)

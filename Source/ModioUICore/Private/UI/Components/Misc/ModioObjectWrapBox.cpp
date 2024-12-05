@@ -72,3 +72,8 @@ void UModioObjectWrapBox::NativeRemoveObjectWidgetCreatedHandler(const FModioObj
 {
 	OnWidgetCreated.Remove(Handler);
 }
+
+UWidget* UModioObjectWrapBox::NativeGetFirstEntryWidget() const
+{
+	return GetChildAt(0);
+}

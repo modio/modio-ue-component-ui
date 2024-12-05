@@ -14,10 +14,11 @@
 #include "UI/Components/ModioUIComponentBase.h"
 #include "UI/EventHandlers/IModioUIDialogDisplayEventReceiver.h"
 #include "UI/EventHandlers/IModioUIModInfoReceiver.h"
-#include "UI/EventHandlers/IModioUIWalletBalanceUpdatedEventReceiver.h"
 #include "UI/EventHandlers/IModioUISubscriptionsChangedReceiver.h"
+#include "UI/EventHandlers/IModioUIWalletBalanceUpdatedEventReceiver.h"
 #include "UI/Interfaces/IModioUIClickableWidget.h"
 #include "UI/Interfaces/IModioUIHasTextWidget.h"
+#include "UI/Interfaces/IModioUIImageDisplayWidget.h"
 #include "UI/Interfaces/IModioUIModListViewInterface.h"
 #include "UI/Interfaces/IModioUIModTagSelector.h"
 #include "UI/Interfaces/IModioUIObjectSelector.h"
@@ -52,7 +53,7 @@ protected:
 
 	//~ Begin IModioUIModInfoReceiver Interface
 	virtual void NativeOnListAllModsRequestCompleted(FString RequestIdentifier, FModioErrorCode ErrorCode,
-	                                                 TOptional<FModioModInfoList> List) override;
+													 TOptional<FModioModInfoList> List) override;
 	//~ End IModioUIModInfoReceiver Interface
 
 	//~ Begin IModioUIDialogDisplayEventReceiver Interface
@@ -67,40 +68,38 @@ protected:
 	void NativeOnSubscriptionsChanged(FModioModID ModID, bool bNewSubscriptionState);
 	//~ End IModioUISubscriptionsChangedReceiver Interface
 
-	// Toggle between Mods / Library View
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
-			  meta = (BlueprintProtected))
-	TScriptInterface<IModioUIClickableWidget> GetModsViewButtonWidget() const;
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
-			  meta = (BlueprintProtected))
-	TScriptInterface<IModioUIClickableWidget> GetLibraryViewButtonWidget() const;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|Mod Browser|State", meta = (BlueprintProtected))
-	EModioModBrowserState CurrentView = EModioModBrowserState::ModsView;
-
-	// Select preset filtered searches
+	// Select preset filtered searches (Recent, Trending)
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
 			  meta = (BlueprintProtected))
 	TScriptInterface<IModioUIObjectSelector> GetPresetFilterSelectorWidget() const;
+	// Select Library (user collection) View
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
+			  meta = (BlueprintProtected))
+	TScriptInterface<IModioUIClickableWidget> GetLibraryViewButtonWidget() const;
+	// todo Calvin - revisit this now that view types are changed
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|Mod Browser|State", meta = (BlueprintProtected))
+	EModioModBrowserState CurrentView = EModioModBrowserState::ModsView;
 
-	// Tab left and right across the preset filter buttons
+	// Tab left and right across header buttons
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
 			  meta = (BlueprintProtected))
-	TScriptInterface<IModioUIClickableWidget> GetPresetFilterTabLeftButtonWidget() const;
+	TScriptInterface<IModioUIClickableWidget> GetTabLeftButtonWidget() const;
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
 			  meta = (BlueprintProtected))
-	TScriptInterface<IModioUIClickableWidget> GetPresetFilterTabRightButtonWidget() const;
+	TScriptInterface<IModioUIClickableWidget> GetTabRightButtonWidget() const;
+
+	// Todo Calvin - revisit these, probably not needed anymore
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Mod Browser|Search and Filters", meta = (BlueprintProtected))
 	void DecrementPresetFilterSelection();
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Mod Browser|Search and Filters", meta = (BlueprintProtected))
 	void IncrementPresetFilterSelection();
 
-	// Filter Library View by Subscriptions or Purchases
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
 			  meta = (BlueprintProtected))
-	TScriptInterface<IModioUIClickableWidget> GetSubscriptionsFilterButtonWidget() const;
+	TScriptInterface<IModioUIImageDisplayWidget> GetViewDescriptionImageWidget() const;
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
 			  meta = (BlueprintProtected))
-	TScriptInterface<IModioUIClickableWidget> GetPurchasesFilterButtonWidget() const;
+	TScriptInterface<IModioUIHasTextWidget> GetViewDescriptionTextWidget() const;
 
 	// Expand search box and execute searching by string
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
@@ -117,7 +116,8 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
 			  meta = (BlueprintProtected))
 	TScriptInterface<IModioUIClickableWidget> GetClearSearchButtonWidget() const;
-	UPROPERTY(BlueprintReadWrite, Category = "mod.io|UI|Mod Browser|Search and Filters", Transient, meta = (BlueprintProtected))
+	UPROPERTY(BlueprintReadWrite, Category = "mod.io|UI|Mod Browser|Search and Filters", Transient,
+			  meta = (BlueprintProtected))
 	FString StoredSearchString;
 
 	// Display panel with tag categories to filter on
@@ -125,10 +125,17 @@ protected:
 			  meta = (BlueprintProtected))
 	TScriptInterface<IModioUIClickableWidget> GetFilterButtonWidget() const;
 	// Store filter tags between pushing and popping of filter widget
-	UPROPERTY(BlueprintReadOnly, Category = "mod.io|UI|Mod Browser|Search and Filters", Transient, meta = (BlueprintProtected))
+	UPROPERTY(BlueprintReadOnly, Category = "mod.io|UI|Mod Browser|Search and Filters", Transient,
+			  meta = (BlueprintProtected))
 	TObjectPtr<UObject> StoredTagData;
+	UPROPERTY(BlueprintReadOnly, Category = "mod.io|UI|Mod Browser|Search and Filters", Transient,
+			  meta = (BlueprintProtected))
+	TObjectPtr<UObject> StoredLibraryTagData;
+
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Mod Browser|Search and Filters", meta = (BlueprintProtected))
 	void InitializeTagData(UObject* InTagData);
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Mod Browser|Search and Filters", meta = (BlueprintProtected))
+	void InitializeLibraryTagData(UObject* InTagData);
 
 	// Searching in Library View
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Mod Browser|Search and Filters", meta = (BlueprintProtected))
@@ -137,7 +144,8 @@ protected:
 	TArray<FModioModInfo> SearchSubscriptionsAndInstallsWithStoredParams() const;
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Mod Browser|Search and Filters", meta = (BlueprintProtected))
 	TArray<FModioModInfo> SearchPurchasesWithStoredParams() const;
-	TArray<FModioModInfo> FilterModArrayBySelectedTags(const TArray<FModioModInfo>& ModArray) const;
+	TArray<FModioModInfo> FilterModArrayByTags(const TArray<FModioModInfo>& ModArray,
+											   const TObjectPtr<UObject>& Tags) const;
 	static bool ModIncludesTag(const FModioModInfo& Mod, const FString& Tag);
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Mod Browser|Search and Filters", meta = (BlueprintProtected))
 	static bool DoFilterParamsIncludeUserId(const FModioFilterParams& Params);

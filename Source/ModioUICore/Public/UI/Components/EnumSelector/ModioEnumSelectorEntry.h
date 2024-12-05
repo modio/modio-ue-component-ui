@@ -112,8 +112,6 @@ protected:
 
 	virtual void NativePreConstruct() override;
 
-	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
-
 	virtual void AddSelectedStateChangedHandler_Implementation(const FModioSelectableOnSelectionChanged& Handler) override;
 
 	virtual void RemoveSelectedStateChangedHandler_Implementation(const FModioSelectableOnSelectionChanged& Handler) override;

@@ -74,7 +74,7 @@ struct MODIOUICORE_API FModioTextValidationRule
 	EModioTextValidationRule RuleToUse {};
 
 	/**
-	 * @brief Message to display if validation fails.Use "{InputText} as a placeholder for the text being validated"
+	 * @brief Message to display if validation fails
 	 */
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, category = "mod.io|UI|Rules")
 	FText ValidationMessage;

@@ -11,8 +11,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/Components/Buttons/ModioDefaultIconButton.h"
-#include "UI/Interfaces/IModioUIHasTextWidget.h"
+#include "UI/Components/Buttons/ModioDefaultTextButton.h"
 #include "UI/Interfaces/IModioUIModTagSelector.h"
 
 #include "ModioFilterCounterButton.generated.h"
@@ -21,7 +20,7 @@
  *
  */
 UCLASS()
-class MODIOUICORE_API UModioFilterCounterButton : public UModioDefaultIconButton, public IModioUIModTagSelector
+class MODIOUICORE_API UModioFilterCounterButton : public UModioDefaultTextButton, public IModioUIModTagSelector
 {
 	GENERATED_BODY()
 

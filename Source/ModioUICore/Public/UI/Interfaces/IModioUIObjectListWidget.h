@@ -59,6 +59,15 @@ protected:
 		NativeRemoveObjectWidgetCreatedHandler(Handler);
 	}
 
+	virtual UWidget* NativeGetFirstEntryWidget() const
+	{
+		return nullptr;
+	}
+	UWidget* GetFirstEntryWidget_Implementation() const
+	{
+		return NativeGetFirstEntryWidget();
+	}
+
 public:
 	/**
 	 * @brief Sets the associated data source/data binding objects for the implementing widget
@@ -95,4 +104,10 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Events|Data Binding")
 	void RemoveObjectWidgetCreatedHandler(const FModioObjectListOnObjectWidgetCreated& Handler);
+
+	/**
+	 * @brief Gets the first widget entry in the contained list widget, or nullptr if the list is empty.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Data Binding")
+	UWidget* GetFirstEntryWidget();
 };

@@ -10,6 +10,7 @@
 
 #include "UI/Components/Misc/ModioDefaultObjectSelector.h"
 
+#include "UI/Components/Slate/SModioDataSourceAwareTableRow.h"
 #include "UI/Interfaces/IModioUIClickableWidget.h"
 #include "UI/Interfaces/IModioUISelectableWidget.h"
 #if WITH_EDITOR
@@ -151,26 +152,34 @@ UUserWidget& UModioDefaultObjectSelector::OnGenerateEntryWidgetInternal(UObject*
 																		TSubclassOf<UUserWidget> DesiredEntryClass,
 																		const TSharedRef<STableViewBase>& OwnerTable)
 {
-	UUserWidget& GeneratedWidget = GenerateTypedEntry(DesiredEntryClass, OwnerTable);
+	UUserWidget& GeneratedEntryWidget = [this, DesiredEntryClass, OwnerTable, Item]() -> UUserWidget&
+	{
+		if (DesiredEntryClass->ImplementsInterface(UModioUIDataSourceWidget::StaticClass()))
+		{
+			return GenerateTypedEntry<UUserWidget, SModioDataSourceAwareTableRow<UObject*>>(DesiredEntryClass, OwnerTable);
+		}
+		return Super::OnGenerateEntryWidgetInternal(Item, DesiredEntryClass, OwnerTable);
+	}();
+	
 	// Ensure the entry widget's underlying Slate structure has been initialized
-	GeneratedWidget.TakeWidget();
-	if (GeneratedWidget.GetClass()->ImplementsInterface(UModioUIClickableWidget::StaticClass()))
+	GeneratedEntryWidget.TakeWidget();
+	if (GeneratedEntryWidget.GetClass()->ImplementsInterface(UModioUIClickableWidget::StaticClass()))
 	{
 		// Enable click events on the entry widget and bind a handler for click events
-		IModioUIClickableWidget::Execute_EnableClick(&GeneratedWidget);
+		IModioUIClickableWidget::Execute_EnableClick(&GeneratedEntryWidget);
 		FModioClickableOnClicked ClickedDelegate;
 		ClickedDelegate.BindUFunction(this, FName("OnEntryWidgetClicked"));
-		IModioUIClickableWidget::Execute_AddClickedHandler(&GeneratedWidget, ClickedDelegate);
+		IModioUIClickableWidget::Execute_AddClickedHandler(&GeneratedEntryWidget, ClickedDelegate);
 	}
 
-	if (GeneratedWidget.GetClass()->ImplementsInterface(UModioUISelectableWidget::StaticClass()))
+	if (GeneratedEntryWidget.GetClass()->ImplementsInterface(UModioUISelectableWidget::StaticClass()))
 	{
 		// Ensure that the entry widget is selectable so that it can potentially display selection feedback etc
-		IModioUISelectableWidget::Execute_SetSelectable(&GeneratedWidget, true);
+		IModioUISelectableWidget::Execute_SetSelectable(&GeneratedEntryWidget, true);
 	}
 
-	OnWidgetCreated.Broadcast(&GeneratedWidget, Item);
-	return GeneratedWidget;
+	OnWidgetCreated.Broadcast(&GeneratedEntryWidget, Item);
+	return GeneratedEntryWidget;
 }
 
 void UModioDefaultObjectSelector::OnSelectionChangedInternal(UObject* FirstSelectedItem)
@@ -207,6 +216,8 @@ void UModioDefaultObjectSelector::NotifySelectionChanged(UObject* SelectedItem)
 	{
 		OnSelectedValueChanged.Broadcast(SelectedItem);
 	}
+
+	LastSelectedIndex = GetIndexForItem(SelectedItem);
 }
 
 void UModioDefaultObjectSelector::NativeSetObjects(const TArray<UObject*>& InObjects)
@@ -270,8 +281,13 @@ TArray<UObject*> UModioDefaultObjectSelector::GetSelectedValues_Implementation()
 	return OutArray;
 }
 
+int32 UModioDefaultObjectSelector::GetLastSelectionIndex_Implementation()
+{
+	return LastSelectedIndex;
+}
+
 void UModioDefaultObjectSelector::SetSelectedStateForValue_Implementation(UObject* Value, bool bNewSelectionState,
-																		  bool bEmitSelectionEvent)
+                                                                          bool bEmitSelectionEvent)
 {
 	// override the default event emission setting so that our handler for selection changed knows if it should emit
 	// events

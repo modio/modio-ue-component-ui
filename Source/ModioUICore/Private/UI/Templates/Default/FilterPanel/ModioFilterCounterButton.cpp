@@ -8,7 +8,7 @@
  *
  */
 
-#include "UI/Templates/Default/FilterPanel//ModioFilterCounterButton.h"
+#include "UI/Templates/Default/FilterPanel/ModioFilterCounterButton.h"
 
 #include "UI/Components/ComponentHelpers.h"
 

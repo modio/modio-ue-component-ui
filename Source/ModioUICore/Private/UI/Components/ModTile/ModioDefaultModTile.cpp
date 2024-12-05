@@ -54,12 +54,6 @@ bool UModioDefaultModTile::GetSelectedStateEx()
 	}
 }
 
-void UModioDefaultModTile::NativeOnListItemObjectSet(UObject* ListItemObject)
-{
-	IModioUIDataSourceWidget::Execute_SetDataSource(this, ListItemObject);
-	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
-}
-
 void UModioDefaultModTile::NativeOnItemSelectionChanged(bool bIsSelected)
 {
 	if (bSelectable)

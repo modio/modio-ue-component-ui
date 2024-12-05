@@ -25,7 +25,8 @@ enum class EModioUIDialogType : uint8
 	ModDetails,
 	ReportMod,
 	EnableDisableManagement,
-	PurchaseMod
+	PurchaseMod,
+	StoreUi
 };
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FModioDialogShownEvent, bool, bOpen);

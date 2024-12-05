@@ -61,6 +61,7 @@ protected:
 	virtual UObject* NativeGetObjectAt(int32 Index) const override;
 	virtual void NativeAddObjectWidgetCreatedHandler(const FModioObjectListOnObjectWidgetCreated& Handler) override;
 	virtual void NativeRemoveObjectWidgetCreatedHandler(const FModioObjectListOnObjectWidgetCreated& Handler) override;
+	virtual UWidget* NativeGetFirstEntryWidget() const override;
 	//~ End IModioUIObjectListWidget Interface
 
 	MODIO_WIDGET_PALETTE_OVERRIDE();

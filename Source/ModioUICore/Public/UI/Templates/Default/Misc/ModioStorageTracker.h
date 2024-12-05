@@ -33,5 +33,6 @@ protected:
 	virtual void NativePreConstruct() override;
 	virtual void NativeOnModManagementEvent(FModioModManagementEvent Event) override;
 
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Storage Tracker|Data", meta = (BlueprintProtected))
 	void RefreshData();
 };

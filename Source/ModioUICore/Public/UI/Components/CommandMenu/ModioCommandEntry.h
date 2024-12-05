@@ -32,10 +32,6 @@ class MODIOUICORE_API UModioCommandEntry : public UModioUIComponentBase,
 	GENERATED_BODY()
 
 protected:
-	//~ Begin IUserObjectListEntry Interface
-	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
-	//~ End IUserObjectListEntry Interface
-
 	//~ Begin IModioUIDataSourceWidget Interface
 	virtual void NativeSetDataSource(UObject* InDataSource) override;
 	//~ End IModioUIDataSourceWidget Interface

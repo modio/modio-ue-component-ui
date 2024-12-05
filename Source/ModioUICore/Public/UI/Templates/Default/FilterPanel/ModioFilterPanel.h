@@ -39,14 +39,6 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Filter Panel|Widget Getters",
 			  meta = (BlueprintProtected))
-	TScriptInterface<IModioUIClickableWidget> GetClosePanelButtonWidget() const;
-	TScriptInterface<IModioUIClickableWidget> GetClosePanelButtonWidget_Implementation() const
-	{
-		return nullptr;
-	}
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Filter Panel|Widget Getters",
-			  meta = (BlueprintProtected))
 	TScriptInterface<IModioUIClickableWidget> GetBackgroundButtonWidget() const;
 	TScriptInterface<IModioUIClickableWidget> GetBackgroundButtonWidget_Implementation() const
 	{

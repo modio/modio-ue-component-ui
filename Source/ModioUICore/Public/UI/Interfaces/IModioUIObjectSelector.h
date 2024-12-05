@@ -130,6 +130,15 @@ public:
 	TArray<UObject*> GetSelectedValues();
 
 	/**
+	 * @brief Retrieves the last valid selection index from the implementing widget
+	 * This index is typically the same as the current selection index. However, if the current selection
+	 * is invalid (e.g., -1), this function returns the most recent valid selection index.
+	 * @return The 0-based index of the previously selected object
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Object Selector")
+	int32 GetLastSelectionIndex();
+
+	/**
 	 * @brief Sets whether the implementing widget should allow multiple selections
 	 * @param bMultiSelectionAllowed True if multiple selections are allowed
 	 */

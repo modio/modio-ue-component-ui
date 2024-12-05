@@ -31,8 +31,9 @@ void UModioModBrowser::NativeOnListAllModsRequestCompleted(FString RequestIdenti
 
 	if (CurrentView == EModioModBrowserState::LibraryView)
 	{
-		UE_LOG(ModioUICore, Verbose, TEXT("Library view, used to display local mods, is not expected to be"
-			       " populated by the ListAllMods request. Ignoring."));
+		UE_LOG(ModioUICore, Verbose,
+			   TEXT("Library view, used to display local mods, is not expected to be"
+					" populated by the ListAllMods request. Ignoring."));
 		return;
 	}
 
@@ -62,11 +63,6 @@ void UModioModBrowser::NativeOnSubscriptionsChanged(FModioModID ModID, bool bNew
 	IModioUISubscriptionsChangedReceiver::NativeOnSubscriptionsChanged(ModID, bNewSubscriptionState);
 }
 
-TScriptInterface<IModioUIClickableWidget> UModioModBrowser::GetPresetFilterTabLeftButtonWidget_Implementation() const
-{
-	return nullptr;
-}
-
 void UModioModBrowser::InitializeTagData(UObject* InTagData)
 {
 	if (!InTagData || !(InTagData->GetClass()->ImplementsInterface(UModioUIModTagSelector::StaticClass())) ||
@@ -84,6 +80,27 @@ void UModioModBrowser::InitializeTagData(UObject* InTagData)
 													   UModioUIDataSourceWidget::StaticClass()))
 		{
 			IModioUIDataSourceWidget::Execute_SetDataSource(GetFilterButtonWidget().GetObject(), StoredTagData);
+		}
+	}
+}
+
+void UModioModBrowser::InitializeLibraryTagData(UObject* InTagData)
+{
+	if (!InTagData || !(InTagData->GetClass()->ImplementsInterface(UModioUIModTagSelector::StaticClass())) ||
+		!(InTagData->GetClass()->ImplementsInterface(UModioUIDataSourceWidget::StaticClass())))
+	{
+		checkf(false, TEXT("UObject passed to InitializeTagData should implement both IUModioUIModTagSelector and "
+						   "IModioUIDataSourceWidget interfaces"));
+		return;
+	}
+	if (!StoredLibraryTagData)
+	{
+		StoredLibraryTagData = InTagData;
+
+		if (GetFilterButtonWidget().GetObject() && GetFilterButtonWidget().GetObject()->GetClass()->ImplementsInterface(
+													   UModioUIDataSourceWidget::StaticClass()))
+		{
+			IModioUIDataSourceWidget::Execute_SetDataSource(GetFilterButtonWidget().GetObject(), StoredLibraryTagData);
 		}
 	}
 }
@@ -124,7 +141,7 @@ TArray<FModioModInfo> UModioModBrowser::SearchLibraryWithStoredParams() const
 				SearchResults.Add(Mod.Value);
 			}
 		}
-		return FilterModArrayBySelectedTags(SearchResults);
+		return FilterModArrayByTags(SearchResults, StoredLibraryTagData);
 	}
 	return SearchResults;
 }
@@ -151,7 +168,7 @@ TArray<FModioModInfo> UModioModBrowser::SearchSubscriptionsAndInstallsWithStored
 				SearchResults.Add(Mod.Value.GetModProfile());
 			}
 		}
-		return FilterModArrayBySelectedTags(SearchResults);
+		return FilterModArrayByTags(SearchResults, StoredLibraryTagData);
 	}
 	return SearchResults;
 }
@@ -182,16 +199,17 @@ TArray<FModioModInfo> UModioModBrowser::SearchPurchasesWithStoredParams() const
 				SearchResults.Add(Mod.Value);
 			}
 		}
-		return FilterModArrayBySelectedTags(SearchResults);
+		return FilterModArrayByTags(SearchResults, StoredLibraryTagData);
 	}
 	return SearchResults;
 }
 
-TArray<FModioModInfo> UModioModBrowser::FilterModArrayBySelectedTags(const TArray<FModioModInfo>& ModArray) const
+TArray<FModioModInfo> UModioModBrowser::FilterModArrayByTags(const TArray<FModioModInfo>& ModArray,
+																	 const TObjectPtr<UObject>& Tags) const
 {
-	if (StoredTagData && StoredTagData->GetClass()->ImplementsInterface(UModioUIModTagSelector::StaticClass()))
+	if (Tags && Tags->GetClass()->ImplementsInterface(UModioUIModTagSelector::StaticClass()))
 	{
-		TArray<FString> SelectedTags = IModioUIModTagSelector::Execute_GetSelectedTags(StoredTagData);
+		TArray<FString> SelectedTags = IModioUIModTagSelector::Execute_GetSelectedTags(Tags);
 
 		// Early out if there are no selected tags to filter on
 		if (SelectedTags.IsEmpty())
@@ -270,7 +288,11 @@ void UModioModBrowser::IncrementPresetFilterSelection()
 	}
 }
 
-TScriptInterface<IModioUIClickableWidget> UModioModBrowser::GetModsViewButtonWidget_Implementation() const
+TScriptInterface<IModioUIImageDisplayWidget> UModioModBrowser::GetViewDescriptionImageWidget_Implementation() const
+{
+	return nullptr;
+}
+TScriptInterface<IModioUIHasTextWidget> UModioModBrowser::GetViewDescriptionTextWidget_Implementation() const
 {
 	return nullptr;
 }
@@ -279,14 +301,6 @@ TScriptInterface<IModioUIClickableWidget> UModioModBrowser::GetLibraryViewButton
 	return nullptr;
 }
 TScriptInterface<IModioUIObjectSelector> UModioModBrowser::GetPresetFilterSelectorWidget_Implementation() const
-{
-	return nullptr;
-}
-TScriptInterface<IModioUIClickableWidget> UModioModBrowser::GetSubscriptionsFilterButtonWidget_Implementation() const
-{
-	return nullptr;
-}
-TScriptInterface<IModioUIClickableWidget> UModioModBrowser::GetPurchasesFilterButtonWidget_Implementation() const
 {
 	return nullptr;
 }
@@ -318,7 +332,11 @@ TScriptInterface<IModioUIClickableWidget> UModioModBrowser::GetClearSearchButton
 {
 	return nullptr;
 }
-TScriptInterface<IModioUIClickableWidget> UModioModBrowser::GetPresetFilterTabRightButtonWidget_Implementation() const
+TScriptInterface<IModioUIClickableWidget> UModioModBrowser::GetTabLeftButtonWidget_Implementation() const
+{
+	return nullptr;
+}
+TScriptInterface<IModioUIClickableWidget> UModioModBrowser::GetTabRightButtonWidget_Implementation() const
 {
 	return nullptr;
 }

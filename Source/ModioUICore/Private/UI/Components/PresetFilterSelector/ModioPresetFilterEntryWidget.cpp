@@ -18,12 +18,6 @@ TScriptInterface<IModioUIHasTextWidget> UModioPresetFilterEntryWidget::GetLabelW
 	return nullptr;
 }
 
-void UModioPresetFilterEntryWidget::NativeOnListItemObjectSet(UObject* InObject)
-{
-	IUserObjectListEntry::NativeOnListItemObjectSet(InObject);
-	IModioUIDataSourceWidget::Execute_SetDataSource(this, InObject);
-}
-
 void UModioPresetFilterEntryWidget::NativeSetDataSource(UObject* InDataSource)
 {
 	Super::NativeSetDataSource(InDataSource);

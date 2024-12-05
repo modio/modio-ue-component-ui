@@ -91,11 +91,6 @@ void UModioEnumSelectorEntry::NativePreConstruct()
 	}
 }
 
-void UModioEnumSelectorEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
-{
-	IModioUIDataSourceWidget::Execute_SetDataSource(this, ListItemObject);
-}
-
 void UModioEnumSelectorEntry::NativeOnItemSelectionChanged(bool bIsSelected)
 {
 	// Notify our internal selectable widget that the selection state has changed so it can display feedback as

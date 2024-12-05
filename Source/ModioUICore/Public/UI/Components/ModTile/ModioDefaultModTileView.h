@@ -72,6 +72,7 @@ protected:
 	virtual void SetSelectedStateForValue_Implementation(UObject* Value, bool bNewSelectionState,
 														 bool bEmitSelectionEvent) override;
 	virtual TArray<UObject*> GetSelectedValues_Implementation() override;
+	virtual int32 GetLastSelectionIndex_Implementation() override;
 	virtual void SetMultiSelectionAllowed_Implementation(bool bMultiSelectionAllowed) override;
 	virtual bool GetMultiSelectionAllowed_Implementation() override;
 	virtual void SetListEntryWidgetClass_Implementation(TSubclassOf<UWidget> InNewEntryClass) override;
@@ -101,6 +102,8 @@ protected:
 	FModioStackedBool EmitSelectionEvents {true};
 
 	TWeakObjectPtr<UObject> PreviouslySelectedWidget;
+
+	int32 LastSelectedIndex = INDEX_NONE;
 
 	MODIO_WIDGET_PALETTE_OVERRIDE();
 };
