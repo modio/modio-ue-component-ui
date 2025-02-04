@@ -36,12 +36,10 @@ void UModioStorageTracker::RefreshData()
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
-		FModioUnsigned64 TotalSize = FModioUnsigned64(0);
-		TMap<FModioModID, FModioModCollectionEntry> InstalledMods = Subsystem->QuerySystemInstallations();
-		for (auto& Mod : InstalledMods)
-		{
-			TotalSize += Mod.Value.GetSizeOnDisk();
-		}
+		const FModioStorageInfo StorageInfo = Subsystem->QueryStorageInfo();
+		const FModioUnsigned64 TotalSize =
+			StorageInfo.GetSpace(EModioStorageLocation::Local, EModioStorageUsage::Consumed);
+
 		if (UWidget* TextWidget = ModioUI::GetInterfaceWidgetChecked(GetStorageUsedTextWidget()))
 		{
 			IModioUIHasTextWidget::Execute_SetWidgetText(

@@ -16,6 +16,7 @@
 #include "Misc/EngineVersionComparison.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Layout/SBox.h"
+#include "Templates/UnrealTemplate.h"
 
 void UModioButtonWidget::SetCommonUIButtonFocus()
 {
@@ -129,8 +130,13 @@ bool UModioButtonWidget::TryGetBoundAction_Implementation(FDataTableRowHandle& I
 
 void UModioButtonWidget::ClearBoundAction_Implementation()
 {
-	FDataTableRowHandle EmptyStateHandle;
-	SetTriggeringInputAction(EmptyStateHandle);
+	// This check prevents a breakpoint in ensure(CommonInputSubsystem) from being hit, 
+	// such as in UCommonActionWidget::UpdateActionWidget()
+	if (const UCommonInputSubsystem* CommonInputSubsystem = GetInputSubsystem())
+	{
+		FDataTableRowHandle EmptyStateHandle;
+		SetTriggeringInputAction(EmptyStateHandle);
+	}
 }
 
 void UModioButtonWidget::AddActionProgressHandler_Implementation(const FModioBoundActionProgressed& Handler)
@@ -241,12 +247,27 @@ void UModioButtonWidget::HandleFocusReceived()
 void UModioButtonWidget::NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent)
 {
 	Super::NativeOnAddedToFocusPath(InFocusEvent);
+	if (bEnableKeyboardHover)
+	{
+		if (bIsHoverProcessing) return;
+		TGuardValue<bool> RecursionGuard(bIsHoverProcessing, true);
+		if (GetIsEnabled() && IsInteractionEnabled())
+		{
+			NativeOnHovered();
+		}
+	}
 	OnModioFocusPathChanged.Broadcast(this, InFocusEvent, true);
 }
 
 void UModioButtonWidget::NativeOnRemovedFromFocusPath(const FFocusEvent& InFocusEvent)
 {
 	Super::NativeOnRemovedFromFocusPath(InFocusEvent);
+	if (bEnableKeyboardHover)
+	{
+		if (bIsHoverProcessing) return;
+		TGuardValue<bool> RecursionGuard(bIsHoverProcessing, false);
+		NativeOnUnhovered();
+	}
 	OnModioFocusPathChanged.Broadcast(this, InFocusEvent, false);
 }
 
@@ -319,7 +340,7 @@ void UModioButtonWidget::ToggleSelectedState_Implementation()
 
 void UModioButtonWidget::SetSelectedState_Implementation(bool bNewSelectedState)
 {
-	if (bSelectable)
+	if (bSelectable && GetInputSubsystem())
 	{
 		// Set the state directly, no mucking about with extra logic, if we want to clear selection on a
 		// non-toggleable widget
@@ -353,4 +374,16 @@ void UModioButtonWidget::AddSelectedStateChangedHandler_Implementation(
 	const FModioSelectableOnSelectionChanged& Handler)
 {
 	OnSelected.AddUnique(Handler);
+}
+
+FReply UModioButtonWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+	if (bShouldTriggerButtonClickOnEnterOrGamepadAccept &&
+		(InKeyEvent.GetKey() == EKeys::Enter || InKeyEvent.GetKey() == EKeys::Virtual_Accept))
+	{
+		UE_LOG(ModioUICore, Log, TEXT("The key '%s' was pressed and handled by the button '%s' as a click"), *InKeyEvent.GetKey().ToString(), *GetName());
+		HandleButtonClicked();
+		return FReply::Handled();
+	}
+	return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
 }

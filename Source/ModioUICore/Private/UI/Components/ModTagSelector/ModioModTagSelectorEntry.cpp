@@ -150,7 +150,7 @@ void UModioModTagSelectorEntry::SetSelectedState_Implementation(bool bNewSelecte
 	{
 		bCurrentSelectionState = bNewSelectedState;
 		NotifySelectionChanged();
-		if (GetDataSource_Implementation()->Implements<UModioModTagUIDetails>())
+		if (Execute_GetDataSource(this) && Execute_GetDataSource(this)->Implements<UModioModTagUIDetails>())
 		{
 			IModioModTagUIDetails::Execute_SetSelectionState(IModioUIDataSourceWidget::Execute_GetDataSource(this), bCurrentSelectionState);
 		}

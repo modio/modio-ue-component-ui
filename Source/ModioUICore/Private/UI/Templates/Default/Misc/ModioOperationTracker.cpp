@@ -59,12 +59,10 @@ void UModioOperationTracker::NativeOnModManagementEvent(FModioModManagementEvent
 	{
 		case EModioModManagementEventType::BeginInstall:
 		case EModioModManagementEventType::BeginUpdate:
-		case EModioModManagementEventType::BeginUninstall:
 			HandleOperationBegin();
 			break;
 		case EModioModManagementEventType::Installed:
 		case EModioModManagementEventType::Updated:
-		case EModioModManagementEventType::Uninstalled:
 			HandleOperationComplete();
 			break;
 	}

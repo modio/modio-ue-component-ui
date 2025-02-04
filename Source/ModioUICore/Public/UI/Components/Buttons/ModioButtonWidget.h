@@ -68,6 +68,18 @@ protected:
 	bool bFocusOnHover = true;
 
 	/**
+	 * @brief Bool to control whether keyboard navigation should visually trigger hover behavior
+	 */
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|Button")
+	bool bEnableKeyboardHover = true;
+
+	/**
+	 * Whether the button should trigger a click when the user presses enter or gamepad accept after the button has been focused
+	 */
+	UPROPERTY(EditAnywhere, Category = "mod.io|UI|Button")
+	bool bShouldTriggerButtonClickOnEnterOrGamepadAccept = true;
+
+	/**
 	 * @brief Sets the focus on the button
 	 * This function performs the "deep" focus on the Common UI button, which means that it will set the focus on the button itself
 	 * This is useful since UCommonButtonBase is derived from UUserWidget, which doesn't support focus when setting it directly
@@ -178,7 +190,16 @@ protected:
 	virtual void HandleFocusReceived() override;
 	virtual void NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent) override;
 	virtual void NativeOnRemovedFromFocusPath(const FFocusEvent& InFocusEvent) override;
+	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 	//~ End UUserWidget Interface
 
+private:
+	/**
+	 * Prevents recursive hover state processing
+	 * Temporarily true during hover/unhover event handling to block re-entrant calls
+	 */
+	bool bIsHoverProcessing = false;
+
+protected:
 	MODIO_WIDGET_PALETTE_OVERRIDE();
 };

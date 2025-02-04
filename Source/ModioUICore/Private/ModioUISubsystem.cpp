@@ -155,6 +155,10 @@ void UModioUISubsystem::SubscriptionHandler(FModioErrorCode ErrorCode, FModioMod
 	{
 		OnSubscriptionStatusChanged.Broadcast(ID, true);
 	}
+	else
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Subscription failed for mod %s: \"%s\""), *ID.ToString(), *ErrorCode.GetErrorMessage());
+	}
 }
 
 void UModioUISubsystem::PurchaseRequestHandler(FModioErrorCode ErrorCode,
@@ -164,6 +168,11 @@ void UModioUISubsystem::PurchaseRequestHandler(FModioErrorCode ErrorCode,
 	if (!ErrorCode)
 	{
 		OnGetUserWalletBalanceRequestCompleted.Broadcast(Transaction.GetValue().UpdatedUserWalletBalance.Underlying);
+		OnSubscriptionStatusChanged.Broadcast(Transaction.GetValue().AssociatedModID, true);
+	}
+	else
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Purchase failed: \"%s\""), *ErrorCode.GetErrorMessage());
 	}
 }
 
@@ -173,10 +182,19 @@ void UModioUISubsystem::UnsubscribeHandler(FModioErrorCode ErrorCode, FModioModI
 	{
 		OnSubscriptionStatusChanged.Broadcast(ID, false);
 	}
+	else
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Unsubscribe failed for mod %s: \"%s\""), *ID.ToString(), *ErrorCode.GetErrorMessage());
+	}
 }
 
 void UModioUISubsystem::UninstallHandler(FModioErrorCode ErrorCode, FModioModID ID)
 {
+	if (ErrorCode)
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Uninstall failed for mod %s: \"%s\""), *ID.ToString(), *ErrorCode.GetErrorMessage());
+	}
+	
 	// Need to create a synthetic FModioModManagementEvent to let the UI know an uninstallation has occurred.
 	// UninstallHandler is used by ForceUninstallAsync, which does not emit a ModManagementEvent as it's an async
 	// function with a callback, and is not used by the mod management loop.
@@ -185,7 +203,6 @@ void UModioUISubsystem::UninstallHandler(FModioErrorCode ErrorCode, FModioModID 
 	Event.Event = EModioModManagementEventType::Uninstalled;
 	Event.Status = ErrorCode;
 	OnModManagementEvent.Broadcast(Event);
-
 }
 
 void UModioUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -210,8 +227,7 @@ void UModioUISubsystem::SetModEnabledStateDataProvider(TScriptInterface<IModioUI
 
 FModioErrorCode UModioUISubsystem::EnableModManagement()
 {
-	UModioSubsystem* DependencySubsystem = GEngine->GetEngineSubsystem<UModioSubsystem>();
-	if (DependencySubsystem)
+	if (UModioSubsystem* DependencySubsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
 		return DependencySubsystem->EnableModManagement(
 			FOnModManagementDelegateFast::CreateUObject(this, &UModioUISubsystem::ModManagementEventHandler));
@@ -221,8 +237,7 @@ FModioErrorCode UModioUISubsystem::EnableModManagement()
 
 void UModioUISubsystem::DisableModManagement()
 {
-	UModioSubsystem* DependencySubsystem = GEngine->GetEngineSubsystem<UModioSubsystem>();
-	if (DependencySubsystem)
+	if (UModioSubsystem* DependencySubsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
 		DependencySubsystem->DisableModManagement();
 	}
@@ -285,8 +300,7 @@ void UModioUISubsystem::RequestUninstallForModID(FModioModID ID, FOnErrorOnlyDel
 
 void UModioUISubsystem::RequestRateUpForModId(FModioModID ModId, FOnErrorOnlyDelegateFast DedicatedCallback)
 {
-	UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>();
-	if (Subsystem)
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
 		// Needs additional payload param so we know which type of operation was completed
 		Subsystem->SubmitModRatingAsync(
@@ -319,9 +333,22 @@ void UModioUISubsystem::RequestRateDownForModId(FModioModID ModId, FOnErrorOnlyD
 	}
 }
 
-void UModioUISubsystem::OnRatingSubmissionComplete(FModioErrorCode ErrorCode, EModioRating Rating) {}
+void UModioUISubsystem::OnRatingSubmissionComplete(FModioErrorCode ErrorCode, EModioRating Rating)
+{
+	if (ErrorCode)
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Failed to submit rating %s: \"%s\""), *UEnum::GetValueAsString(Rating),
+			   *ErrorCode.GetErrorMessage());
+	}
+}
 
-void UModioUISubsystem::OnExternalUpdatesFetched(FModioErrorCode ErrorCode) {}
+void UModioUISubsystem::OnExternalUpdatesFetched(FModioErrorCode ErrorCode)
+{
+	if (ErrorCode)
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Failed to fetch external updates: \"%s\""), *ErrorCode.GetErrorMessage());
+	}
+}
 
 void UModioUISubsystem::RequestRemoveSubscriptionForModID(FModioModID ID)
 {
@@ -481,11 +508,20 @@ bool UModioUISubsystem::RequestPurchaseTokenPack(FModioTokenPackID TokenPackID, 
 void UModioUISubsystem::LogoDownloadHandler(FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image,
                                             FModioModID ID, EModioLogoSize LogoSize)
 {
+	if (ErrorCode)
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Failed to download logo for mod %s: \"%s\""), *ID.ToString(),
+			   *ErrorCode.GetErrorMessage());
+	}
 	OnModLogoDownloadCompleted.Broadcast(ID, ErrorCode, Image, LogoSize);
 }
 
 void UModioUISubsystem::UserAvatarDownloadHandler(FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image)
 {
+	if (ErrorCode)
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Failed to download user avatar: \"%s\""), *ErrorCode.GetErrorMessage());
+	}
 	OnUserAvatarDownloadCompleted.Broadcast(ErrorCode, Image);
 }
 
@@ -527,24 +563,38 @@ void UModioUISubsystem::RequestGalleryImageDownloadForModID(
 void UModioUISubsystem::GalleryImageDownloadHandler(FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image,
 													FModioModID ID, int32 Index)
 {
+	if (ErrorCode)
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Failed to download gallery image for mod %s: \"%s\""), *ID.ToString(),
+			   *ErrorCode.GetErrorMessage());
+	}
 	OnModGalleryImageDownloadCompleted.Broadcast(ID, ErrorCode, Index, Image);
 }
 
 void UModioUISubsystem::CreatorAvatarDownloadHandler(FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image,
 													 FModioModID ID)
 {
+	if (ErrorCode)
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Failed to download creator avatar for mod %s: \"%s\""), *ID.ToString(),
+			   *ErrorCode.GetErrorMessage());
+	}
 	OnModCreatorAvatarDownloadCompleted.Broadcast(ID, ErrorCode, Image);
 }
 
-void UModioUISubsystem::OnAuthenticationComplete(FModioErrorCode ec)
+void UModioUISubsystem::OnAuthenticationComplete(FModioErrorCode ErrorCode)
 {
-	if (!ec)
+	if (!ErrorCode)
 	{
 		if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 		{
 			TOptional<FModioUser> NewUser = Subsystem->QueryUserProfile();
 			OnUserChanged.Broadcast(NewUser);
 		}
+	}
+	else
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Failed to authenticate user: \"%s\""), *ErrorCode.GetErrorMessage());
 	}
 }
 
@@ -615,11 +665,15 @@ void UModioUISubsystem::LogOut(FOnErrorOnlyDelegateFast DedicatedCallback)
 	}
 }
 
-void UModioUISubsystem::OnLogoutComplete(FModioErrorCode ec)
+void UModioUISubsystem::OnLogoutComplete(FModioErrorCode ErrorCode)
 {
-	if (!ec)
+	if (!ErrorCode)
 	{
 		OnUserChanged.Broadcast({});
+	}
+	else
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Failed to log out: \"%s\""), *ErrorCode.GetErrorMessage());
 	}
 }
 
@@ -648,6 +702,10 @@ void UModioUISubsystem::OnGetModTagOptionsComplete(FModioErrorCode ErrorCode, TO
 	{
 		CachedModTags = ModTags;
 	}
+	else
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Failed to get mod tag options: \"%s\""), *ErrorCode.GetErrorMessage());
+	}
 }
 
 void UModioUISubsystem::WalletBalanceRequestHandler(FModioErrorCode ErrorCode, TOptional<uint64> Balance)
@@ -655,6 +713,10 @@ void UModioUISubsystem::WalletBalanceRequestHandler(FModioErrorCode ErrorCode, T
 	if (!ErrorCode)
 	{
 		OnGetUserWalletBalanceRequestCompleted.Broadcast(Balance.GetValue());
+	}
+	else
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Failed to get user wallet balance: \"%s\""), *ErrorCode.GetErrorMessage());
 	}
 }
 
@@ -725,6 +787,13 @@ EModioOpenStoreResult UModioUISubsystem::RequestShowTokenPurchaseUIWithHandler(
 				OnStoreClosedHandler.BindLambda(
 					[this, Callback, ModioSubsystem](bool bResult) 
 					{
+						// Purchase made
+
+						if (bResult)
+						{
+							RequestRefreshEntitlements();
+						}
+
 						Callback.Execute(bResult, bResult ? "Successfully opened store" : "Failed to open store");
 					});
 
@@ -754,7 +823,9 @@ EModioOpenStoreResult UModioUISubsystem::RequestShowTokenPurchaseUIWithHandler(
 
 void UModioUISubsystem::RequestRefreshEntitlements()
 {
+#if !WITH_EDITOR // Only do this in a build: editor context does not have Online Subsystems
 	OnEntitlementRefreshEvent.Broadcast();
+#endif
 }
 
 bool UModioUISubsystem::NativeRequestModRatingChange(int64 ID, EModioRating NewRating)

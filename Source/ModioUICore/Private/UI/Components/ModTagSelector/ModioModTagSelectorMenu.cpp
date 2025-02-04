@@ -64,29 +64,34 @@ void UModioModTagSelectorMenu::ClearSelectedTags_Implementation()
 
 TArray<TScriptInterface<UModioModTagCategoryUIDetails>> UModioModTagSelectorMenu::GetAllowedTags_Implementation()
 {
-	auto TagCategories = IModioModTagOptionsUIDetails::Execute_GetCategories(CachedTagOptions.GetObject());
-
-	TArray<TScriptInterface<UModioModTagCategoryUIDetails>> TagInterfaces;
-	for (auto CurrentTag : TagCategories)
+	if (CachedTagOptions.GetObject() &&
+		CachedTagOptions.GetObject()->GetClass()->ImplementsInterface(UModioModTagOptionsUIDetails::StaticClass()))
 	{
-		if (CurrentTag.GetObject() &&
-			CurrentTag.GetObject()->GetClass()->ImplementsInterface(UModioModTagCategoryUIDetails::StaticClass()))
-		{
-			if (IModioModTagCategoryUIDetails::Execute_GetIsCategoryHidden(CurrentTag.GetObject()) &&
-				!Execute_GetAllowHiddenTags(this))
-			{
-				continue;
-			}
-			if (IModioModTagCategoryUIDetails::Execute_GetIsCategoryLocked(CurrentTag.GetObject()) &&
-				!Execute_GetAllowLockedTags(this))
-			{
-				continue;
-			}
-		}
-		TagInterfaces.Add(CurrentTag);
-	}
+		auto TagCategories = IModioModTagOptionsUIDetails::Execute_GetCategories(CachedTagOptions.GetObject());
 
-	return TagInterfaces;
+		TArray<TScriptInterface<UModioModTagCategoryUIDetails>> TagInterfaces;
+		for (auto CurrentTag : TagCategories)
+		{
+			if (CurrentTag.GetObject() &&
+				CurrentTag.GetObject()->GetClass()->ImplementsInterface(UModioModTagCategoryUIDetails::StaticClass()))
+			{
+				if (IModioModTagCategoryUIDetails::Execute_GetIsCategoryHidden(CurrentTag.GetObject()) &&
+					!Execute_GetAllowHiddenTags(this))
+				{
+					continue;
+				}
+				if (IModioModTagCategoryUIDetails::Execute_GetIsCategoryLocked(CurrentTag.GetObject()) &&
+					!Execute_GetAllowLockedTags(this))
+				{
+					continue;
+				}
+			}
+			TagInterfaces.Add(CurrentTag);
+		}
+
+		return TagInterfaces;
+	}
+	return {};
 }
 
 void UModioModTagSelectorMenu::AddTagSelectionChangedHandler_Implementation(const FModioOnTagSelectionChanged& Handler)

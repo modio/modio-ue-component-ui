@@ -65,17 +65,17 @@ protected:
 		}
 	}
 
-	static void RegisterFromK2(UObject* ObjectToDeregister)
+	static void RegisterFromK2(UObject* ObjectToRegister)
 	{
-		if (ObjectToDeregister)
+		if (ObjectToRegister)
 		{
 			UModioUISubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
 			if (Subsystem)
 			{
-				Subsystem->DeregisterEventHandlerFromK2(
+				Subsystem->RegisterEventHandlerFromK2(
 					Subsystem->OnGetUserWalletBalanceRequestCompleted,
 					&IModioUIWalletBalanceUpdatedEventReceiver::WalletBalanceUpdatedHandlerK2Helper, RegistrationMap,
-					TWeakObjectPtr<>(ObjectToDeregister));
+					TWeakObjectPtr<>(ObjectToRegister));
 			}
 		}
 	}
@@ -87,7 +87,7 @@ protected:
 			UModioUISubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
 			if (Subsystem)
 			{
-				Subsystem->RegisterEventHandlerFromK2(
+				Subsystem->DeregisterEventHandlerFromK2(
 					Subsystem->OnGetUserWalletBalanceRequestCompleted,
 					&IModioUIWalletBalanceUpdatedEventReceiver::WalletBalanceUpdatedHandlerK2Helper, RegistrationMap,
 					TWeakObjectPtr<>(ObjectToDeregister));

@@ -26,8 +26,17 @@
  */
 class MODIOUICORE_API SModioCommonMultiLineEditableTextBox : public SMultiLineEditableTextBox
 {
+protected:
+	/** Whether we should ignore the next OnKeyDown event */
+	bool bIgnoreOnKeyDown = false;
+	
 public:
+	//~ Begin SWidget Interface
+	virtual bool SupportsKeyboardFocus() const override { return true; }
 	virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override;
+	//~ End SWidget Interface
+
+	virtual FReply HandleNavigation(const FGeometry& MyGeometry, EUINavigation Navigation);
 };
 
 /**

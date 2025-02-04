@@ -245,6 +245,17 @@ UUserWidget& UModioDefaultModTileView::OnGenerateEntryWidgetInternal(UObject* It
 	return GeneratedEntryWidget;
 }
 
+void UModioDefaultModTileView::OnSelectionChangedInternal(NullableItemType FirstSelectedItem)
+{
+	Super::OnSelectionChangedInternal(FirstSelectedItem);
+
+	TArray<UObject*> SelectedItems;
+	if (FirstSelectedItem && GetSelectedItems(SelectedItems) > 0 && SelectedItems.Contains(FirstSelectedItem))
+	{
+		LastSelectedIndex = GetIndexForItem(FirstSelectedItem);
+	}
+}
+
 void UModioDefaultModTileView::NotifySelectionChanged(UObject* SelectedItem)
 {
 	// If we had an existing selection, make sure we notify it that it is no longer selected
@@ -265,8 +276,6 @@ void UModioDefaultModTileView::NotifySelectionChanged(UObject* SelectedItem)
 	{
 		OnSelectedValueChanged.Broadcast(SelectedItem);
 	}
-
-	LastSelectedIndex = GetIndexForItem(SelectedItem);
 }
 
 #if WITH_EDITOR

@@ -186,7 +186,7 @@ protected:
 	FOnAuthenticatedUserChanged OnUserChanged;
 	FOnAuthenticationChangeStarted OnAuthenticationChangeStarted;
 
-	void OnAuthenticationComplete(FModioErrorCode ec);
+	void OnAuthenticationComplete(FModioErrorCode ErrorCode);
 
 	FOnModInfoRequestCompleted OnModInfoRequestCompleted;
 	void ModInfoRequestCompletedHandler(FModioErrorCode ErrorCode, TOptional<FModioModInfoList> ModInfos,
@@ -260,7 +260,7 @@ public:
 	void RequestRateDownForModId(FModioModID ID, FOnErrorOnlyDelegateFast DedicatedCallback);
 	void RequestUninstallForModID(FModioModID ID, FOnErrorOnlyDelegateFast DedicatedCallback);
 
-	void OnLogoutComplete(FModioErrorCode ModioErrorCode);
+	void OnLogoutComplete(FModioErrorCode ErrorCode);
 	void LogOut(FOnErrorOnlyDelegateFast DedicatedCallback);
 
 	template<typename ClassOwner, class... Args, typename DelegateSignature, typename ImplementingClass>

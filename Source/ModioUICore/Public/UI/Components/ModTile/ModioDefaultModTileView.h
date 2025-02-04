@@ -87,8 +87,11 @@ protected:
 	virtual float GetScrollOffset_Implementation() const override;
 	//~ End IModioScrollableWidget Interface
 
+	//~ Begin ITypedUMGListView Interface
 	virtual UUserWidget& OnGenerateEntryWidgetInternal(UObject* Item, TSubclassOf<UUserWidget> DesiredEntryClass,
 											   const TSharedRef<STableViewBase>& OwnerTable) override;
+	virtual void OnSelectionChangedInternal(NullableItemType FirstSelectedItem) override;
+	//~ End ITypedUMGListView Interface
 
 	void NotifySelectionChanged(UObject* SelectedItem);
 

@@ -13,11 +13,13 @@
 
 #include "Widgets/Input/SEditableTextBox.h"
 #include "Layout/WidgetPath.h"
+#include "Misc/EngineVersionComparison.h"
 
 void SModioEditableTextBox::OnFocusChanging(const FWeakWidgetPath& PreviousFocusPath, const FWidgetPath& NewWidgetPath,
-	const FFocusEvent& InFocusEvent)
+                                            const FFocusEvent& InFocusEvent)
 {
 	SEditableTextBox::OnFocusChanging(PreviousFocusPath, NewWidgetPath, InFocusEvent);
+	
 	if (NewWidgetPath.IsValid())
 	{
 		OnFocusChanged.ExecuteIfBound(NewWidgetPath.ContainsWidget(this));
@@ -91,12 +93,48 @@ TSharedRef<SWidget> UModioDefaultEditableTextBox::RebuildWidget()
 	// We need to create our own editable text block here because the default editable text block does not expose the focus changed delegate
 	MyEditableTextBlock = SNew(SModioEditableTextBox)
 		.Style(&WidgetStyle)
-		.MinDesiredWidth(MinimumDesiredWidth)
-		.IsCaretMovedWhenGainFocus(IsCaretMovedWhenGainFocus)
-		.SelectAllTextWhenFocused(SelectAllTextWhenFocused)
-		.RevertTextOnEscape(RevertTextOnEscape)
-		.ClearKeyboardFocusOnCommit(ClearKeyboardFocusOnCommit)
-		.SelectAllTextOnCommit(SelectAllTextOnCommit)
+		.MinDesiredWidth(
+#if UE_VERSION_NEWER_THAN(5, 1, 0)
+		GetMinimumDesiredWidth()
+#else
+		MinimumDesiredWidth
+#endif
+		)
+		.IsCaretMovedWhenGainFocus(
+#if UE_VERSION_NEWER_THAN(5, 1, 0)
+			GetIsCaretMovedWhenGainFocus()
+#else
+			IsCaretMovedWhenGainFocus
+#endif
+		)
+		.SelectAllTextWhenFocused(
+#if UE_VERSION_NEWER_THAN(5, 1, 0)
+			GetSelectAllTextWhenFocused()
+#else
+			SelectAllTextWhenFocused
+#endif
+		)
+		.RevertTextOnEscape(
+#if UE_VERSION_NEWER_THAN(5, 1, 0)
+		GetRevertTextOnEscape()
+#else
+		RevertTextOnEscape
+#endif
+		)
+		.ClearKeyboardFocusOnCommit(
+#if UE_VERSION_NEWER_THAN(5, 1, 0)
+		GetClearKeyboardFocusOnCommit()
+#else
+		ClearKeyboardFocusOnCommit
+#endif
+		)
+		.SelectAllTextOnCommit(
+#if UE_VERSION_NEWER_THAN(5, 1, 0)
+		GetSelectAllTextOnCommit()
+#else
+		SelectAllTextOnCommit
+#endif
+		)
 		.AllowContextMenu(AllowContextMenu)
 		.OnTextChanged(FOnTextChanged::CreateWeakLambda(this, [this](const FText& InText)
 		{
@@ -112,8 +150,20 @@ TSharedRef<SWidget> UModioDefaultEditableTextBox::RebuildWidget()
 		.VirtualKeyboardOptions(VirtualKeyboardOptions)
 		.VirtualKeyboardTrigger(VirtualKeyboardTrigger)
 		.VirtualKeyboardDismissAction(VirtualKeyboardDismissAction)
-		.Justification(Justification)
-		.OverflowPolicy(OverflowPolicy);
+		.Justification(
+#if UE_VERSION_NEWER_THAN(5, 1, 0)
+		GetJustification()
+#else
+		Justification
+#endif
+		)
+		.OverflowPolicy(
+#if UE_VERSION_NEWER_THAN(5, 1, 0)
+		GetTextOverflowPolicy()
+#else
+		OverflowPolicy
+#endif
+		);
 
 	if (TSharedPtr<SModioEditableTextBox> ModioEditableTextBox = StaticCastSharedPtr<SModioEditableTextBox>(MyEditableTextBlock))
 	{

@@ -11,11 +11,9 @@
 #include "UI/Components/TokenPackTile/ModioDefaultTokenPackTile.h"
 
 #include "Engine/GameInstance.h"
-#include "Engine/LocalPlayer.h"
 #include "Input/CommonUIActionRouterBase.h"
 #include "UI/Interfaces/IModioUICommandMenu.h"
 #include "UI/Interfaces/ModioTokenPackUIDetails.h"
-
 
 void UModioDefaultTokenPackTile::NotifyClicked()
 {

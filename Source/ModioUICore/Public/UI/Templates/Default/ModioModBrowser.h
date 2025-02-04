@@ -76,7 +76,7 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
 			  meta = (BlueprintProtected))
 	TScriptInterface<IModioUIClickableWidget> GetLibraryViewButtonWidget() const;
-	// todo Calvin - revisit this now that view types are changed
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|Mod Browser|State", meta = (BlueprintProtected))
 	EModioModBrowserState CurrentView = EModioModBrowserState::ModsView;
 
@@ -88,7 +88,6 @@ protected:
 			  meta = (BlueprintProtected))
 	TScriptInterface<IModioUIClickableWidget> GetTabRightButtonWidget() const;
 
-	// Todo Calvin - revisit these, probably not needed anymore
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Mod Browser|Search and Filters", meta = (BlueprintProtected))
 	void DecrementPresetFilterSelection();
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Mod Browser|Search and Filters", meta = (BlueprintProtected))

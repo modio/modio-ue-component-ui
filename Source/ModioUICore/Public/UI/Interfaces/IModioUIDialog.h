@@ -26,7 +26,10 @@ enum class EModioUIDialogType : uint8
 	ReportMod,
 	EnableDisableManagement,
 	PurchaseMod,
-	StoreUi
+	StoreUi,
+
+	// Dialog to inform users that the mod they want to download has dependencies, which will be downloaded automatically along with the selected mod
+	ConfirmDependencyDownload,
 };
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FModioDialogShownEvent, bool, bOpen);

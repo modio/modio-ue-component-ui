@@ -6,7 +6,7 @@
 
 image:https://img.shields.io/badge/license-MIT-brightgreen.svg[alt="License", link="https://github.com/modio/modio-sdk/blob/master/LICENSE"]
 image:https://img.shields.io/discord/389039439487434752.svg?label=Discord&logo=discord&color=7289DA&labelColor=2C2F33[alt="Discord", link="https://discord.mod.io"]
-image:https://img.shields.io/badge/docs-master-green.svg[alt="Master Docs", link="https://go.mod.io/ue-docs"]
+image:https://img.shields.io/badge/docs-master-green.svg[alt="Master Docs", link="https://docs.mod.io/unreal/"]
 image:https://img.shields.io/badge/Unreal-5.2%2B-green[alt="Unreal Engine", link="https://www.unrealengine.com"]
 
 Welcome to the mod.io Unreal Engine Component UI repository. The Component UI plugin provides UI components, a template Mod Browser, and editor tooling to allow UE developers to rapidly implement mod.io-aware mod browsing and other elements into their game's UI.  
@@ -61,7 +61,7 @@ In the directory with your .uproject file: `git submodule add https://github.com
 
 . Grab the latest release zip from the Releases section on this page, and extract the contents to your project's `Plugins/ModioComponentUI` directory
 
-image:Doc/img/get_latest_release.png[] image:Doc/img/get_latest_release2.png[]
+image:Doc/doc_root/en-us/component-ui/img/get_latest_release.png[] image:Doc/doc_root/en-us/component-ui/img/get_latest_release2.png[]
 
 NOTE: The automatically generated zips on the release page and the 'Code' dropdown on this page will not work if this repository adds submodule dependencies in future releases. Please use the attached archive on the release instead. 
 

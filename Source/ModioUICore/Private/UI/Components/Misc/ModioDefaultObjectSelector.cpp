@@ -10,7 +10,9 @@
 
 #include "UI/Components/Misc/ModioDefaultObjectSelector.h"
 
+#include "TimerManager.h"
 #include "UI/Components/Slate/SModioDataSourceAwareTableRow.h"
+#include "UI/Interfaces/IModioModTagUIDetails.h"
 #include "UI/Interfaces/IModioUIClickableWidget.h"
 #include "UI/Interfaces/IModioUISelectableWidget.h"
 #if WITH_EDITOR
@@ -176,6 +178,23 @@ UUserWidget& UModioDefaultObjectSelector::OnGenerateEntryWidgetInternal(UObject*
 	{
 		// Ensure that the entry widget is selectable so that it can potentially display selection feedback etc
 		IModioUISelectableWidget::Execute_SetSelectable(&GeneratedEntryWidget, true);
+	}
+
+	// There's a bug in the engine where, when regenerating the entries of a list view while the outer widget is cached via UCommonActivatableWidgetContainerBase
+	// (such as when the outer widget is added using the "Push Widget" function), the selection state of the previously selected item is reset without appropriate necessity.
+	// This happens even though the entry widget itself maintains the correct selected state.
+	// This issue has only been reproduced with the tag entries in the filter panel.
+	if (Item && Item->Implements<UModioModTagUIDetails>() && IModioModTagUIDetails::Execute_GetSelectionState(Item))
+	{
+		if (UWorld* World = GetWorld())
+		{
+			// Defer the deselection of the item to the next tick so the correct state can be applied 
+			// after STableViewBase::Tick improperly updates the selection state.
+			World->GetTimerManager().SetTimerForNextTick([this, Item]()
+			{
+				IModioUIObjectSelector::Execute_SetSelectedStateForValue(this, Item, false, true);
+			});
+		}
 	}
 
 	OnWidgetCreated.Broadcast(&GeneratedEntryWidget, Item);

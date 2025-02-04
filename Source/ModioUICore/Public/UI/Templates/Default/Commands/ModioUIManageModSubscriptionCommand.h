@@ -80,7 +80,15 @@ protected:
 					}
 					else
 					{
-						UISubsystem->RequestSubscriptionForModID(CurrentModID, false);
+						FModioModInfo CurrentModInfo = IModioModInfoUIDetails::Execute_GetFullModInfo(DataSource);
+						if (CurrentModInfo.Dependencies)
+						{
+							UISubsystem->RequestShowDialog(EModioUIDialogType::ConfirmDependencyDownload, DataSource);
+						}
+						else
+						{
+							UISubsystem->RequestSubscriptionForModID(CurrentModID, false);
+						}
 					}
 				}
 			}
