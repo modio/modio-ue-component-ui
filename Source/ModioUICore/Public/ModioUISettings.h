@@ -16,7 +16,7 @@
 
 #include "ModioUISettings.generated.h"
 
-UCLASS(Config = Editor, defaultconfig)
+UCLASS(Config = Game, DefaultConfig)
 class MODIOUICORE_API UModioUISettings : public UObject
 {
 	GENERATED_BODY()

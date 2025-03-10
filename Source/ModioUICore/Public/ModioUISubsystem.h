@@ -226,31 +226,80 @@ protected:
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
+	/**
+	 * @docpublic
+	 * @brief Sets the data provider object for handling Mod Enable/Disable actions/tracking.
+	 * 
+	 * @param InModEnabledStateDataProvider - The object implementing the IModioUIModEnabledStateProvider interface that will act as the data provider.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void SetModEnabledStateDataProvider(TScriptInterface<IModioUIModEnabledStateProvider> InModEnabledStateDataProvider);
 
+	/**
+	 * @docpublic
+	 * @brief Sets the data provider object for handling Mod Rating actions/tracking.
+	 *
+	 * @param InModRatingStateProvider - The object implementing the IModRatingStateProvider interface that
+	 * will act as the data provider.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void SetModRatingStateDataProvider(TScriptInterface<IModRatingStateProvider> InModRatingStateProvider);
 
 	/**
-	 * Enables mod management, installing the UI subsystem as the mod management event handler so notifications can be
-	 * broadcast to UI
+	 * @docpublic
+	 * @brief Enables mod management, installing the UI subsystem as the mod management event handler so notifications can be broadcast to UI
+	 * 
+	 * @return An error code indicating success or failure of enabling mod management.  Note that this is independent of
+	 * error codes for mod management events.  Inspect the `Callback` for information on each mod management event. 
 	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	FModioErrorCode EnableModManagement();
 
+	/**
+	 * @docpublic
+	 * @brief Disables mod management.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void DisableModManagement();
 
+	/**
+	 * @docpublic
+	 * @brief Subscribes the current user to the provided ModID, optionally subscribing to dependencies.
+	 * 
+	 * @param ID - The ModId of the Mod to be subscribed to.
+	 * @param IncludeDependencies - Boolean indicating whether Mods that the given Mod depends on should also be subscribed to.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestSubscriptionForModID(FModioModID ID, bool IncludeDependencies);
 
+	/**
+	 * @docpublic
+	 * @brief Subscribes the current user to the provided ModID, optionally subscribing to dependencies, executing the provided callback upon successfully subscribing.
+	 *
+	 * @param ID - The ModId of the Mod to be subscribed to.
+	 * @param IncludeDependencies - Boolean indicating whether Mods that the given Mod depends on should also be
+	 * subscribed to.
+	 * @param Callback - The callback to be executed upon a successful subscription.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestSubscriptionForModIDWithHandler(FModioModID ID, bool IncludeDependencies, FOnErrorOnlyDelegate Callback);
 
+	/**
+	 * @docpublic
+	 * @brief Unsubscribes the current user from the given ModId.
+	 * 
+	 * @param ID - The ModId of the Mod to unsubscribe from.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestRemoveSubscriptionForModID(FModioModID ID);
 
+	/**
+	 * @docpublic
+	 * @brief Unsubscribes the current user from the given ModId, executing the given callback upon completing the unsubscribing.
+	 *
+	 * @param ID - The ModId of the Mod to unsubscribe from.
+	 * @param DedicatedCallback - The callback to be executed upon a successful unsubscription.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestRemoveSubscriptionForModIDWithHandler(FModioModID ID, FOnErrorOnlyDelegate DedicatedCallback);
 
@@ -352,16 +401,45 @@ public:
 	// Perhaps this should also carry the error code and a TOptional<bool> for the newly changed state?
 	FOnModSubscriptionStatusChanged OnSubscriptionStatusChanged;
 
+	/**
+	 * @docpublic
+	 * @brief Requests download of the currently authenticated user's Avatar.
+	 * Completion of the request triggers a callback in implementations of IModioUIUserAvatarDownloadCompletedReceiver
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestUserAvatar();
 
+	/**
+	 * @docpublic
+	 * @brief Requests the authentication of a provided Authentication Code that has been entered by the user. Calls the callback upon completion.
+	 * 
+	 * @param Code - The authentication code that has been entered.
+	 * @param Callback - The callback to be executed upon completion.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestEmailAuthenticationWithHandler(FModioEmailAuthCode Code, const FOnErrorOnlyDelegate Callback);
 
+	/**
+	 * @docpublic
+	 * @brief Get a gallery image for the specified mod ID.
+	 * Executes callbacks in implementations of IModioUIMediaDownloadCompletedReceiver
+	 * 
+	 * @param ID - The mod you want to retrieve an image for
+	 * @param Index - The zero-based index of the image you want to retrieve
+	 * @param ImageSize - Size of the image you want to retrieve
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestGalleryImageDownloadForModID(FModioModID ID, int32 Index,
 											 EModioGallerySize ImageSize = EModioGallerySize::Original);
 
+	/**
+	 * @docpublic
+	 * @brief Downloads the logo for the specified ModId.
+	 * Executes callbacks in implementations of IModioUIMediaDownloadCompletedReceiver
+	 * 
+	 * @param ID - Mod ID for use in logo retrieval
+	 * @param LogoSize - Parameter indicating the size of logo that's required
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestLogoDownloadForModID(FModioModID ID, EModioLogoSize LogoSize = EModioLogoSize::Thumb320);
 
@@ -369,59 +447,139 @@ public:
 
 	void GetTagOptionsListAsync();
 
+	/**
+	 * @docpublic
+	 * @brief Gets the current DPI scale value of the UI based on the viewport size.
+	 * 
+	 * @return The scale of the UI.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	float GetCurrentDPIScaleValue();
 
+	/**
+	 * @docpublic
+	 * @brief Requests a list of all Mods for the current game that match the given IDs.
+	 * Executes callbacks in implementations of IModioUIModInfoReceiver
+	 * 
+	 * @param IDs - Array of ModIds to request information on.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestModInfoForModIDs(TArray<FModioModID> IDs);
 
-	// Uses RequestIdentifier so requesters can tell if a set of results or an error belongs to them
+	/**
+	 * @docpublic
+	 * @brief Requests a list of all Mods for the current game.
+	 * Executes callbacks in implementations of IModioUIModInfoReceiver.
+	 * 
+	 * @param Params - A filter to apply to the results, returning only Mods that match it
+	 * @param RequestIdentifier - For requesters to tell if a set of results or an error belongs to them
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestListAllMods(FModioFilterParams Params, FString RequestIdentifier);
 
 	/**
-	 * Requests a list of all purchasable Token Packs via the currently active online portal provider
+	 * @docpublic
+	 * @brief Requests a list of all purchasable Token Packs via the currently active online portal provider
 	 * The result is received by any class implementing the ModioTokenPackReceiver interface via OnListAllTokenPacksRequestCompleted
 	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestListAllTokenPacks();
 
 	/**
-	 * Requests the purchase of the given Token Pack via the currently active online portal provider
-	 * @param TokenPackID ID of the pack to purchase
-	 * @param Callback Executed upon completion of the purchase process, indicating success and any additional information
-	 * @return Whether the purchase process was successfully started. Does not indicate status of the purchase itself.
+	 * @docpublic
+	 * @brief Requests the purchase of the given Token Pack via the currently active online portal provider
+	 * 
+	 * @param TokenPackID - ID of the pack to purchase
+	 * @param Callback - Executed upon completion of the purchase process, indicating success and any additional information
+	 * @return Whether - the purchase process was successfully started. Does not indicate status of the purchase itself.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	bool RequestPurchaseTokenPack(FModioTokenPackID TokenPackID, const FOnPlatformCheckoutDelegate& Callback);
 
+	/**
+	 * @docpublic
+	 * @brief Queries whether the given Mod is enabled. Not to be confused with whether a Mod is Subscribed to.
+	 * 
+	 * @param ID - The Id of the Mod to query the Enabled status of.
+	 * @return Whether the Mod is enabled or not.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	bool QueryIsModEnabled(FModioModID ID);
 
+	/**
+	 * @docpublic
+	 * @brief Requests an update of the currently authenticated user's mod.io wallet balance, creating a wallet if one does not already exist.
+	 * Executes callbacks in implementations of IModioUIWalletBalanceUpdatedEventReceiver.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestWalletBalanceRefresh();
 
+	/**
+	 * @docpublic
+	 * @brief Requests an update of the currently authenticated user's mod.io wallet balance, creating a wallet if one
+	 * does not already exist. Also executes the given callback upon completion.
+	 * Executes callbacks in implementations of IModioUIWalletBalanceUpdatedEventReceiver.
+	 * 
+	 * @param Callback - The callback to execute upon completion.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestWalletBalanceRefreshWithHandler(const FOnGetUserWalletBalanceDelegate& Callback);
 
+	/**
+	 * @docpublic
+	 * @brief Purchases a mod for the current player, executing the callback upon completion.
+	 * 
+	 * @param ID - ID of the mod to purchase
+	 * @param ExpectedPrice - The price the user is expected to pay for the mod, this ensures that there is consistency between the displayed price and
+	 * the price in the backend. If there is a mismatch, the purchase will fail.
+	 * @param Callback - Callback invoked with purchase information once the purchase is completed.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestPurchaseForModIDWithHandler(FModioModID ID, FModioUnsigned64 ExpectedPrice,
 											const FOnPurchaseModDelegate& Callback);
 
+	/**
+	 * @docpublic
+	 * @brief Requests to change the Enabled state of the given Mod to the given State
+	 * 
+	 * @param ID - The ModID of the Mod to update
+	 * @param bNewEnabledState - The state to apply to the given Mod.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	bool RequestModEnabledStateChange(FModioModID ID, bool bNewEnabledState);
 
+	/**
+	 * @docpublic
+	 * @brief Requests the display of the given Dialog Type, providing the new dialog the given Data Source.
+	 * Executes only in implementations of IModioDialogDisplayEventReceiver
+	 * 
+	 * @param DialogType - The type of dialog to display
+	 * @param DataSource - The data to hand to the new dialog upon creation
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestShowDialog(EModioUIDialogType DialogType, UObject* DataSource);
 
+	/**
+	 * @docpublic
+	 * @brief Updates the current Connectivity state, and notifies implementations of IMOdioUIConnectivityChangedReceiver *only* if the state changes.
+	 * 
+	 * @param bNewConnectivityState - the new Connectivity state
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void NotifyConnectivityChange(bool bNewConnectivityState);
 
+	/**
+	 * @docpublic
+	 * @brief Gets the current Connectivity State
+	 * 
+	 * @return The current connectivity State.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	bool QueryConnectivityState();
 
 	/**
-	 * Indicates whether a UGC subsystem feature is enabled
+	 * @docpublic
+	 * @brief Indicates whether a UGC subsystem feature is enabled
 	 *
 	 * @param Feature The feature to query
 	 * @return bool indicating the state of the specified feature
@@ -433,7 +591,9 @@ public:
 	virtual EModioRating NativeQueryModRating(int64 ModID) override;
 
 	/**
-	 * Attempts to invoke the store for the current platform.
+	 * @docpublic
+	 * @brief Attempts to invoke the store for the current platform.
+	 * 
 	 * @return Indicates if the native store UI is supported on the current platform,
 	 * i.e if the store has opened, *not* if a purchase was made.
 	 */
@@ -441,13 +601,20 @@ public:
 	EModioOpenStoreResult RequestShowTokenPurchaseUI();
 
 	/**
-	 * Attempts to invoke the store for the current platform.
+	 * @docpublic
+	 * @brief Attempts to invoke the store for the current platform.
+	 * 
 	 * @param Callback A callback that returns a bool indicating whether the user made a purchase in the store
 	 * @return Indicates if the native store UI is supported on the current platform, i.e if the store has opened, *not* if a purchase was made.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	EModioOpenStoreResult RequestShowTokenPurchaseUIWithHandler(const FOnShowTokenPurchaseUIResult& Callback);
 
+	/**
+	 * @docpublic
+	 * @brief Requests a refreshing of the currently logged in user's entitlements (consuming them if possible).
+	 * This then executes callbacks in implementations of IModioUIWalletBalanceUpdatedEventReceiver.
+	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestRefreshEntitlements();
 

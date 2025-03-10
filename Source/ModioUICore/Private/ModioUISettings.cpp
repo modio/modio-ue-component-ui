@@ -15,17 +15,17 @@
 
 UModioUISettings::UModioUISettings()
 {
-	FModioPresetFilterParams SortTrending;
-	SortTrending.PresetName = LOCTABLE("/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText", "SortTrending");
-	SortTrending.Direction = EModioSortDirection::Descending;
-	SortTrending.SortField = EModioSortFieldType::DownloadsToday;
-	SortTrending.Count = 100;
-	PresetNamedFilters.Add(MoveTemp(SortTrending));
-
 	FModioPresetFilterParams SortRecent;
 	SortRecent.PresetName = LOCTABLE("/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText", "SortRecent");
 	SortRecent.Direction = EModioSortDirection::Descending;
 	SortRecent.SortField = EModioSortFieldType::DateMarkedLive;
 	SortRecent.Count = 100;
 	PresetNamedFilters.Add(MoveTemp(SortRecent));
+
+	FModioPresetFilterParams SortTrending;
+	SortTrending.PresetName = LOCTABLE("/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText", "SortTrending");
+	SortTrending.Direction = EModioSortDirection::Descending;
+	SortTrending.SortField = EModioSortFieldType::DownloadsToday;
+	SortTrending.Count = 100;
+	PresetNamedFilters.Add(MoveTemp(SortTrending));
 }

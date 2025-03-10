@@ -20,6 +20,10 @@ DEFINE_LOG_CATEGORY(ModioUILocalization);
 
 void FModioUILocalization::StartupModule()
 {
+	// Localization path configuration was moved from runtime to build-time (ModioUILocalization.build.cs)
+	// This change was necessary because runtime configuration required EarliestPossible loading phase,
+	// which caused issues such as with commandlets. The module now uses Default loading phase and relies on build-time configuration
+	/*
 #if WITH_EDITOR
 	if (GConfig && GConfig->IsReadyForUse())
 	{
@@ -29,27 +33,25 @@ void FModioUILocalization::StartupModule()
 			UE_LOG(ModioUILocalization, Error, TEXT("Failed to find ModioComponentUI plugin"));
 			return;
 		}
-
-		/*
+		
 		// NOTE: Alternate localization path logic based on plugin location
-		const FString ModioLocalizationPath = [ModioComponentUIPlugin]() {
-			switch (ModioComponentUIPlugin->GetLoadedFrom())
-			{
-				case EPluginLoadedFrom::Engine:
-				{
-					FString ContentDir = ModioComponentUIPlugin->GetContentDir();
-					if (ContentDir.Contains(TEXT("Marketplace")))
-					{
-						return FString::Printf(TEXT("%%ENGINEDIR%%Plugins/Marketplace/%s/Content/Localization/ModioUI"), *ModioComponentUIPlugin->GetName());
-					}
-					return FString::Printf(TEXT("%%ENGINEDIR%%Plugins/%s/Content/Localization/ModioUI"), *ModioComponentUIPlugin->GetName());
-				}
-				case EPluginLoadedFrom::Project:
-				default:
-					return FString::Printf(TEXT("%%GAMEDIR%%Plugins/%s/Content/Localization/ModioUI"), *ModioComponentUIPlugin->GetName());
-			}
-		}();
-		*/
+		// const FString ModioLocalizationPath = [ModioComponentUIPlugin]() {
+		//	 switch (ModioComponentUIPlugin->GetLoadedFrom())
+		//	 {
+		//		 case EPluginLoadedFrom::Engine:
+		//		 {
+		//			 FString ContentDir = ModioComponentUIPlugin->GetContentDir();
+		//			 if (ContentDir.Contains(TEXT("Marketplace")))
+		//			 {
+		//				 return FString::Printf(TEXT("%%ENGINEDIR%%Plugins/Marketplace/%s/Content/Localization/ModioUI"), *ModioComponentUIPlugin->GetName());
+		//			 }
+		//			 return FString::Printf(TEXT("%%ENGINEDIR%%Plugins/%s/Content/Localization/ModioUI"), *ModioComponentUIPlugin->GetName());
+		//		 }
+		//		 case EPluginLoadedFrom::Project:
+		//		 default:
+		//			 return FString::Printf(TEXT("%%GAMEDIR%%Plugins/%s/Content/Localization/ModioUI"), *ModioComponentUIPlugin->GetName());
+		//	 }
+		// }();
 
 		const FString ModioLocalizationPath = FString::Printf(TEXT("%s/Localization/ModioUI"), *ModioComponentUIPlugin->GetContentDir());
 
@@ -69,6 +71,7 @@ void FModioUILocalization::StartupModule()
 		}
 	}
 #endif
+	*/
 }
 
 void FModioUILocalization::ShutdownModule()

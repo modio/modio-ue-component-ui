@@ -1,0 +1,128 @@
+---
+id: ue-principles
+title: Framework Principles
+slug: /unreal/component-ui/principles/
+custom_edit_url: https://github.com/modio/modio-ue4-internal/tree/main/Plugins/ModioComponentUI/Doc/doc_root/en-us/component-ui/principles.mdx
+---
+
+## Design goals
+
+The mod.io Component UI framework is intended to accelerate the process of building mod.io-aware UI elements (such as menus and widgets) within Unreal Engine, while providing developers with as much flexibility and modularity as possible. As a result, the framework has the following high-level goals:
+
+- Allow developers to implement their mod.io-connected UI exclusively in C++, exclusively in Blueprint, or any combination thereof.
+- Allow developers complete control over the styling and layout of the associated widgets.
+- Allow developers to re-use as much of their existing UI widgets and implementation as possible.
+- Abstract communication with the mod.io plugin away as much as possible.
+- Not require any engine-level changes to be made.
+
+## Challenges
+
+Our goals pose a number of challenges as Slate and UMG make a number of assumptions and impose limitations which favor tightly-coupled UI classes. This hinders designer UX when C++ is not being utilized. When implementing a UI for a specific game, these assumptions may not pose an issue. However, due to the aforementioned design goals for our UI components, they bear specific consideration.
+
+- UMG exposes all inner widgets marked as variables as `public` `UPROPERTY` on their outer `UserWidget`. This violation of encapsulation encourages implementations to know about and directly communicate with internal widgets of other components, making widget substitutions difficult.
+- UMG also exposes event dispatchers directly as `public` `UPROPERTY`, which encourages tighter coupling by directly having enclosing widgets bind to dispatchers on other widgets.
+- UMG provides an easy way to model a "has-a" relationship by allowing individual widgets to be composed together as members of larger composite widgets, but does not provide a flexible way to model "is-a". A UMG widget that contains a `UButton` will never *be* a `UButton` in and of itself, requiring the aforementioned violation of encapsulation if an external widget wants to receive notifications about clicks or otherwise configure the behavior of that inner button.
+- Outside of the `UListViewBase`-derived classes, UMG provides no consistent way for data binding to be performed.
+- UMG inherits limitations of Blueprint more generally: No native support for `EditCondition` and related metadata on variables without requiring those variables to be declared in C++.
+- UMG provides `BindWidget` as a means of allowing C++ base classes to defer to a derived UMG Blueprint for references to inner widgets. However, it has the following limitations:
+  - `BindWidget` requires the C++ implementation to specify a concrete class for subwidget references to get automatic type checking. This forces a derived implementation to inherit that specific concrete class for the subwidget, preventing reuse of an existing class that doesn't already include that class in its inheritance hierarchy.
+  - Alternatively, `BindWidget` can be used on a generic `UWidget ` property, but then there's no automatic type checking.
+  - `BindWidget` has no way to specify that the widget should implement a specific interface out-of-the-box.
+  - There's no way for a Widget Blueprint to indicate that a single internal widget meets the requirements of, and should be bound to, multiple `BindWidget` properties.
+  - Lastly, and possibly most importantly, `BindWidget` requires each widget to be bound to exist as a direct child of the widget containing the bound reference, and the widget must exist at design time. The widget cannot be instantiated dynamically during initialization and cannot be a sub-widget of an internal widget. For instance, if an outer `UserWidget` tries to bind to a `UTextBlock`, you cannot provide it a reference to an internal button's internal text block.
+
+## Principles
+
+As a result of these limitations, our component UI framework adheres to the following principles:
+
+- [Prefer interfaces over concrete types](#prefer-interfaces-over-concrete-types)
+- [Provide consistent behaviour for data binding](#provide-consistent-behaviour-for-data-binding)
+- [Emphasise flexibility and composability for widgets](#emphasise-flexibility-and-composability-for-widgets)
+- [Don't include styling as part of the public interface](#dont-include-styling-as-part-of-the-public-interface)
+- [Favour re-usable widgets over bespoke implementations](#favour-re-usable-widgets-over-bespoke-implementations)
+
+### Prefer interfaces over concrete types
+
+Much of the component UI framework is implemented in terms of interfaces to allow studios to choose how a particular component is implemented.
+
+- By using interfaces, the framework makes no assumptions about whether a component is implemented as a `Widget` or a `UserWidget`, and whether that component is implemented natively or purely via Blueprint or a combination of both.
+- The default component implementations provided by mod.io and utilized in the provided Template UI reference their sub-components via interfaces rather than expecting specific concrete types to be provided. For example, the default button expects a widget implementing `IModioUIHasText` rather than requiring a `UTextBlock`.
+- The default components and Template UI also use interfaces for event binding. They do not directly bind to event dispatchers, as this enforces a specific concrete type for the target widget.
+- Default component implementations provided by mod.io have no public functions other than those inherited via `UWidget` or exposed by interfaces. In turn, they never invoke a function on another widget that isn't from those two sources.
+- Default component implementations may expose properties for configuration via the details panel by marking those properties as Instance Editable while keeping their access specifier Private. All **runtime** changes to these configuration variables will be performed via interface/message calls so that widget substitutability is maintained.
+
+### Provide consistent behaviour for data binding
+
+The mod.io component UI framework is primarily concerned with the visualization of data objects returned from the mod.io REST API via the core plugin. As a result, data binding is particularly important for our widgets, and it is essential that a consistent approach be used throughout the entire framework.
+
+- In order for data binding to be performed consistently across widgets via an interface, mod.io components have the concept of a "data source". These are `UObject`-derived classes, instances of which can be passed to widgets to allow them to bind to properties of the data contained therein.
+- The component UI framework provides helper classes to take the lightweight structs returned by the core plugin and wrap them in `UObjects` that implement the appropriate interfaces.
+- The component UI framework does not make assumptions about what data an implementation may require in its model. Furthermore, a traditional monolithic data model often has a strong correlation with UI layout. The framework strives to maintain flexibility for consumers by minimizing assumptions about widget hierarchy and layout, so there is no single "model" class containing the backing data. Rather, the data model is distributed through each widget in your implementation, which also allows for the use of individual components outside of a specific hierarchy or layout.
+- Data binding in this fashion is essentially a generalization of the approach the engine uses with `IUserObjectListEntry`, but without the assumption that the implementing widget is a `UserWidget`.
+- Implementing objects are responsible for "owning" their data source internally to prevent it from being garbage collected.
+- A "data source" can be any type of `UObject`, but in practice, the component UI framework often expects the Data Source for a specific component to implement a specific interface so that it can be queried for data to visualize. There are no other requirements on a data source. For instance, if implementors wanted to use a `UObject` that implemented the data interface for a mod and for a user (referencing the mod's author) — this is supported.
+- The mod.io UI subsystem emits events by invoking multicast delegates when asynchronous calls that alter the implicit data model have completed. This ensures that individual components do not need to rely on one another to know when this occurs and only receive notifications for data model changes they wish to be informed of.
+
+```mermaid
+---
+title: Mod Details Data Binding
+---
+classDiagram
+    namespace Interfaces{
+        class IModioUIDataSourceWidget{
+            void NativeSetDataSource(UObject* InDataSource) virtual
+            UObject* NativeGetDataSource() virtual
+        }
+        class IModioModInfoUIDetails{
+            FModioModInfo GetFullModInfo_Implementation() virtual
+            FModioModID GetModID_Implementation() virtual
+        }
+    }
+
+    namespace Widgets{
+        class UModioUIComponentBase{
+            TObjectPtr[UObject] DataSource
+            NativeSetDataSource(UObject* InDataSource) override
+            UObject* NativeGetDataSource() override
+        }
+
+        class UModioModDetailsDialog{
+            NativeSetDataSource(UObject* InDataSource) override
+            UObject* NativeGetDataSource() override
+        }
+    }
+
+    class UModioModInfoUI{
+        <<UObject>>
+        FModioModInfo Underlying
+        FModioModInfo GetFullModInfo_Implementation() override
+        FModioModID GetModID_Implementation() override
+    }
+
+    UModioUIComponentBase --|> IModioUIDataSourceWidget: Implements
+    UModioUIComponentBase --* UModioModDetailsDialog: Parent Of
+    UModioModInfoUI --|> IModioModInfoUIDetails: Implements
+    UModioModDetailsDialog --> UModioModInfoUI: Expects as [DataSource]
+```
+
+### Emphasise flexibility and composability for widgets
+
+While a template design for the component UI framework will be shipped in a future release, the expectation is that many studios will want to build their own layout or incorporate components from the framework into their existing UI implementation, and the default component implementations should avoid making assumptions about how and where they are used. The framework and the default implementations of components in the framework do everything possible to ensure loose coupling between components and between components and their internal subwidgets.
+
+- `BindWidget` is inflexible and enforces specific hierarchical arrangements of widgets because of its requirement that the bound widget be an immediate child of the widget with the associated `UPROPERTY`. As a result, the component UI framework does not use either `BindWidget` or `BindWidgetOptional` anywhere.
+- Components in the framework all use getter functions to retrieve references to subwidgets and are tolerant of those references being not provided by an implementation.
+  - A component may either degrade gracefully or simply not function if a sub-widget is not provided, but must not cause crashes as a result.
+- Widget getter functions all return sub-widgets via `TScriptInterface` to provide as much concept checking as the engine currently permits. Default component implementations should never directly reference sub-widgets via variables.
+- Default components are not allowed to make any assumptions about the hierarchy that they are placed in — they should make no calls to `GetParent()` or rely on being placed in particular slot types.
+- Some widgets may need to update their states based on changes made elsewhere within the user interface. These widgets will use the `ModioUISubsystem` to register their interest for specific events occurring rather than relying on parent widgets to notify them.
+
+### Don't include styling as part of the public interface
+
+The component UI framework is intended to allow studios to substitute their own widgets as appropriate in parallel with the above restrictions, component definitions impose minimal requirements about widget styling. Styling and appearance are configured using the instance-editable public `UPROPERTY` of widgets. For runtime changes, where absolutely necessary, interface calls will be performed as a last resort.
+
+### Favour re-usable widgets over bespoke implementations
+
+The component UI framework emphasizes generic, repurposable components where possible. Some examples:
+
+- The Object Selector widget is generic and can be used to allow users to make a selection from any collection of `UObjects`. It imposes no requirements on the type of `UObject` that it is presenting to the user for selection.
+- The Enum Selector widget also models the Object Selector concept. The default implementation defers to an internal Object Selector for the majority of its functionality by requiring that the objects provided to the selector implement the `IModioEnumEntryUIDetails`.

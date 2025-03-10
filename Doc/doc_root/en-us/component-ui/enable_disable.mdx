@@ -1,0 +1,65 @@
+---
+id: ue-enable-disable
+title: Enable Disable Mod Functionality
+slug: /unreal/component-ui/enable-disable/
+custom_edit_url: https://github.com/modio/modio-ue4-internal/tree/main/Plugins/ModioComponentUI/Doc/doc_root/en-us/component-ui/enable_disable.mdx
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+
+## Description
+
+The Component UI includes support for enabling and disabling mods in your UI and game. Note that persistence of this data is up to developers to implement. You could do this via the Unreal Engine save game system, for instance.
+
+## Enable the feature flag
+
+Enable/Disable is behind a feature flag under `Project Settings > Plugins > mod.io > Feature Flags > Enable Mod Enable/Disable support`. Enabling this is the first step to using the built-in feature.
+
+## Adding an `IModEnabledStateProvider`
+
+Just like the rest of the Component UI, the Enable/Disable functionality is driven by an interface: `IModEnabledStateProvider`. The class on which you implement this interface will be a data provider for the state of mods, and will also receive callbacks for enable and disable events that are triggered from the components. You can also implement this interface in Blueprint. Generally speaking, something that persists for a long time such as a `GameInstance` or your UGC Manager Subsystem should implement this interface and handle persistence.
+
+### Registering the `IModEnabledStateProvider`
+
+Whichever class implements `IModEnabledStateProvider` has to register itself with the UI Subsystem as follows:
+
+```c++
+if (UModioUISubsystem* UISubsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>())
+{
+    UISubsystem->SetModEnabledStateDataProvider(this);
+}
+```
+
+### Handling a state change
+
+When you enable or disable a mod from the UI, the `IModEnabledStateProvider` will receive a `RequestModEnabledStateChange` callback. You can then store the state of the `ModID`. As an example, if you were just storing this per-session, your implementing class could declare something such as `TSet<int64> DisabledMods` and update it like so:
+
+```c++
+bool UModioGameInstance::NativeRequestModEnabledStateChange(int64 ID, bool bNewEnabledState)
+{
+    if (bNewEnabledState)
+    {
+        DisabledMods.Remove(ID);
+    }
+    else
+    {
+        DisabledMods.Add(ID);
+    }
+    return true;
+}
+```
+
+### Querying the state of a mod
+
+Similarly, whenever the Enable/Disable state of a mod needs to be queried by the UI, the `IModEnabledStateProvider` will receive a `QueryIsModEnabled` callback which simply returns whether the mod is enabled or not:
+
+```c++
+bool UModioGameInstance::NativeQueryIsModEnabled(int64 ModID)
+{
+    return !DisabledMods.Contains(ModID);
+}
+```
+
+Note that `QueryUserInstallations` will still return all mods regardless of whether they are enabled or disabled. When it comes to loading and unloading content, you should query your own storage of this data to decide whether to load or unload content.

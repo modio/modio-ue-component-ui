@@ -19,9 +19,10 @@ This plugin requires the core mod.io plugin to be installed alongside it. Suppor
 
 |===
 |Engine Version | Last Release
-|UE5.2 | Current
+|UE5.2 | 2025.2
 |UE5.3 | Current
 |UE5.4 | Current
+|UE5.5 | Current
 |===
 
 

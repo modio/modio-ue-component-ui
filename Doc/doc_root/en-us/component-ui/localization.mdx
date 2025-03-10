@@ -1,0 +1,15 @@
+---
+id: ue-localization
+title: Localization
+slug: /unreal/component-ui/localization/
+custom_edit_url: https://github.com/modio/modio-ue4-internal/tree/main/Plugins/ModioComponentUI/Doc/doc_root/en-us/component-ui/localization.mdx
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+The mod.io Component UI framework supports localization in line with Unreal Engine best practices.
+
+- Static localization data such as enum display strings have their localization data (using the `DisplayString` metadata as the English source string) stored in an asset at a fixed path.
+- The mod.io plugin settings allow you to specify the asset to store this data in.
+- Update the asset by running `ModioUpdateStaticLocData` commandlet.  This should not be required unless you change the display string metadata for enum values.
