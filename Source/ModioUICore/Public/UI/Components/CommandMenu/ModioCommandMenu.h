@@ -46,7 +46,7 @@ protected:
 	 * @brief The list of command objects that the menu should display
 	 */
 	UPROPERTY(Transient)
-	TArray<UObject*> CommandObjects;
+	TArray<TObjectPtr<UObject>> CommandObjects;
 
 	FModioCommandListBuilderMulticast OnBuildCommandList;
 
