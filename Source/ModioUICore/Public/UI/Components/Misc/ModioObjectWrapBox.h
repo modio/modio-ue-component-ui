@@ -33,7 +33,7 @@ class MODIOUICORE_API UModioObjectWrapBox : public UWrapBox, public IModioUIObje
 
 protected:
 	UPROPERTY(Transient)
-	TArray<UObject*> BoundObjects;
+	TArray<TObjectPtr<UObject>> BoundObjects;
 
 	/**
 	 * @brief The class of the widget to instantiate for each object in the list. Must implement ModioUIDataSourceWidget

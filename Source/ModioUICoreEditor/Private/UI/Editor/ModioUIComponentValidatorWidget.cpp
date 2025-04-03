@@ -324,7 +324,7 @@ TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildInterfaceValidation
 	{
 		return SNew(SListView<UClass*>)
 			.Orientation(EOrientation::Orient_Vertical)
-			.ListItemsSource(&Metadata.RequiredInterfaces)
+			.ListItemsSource(&ObjectPtrDecay(Metadata.RequiredInterfaces))
 			.OnGenerateRow_Static(&UModioUIComponentValidatorWidget::GenerateInterfaceTestWidget, ImplementingObject);
 	}
 	else

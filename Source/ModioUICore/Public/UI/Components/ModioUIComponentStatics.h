@@ -55,7 +55,7 @@ struct FModioUIComponentMetadata
 	 * @brief Array of Interface classes that must be implemented by the component
 	 */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "mod.io|UI|ComponentMetadata")
-	TArray<UClass*> RequiredInterfaces;
+	TArray<TObjectPtr<UClass>> RequiredInterfaces;
 
 	/**
 	 * @brief The associated EModioUIComponentID for this component

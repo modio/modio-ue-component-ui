@@ -35,7 +35,7 @@ protected:
 
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "mod.io|UI|Commands|Display Filtered Mods",
 			  meta = (BlueprintProtected))
-	UObject* DataSource;
+	TObjectPtr<UObject> DataSource;
 
 	UPROPERTY(meta = (BlueprintProtected))
 	FModioFilterParams UnderlyingParams;

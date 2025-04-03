@@ -29,7 +29,7 @@ protected:
 
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "mod.io|UI|Commands|Toggle Mod Enabled",
 			  meta = (BlueprintProtected))
-	UObject* DataSource;
+	TObjectPtr<UObject> DataSource;
 
 	virtual void SetDataSource_Implementation(UObject* InDataSource) override
 	{

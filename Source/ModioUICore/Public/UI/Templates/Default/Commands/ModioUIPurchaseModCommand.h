@@ -29,7 +29,7 @@ protected:
 	static inline const FString CommandID {TEXT("PurchaseMod")};
 
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "mod.io|UI|Commands|Purchase Mod", meta = (BlueprintProtected))
-	UObject* DataSource;
+	TObjectPtr<UObject> DataSource;
 
 	virtual void SetDataSource_Implementation(UObject* InDataSource) override
 	{

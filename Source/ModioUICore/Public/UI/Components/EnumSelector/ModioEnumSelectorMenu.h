@@ -39,7 +39,7 @@ protected:
 	 * @brief Cached values to use as the source for data binding. Populated by SetValues. This also prevents the GC from collecting the values while they are in use
 	 */
 	UPROPERTY(Transient, meta = (BlueprintProtected))
-	TArray<UObject*> CachedValues;
+	TArray<TObjectPtr<UObject>> CachedValues;
 
 	UFUNCTION(meta = (BlueprintProtected))
 	void InternalSelectionChangedHandler(UObject* SelectedObject);

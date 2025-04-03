@@ -76,5 +76,5 @@ protected:
 	 * @brief Strong ref to bound presets to prevent GC if the concrete implementation of this component does not hold a ref to them
 	 */
 	UPROPERTY(meta = (BlueprintProtected))
-	TArray<UObject*> CachedBoundPresets;
+	TArray<TObjectPtr<UObject>> CachedBoundPresets;
 };

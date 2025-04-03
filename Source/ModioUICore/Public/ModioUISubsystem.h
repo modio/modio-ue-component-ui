@@ -146,10 +146,10 @@ protected:
 	FOnEntitlementRefreshRequest OnEntitlementRefreshEvent;
 
 	UPROPERTY(Transient)
-	UObject* ModEnabledStateDataProvider;
+	TObjectPtr<UObject> ModEnabledStateDataProvider;
 
 	UPROPERTY(Transient)
-	UObject* ModRatingStateProvider;
+	TObjectPtr<UObject> ModRatingStateProvider;
 
 	UFUNCTION()
 	void OnModEnabledChanged(int64 RawModID, bool bNewEnabledState);

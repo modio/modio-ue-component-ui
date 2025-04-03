@@ -21,7 +21,7 @@
 #include "IModioUICommandMenu.generated.h"
 
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FModioCommandListBuilder, TArray<UObject*>&, CommandList, UObject*, Context);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FModioCommandListBuilderMulticast, TArray<UObject*>&, CommandList,
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FModioCommandListBuilderMulticast, TArray<UObject*>, CommandList,
 											 UObject*, Context);
 // clang-format off
 
