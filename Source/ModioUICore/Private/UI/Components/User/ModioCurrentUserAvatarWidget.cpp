@@ -11,6 +11,8 @@
 #include "UI/Components/User/ModioCurrentUserAvatarWidget.h"
 #include "UI/Interfaces/IModioUIImageDisplayWidget.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioCurrentUserAvatarWidget)
+
 TScriptInterface<IModioUIImageDisplayWidget> UModioCurrentUserAvatarWidget::GetAvatarImageWidget_Implementation() const
 {
 	return nullptr;

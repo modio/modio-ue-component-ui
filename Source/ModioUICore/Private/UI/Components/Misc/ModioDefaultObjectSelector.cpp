@@ -19,6 +19,8 @@
 	#include "Editor/WidgetCompilerLog.h"
 #endif
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultObjectSelector)
+
 UUserWidget* UModioDefaultObjectSelector::GetEntryWidgetFromItem(const UObject* Item) const
 {
 	return Item ? ITypedUMGListView<UObject*>::GetEntryWidgetFromItem<UUserWidget>(const_cast<UObject*>(Item)) : nullptr;

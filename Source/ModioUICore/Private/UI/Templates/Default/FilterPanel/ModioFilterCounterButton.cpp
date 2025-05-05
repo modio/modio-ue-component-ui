@@ -12,6 +12,8 @@
 
 #include "UI/Components/ComponentHelpers.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioFilterCounterButton)
+
 TScriptInterface<IModioUIDataSourceWidget> UModioFilterCounterButton::GetFilterCounterWidget_Implementation()
 {
 	return nullptr;

@@ -16,6 +16,8 @@
 #include "Misc/EngineVersionComparison.h"
 #include "UI/Interfaces/IModioUIHoverableWidget.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultCheckBox)
+
 UModioDefaultCheckBox::UModioDefaultCheckBox()
 	: LabelClass(UModioDefaultTextBlock::StaticClass())
 {

@@ -15,6 +15,8 @@
 #include "TimerManager.h"
 #include "Types/ModioUnsigned64.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioOperationTracker)
+
 void UModioOperationTracker::NativePreConstruct()
 {
 	Super::NativePreConstruct();

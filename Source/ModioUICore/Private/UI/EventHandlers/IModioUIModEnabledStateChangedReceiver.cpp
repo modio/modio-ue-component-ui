@@ -10,6 +10,8 @@
 
 #include "UI/EventHandlers/IModioUIModEnabledStateChangedReceiver.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUIModEnabledStateChangedReceiver)
+
 void IModioUIModEnabledStateChangedReceiver::ModEnabledStateChangedHandler(FModioModID ModID, bool bNewEnabledState)
 {
 	bRoutedUIModEnabledStateChanged = false;

@@ -9,3 +9,5 @@
  */
 
 #include "UI/Components/ImageGallery//ModioGalleryListEntry.h"
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioGalleryListEntry)

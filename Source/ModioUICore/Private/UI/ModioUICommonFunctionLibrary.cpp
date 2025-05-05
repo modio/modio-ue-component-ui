@@ -22,6 +22,8 @@
 #include "Loc/ModioEnumLocalizationHelpers.h"
 #include "UI/Interfaces/IModioModDependencyUIDetails.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUICommonFunctionLibrary)
+
 FText UModioUICommonFunctionLibrary::FormatTimespan(const FTimespan& Timespan, const FText& YearFormat,
                                                     const FText& MonthFormat, const FText& DaysFormat,
                                                     const FText& TodayFormat)

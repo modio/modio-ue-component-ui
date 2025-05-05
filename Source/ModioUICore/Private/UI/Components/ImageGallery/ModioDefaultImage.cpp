@@ -10,6 +10,8 @@
 
 #include "UI/Components/ImageGallery/ModioDefaultImage.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultImage)
+
 void UModioDefaultImage::NativeAddImageLoadEventHandler(const FModioImageDisplayOnLoadStateChanged& Handler)
 {
 	OnLoadStateChanged.AddUnique(Handler);

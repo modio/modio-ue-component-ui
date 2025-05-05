@@ -17,6 +17,9 @@
 #if WITH_EDITOR
 	#include "Editor/WidgetCompilerLog.h"
 #endif
+
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultModTileView)
+
 void UModioDefaultModTileView::NativeSetListItems(const TArray<UObject*>& InListItems, bool bAddToExisting)
 {
 	ClearSelection();

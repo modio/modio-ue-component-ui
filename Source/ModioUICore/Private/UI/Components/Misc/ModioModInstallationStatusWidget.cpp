@@ -16,6 +16,8 @@
 #include "UI/Interfaces/IModioModInfoUIDetails.h"
 #include "UI/ModioUICommonFunctionLibrary.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioModInstallationStatusWidget)
+
 void UModioModInstallationStatusWidget::SetModInstallationStatus(EModioModInstallationStatus NewStatus)
 {
 	CurrentInstallationStatus = NewStatus;

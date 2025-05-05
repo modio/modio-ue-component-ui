@@ -10,6 +10,8 @@
 
 #include "UI/Templates/Default/FilterPanel/ModioTagCounterIcon.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioTagCounterIcon)
+
 TScriptInterface<IModioUIHasTextWidget> UModioTagCounterIcon::GetCounterLabelWidget_Implementation()
 {
 	return nullptr;

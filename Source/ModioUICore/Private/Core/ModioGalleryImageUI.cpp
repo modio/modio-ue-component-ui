@@ -10,6 +10,8 @@
 
 #include "Core/ModioGalleryImageUI.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioGalleryImageUI)
+
 UModioGalleryImageUI* UModioGalleryImageUI::ConstructGalleryImage(UObject* Outer, FModioImageWrapper& Image,
 																  int32 Index)
 {

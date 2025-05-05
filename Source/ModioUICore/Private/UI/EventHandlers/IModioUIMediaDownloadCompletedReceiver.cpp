@@ -10,6 +10,8 @@
 
 #include "UI/EventHandlers/IModioUIMediaDownloadCompletedReceiver.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUIMediaDownloadCompletedReceiver)
+
 void IModioUIMediaDownloadCompletedReceiver::GalleryImageDownloadHandler(FModioModID ModID, FModioErrorCode ErrorCode,
 																		 int32 Index,
 																		 TOptional<FModioImageWrapper> Image)

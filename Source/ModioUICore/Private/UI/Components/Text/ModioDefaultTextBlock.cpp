@@ -11,6 +11,8 @@
 #include "UI/Components/Text/ModioDefaultTextBlock.h"
 #include "UI/Components/ComponentHelpers.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultTextBlock)
+
 void UModioDefaultTextBlock::NativeSetText(const FText& DisplayText)
 {
 	SetText(DisplayText);

@@ -12,6 +12,7 @@
 
 #include "UI/Interfaces/IModioModFilterUIDetails.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioPresetFilterEntryWidget)
 
 TScriptInterface<IModioUIHasTextWidget> UModioPresetFilterEntryWidget::GetLabelWidget_Implementation() const 
 {

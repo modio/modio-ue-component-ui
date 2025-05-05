@@ -12,6 +12,8 @@
 #include "Engine/Engine.h"
 #include "ModioUISubsystem.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUIEntitlementRefreshEventReceiver)
+
 void IModioUIEntitlementRefreshEventReceiver::EntitlementRefreshEventHandler()
 {
 	bRoutedEntitlementRefreshEvent = false;

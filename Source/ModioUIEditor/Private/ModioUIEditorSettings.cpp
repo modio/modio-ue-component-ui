@@ -19,6 +19,8 @@
 #include "Core/ModioAssetPaths.h"
 #include "Objects/ModioOpenEditorWidgetAction.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUIEditorSettings)
+
 #define LOCTEXT_NAMESPACE "FModioUIEditorSettings"
 
 UModioUIEditorSettings::UModioUIEditorSettings(const FObjectInitializer& Initializer)

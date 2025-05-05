@@ -13,6 +13,8 @@
 #include "UI/Interfaces/IModioUIObjectSelector.h"
 #include "UI/ModioUICommonFunctionLibrary.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioModTagSelectorMenu)
+
 void UModioModTagSelectorMenu::SetAvailableTagsFromModTagOptions_Implementation(const FModioModTagOptions& InOptions)
 {
 	// Wrap the struct data in a UObject, so it can be used for data binding and forward onto the method taking such a

@@ -11,6 +11,7 @@
 #include "Core/LinearColorRef.h"
 #include "Core/ModioAssetPaths.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(LinearColorRef)
 
 FLinearColorRefColorChangeDelegate FLinearColorRef::ColorChangeHandlers;
 

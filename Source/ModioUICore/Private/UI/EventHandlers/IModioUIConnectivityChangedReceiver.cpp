@@ -10,6 +10,8 @@
 
 #include "UI/EventHandlers/IModioUIConnectivityChangedReceiver.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUIConnectivityChangedReceiver)
+
 void IModioUIConnectivityChangedReceiver::ConnectivityChangedHandler(bool bNewConnectivityState)
 {
 	bRoutedConnectivityChanged = false;

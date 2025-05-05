@@ -12,6 +12,8 @@
 #include "Engine/Engine.h"
 #include "ProfilingDebugging/CpuProfilerTrace.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUISubscriptionsChangedReceiver)
+
 void IModioUISubscriptionsChangedReceiver::SubscriptionsChangedHandler(FModioModID ModID, bool bNewSubscriptionState)
 {
 	bRoutedSubscriptionsChanged = false;

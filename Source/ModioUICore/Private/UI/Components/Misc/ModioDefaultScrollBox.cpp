@@ -12,6 +12,8 @@
 
 #include "Misc/EngineVersionComparison.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultScrollBox)
+
 void UModioDefaultScrollBox::SynchronizeProperties()
 {
 	Super::SynchronizeProperties();

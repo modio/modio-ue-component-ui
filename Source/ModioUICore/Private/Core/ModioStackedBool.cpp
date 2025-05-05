@@ -11,6 +11,8 @@
 
 #include "Core/ModioStackedBool.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioStackedBool)
+
 void UModioStackedBoolLibrary::PushBoolValue(UPARAM(Ref) FModioStackedBool& Target, bool bNewValue) 
 {
 	Target.Push(bNewValue);

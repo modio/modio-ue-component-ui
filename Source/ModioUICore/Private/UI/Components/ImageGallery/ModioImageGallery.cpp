@@ -18,6 +18,8 @@
 #include "UI/Interfaces/IModioModInfoUIDetails.h"
 #include "UI/Interfaces/IModioUIImageDisplayWidget.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioImageGallery)
+
 void UModioImageGallery::NativePreConstruct()
 {
 	Super::NativePreConstruct();

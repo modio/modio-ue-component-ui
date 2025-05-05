@@ -18,6 +18,8 @@
 #include "Widgets/Layout/SBox.h"
 #include "Templates/UnrealTemplate.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioButtonWidget)
+
 void UModioButtonWidget::SetCommonUIButtonFocus()
 {
 #if UE_VERSION_OLDER_THAN(5, 2, 0)

@@ -15,6 +15,8 @@
 #include "ModioUISettings.h"
 #include "UI/ModioUICommonFunctionLibrary.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioPresetFilterSelector)
+
 void UModioPresetFilterSelector::SetValues_Implementation(const TArray<UObject*>& InValues)
 {
 	if (GetPresetListWidget().GetObject())

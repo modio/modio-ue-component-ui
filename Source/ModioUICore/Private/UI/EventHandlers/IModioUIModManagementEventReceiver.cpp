@@ -11,6 +11,8 @@
 #include "UI/EventHandlers/IModioUIModManagementEventReceiver.h"
 #include "ProfilingDebugging/CpuProfilerTrace.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUIModManagementEventReceiver)
+
 void IModioUIModManagementEventReceiver::ModManagementEventHandler(FModioModManagementEvent Event)
 {
 	bRoutedModManagementEvent = false;

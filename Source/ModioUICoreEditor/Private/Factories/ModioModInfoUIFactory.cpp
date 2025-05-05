@@ -25,6 +25,8 @@
 	#include "Widgets/Views/STableRow.h"
 	#include "Widgets/Views/SListView.h"
 
+	#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioModInfoUIFactory)
+
 UModioModInfoUIFactory::UModioModInfoUIFactory(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	SupportedClass = UModioModInfoUI::StaticClass();

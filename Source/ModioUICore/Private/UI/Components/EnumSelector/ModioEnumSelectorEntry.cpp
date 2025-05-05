@@ -12,6 +12,8 @@
 
 #include "UI/Interfaces/IModioEnumEntryUIDetails.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioEnumSelectorEntry)
+
 void UModioEnumSelectorEntry::InternalClickHandler(UObject* ClickContext)
 {
 	NotifyClicked();

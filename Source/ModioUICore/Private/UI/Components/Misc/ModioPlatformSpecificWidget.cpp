@@ -14,6 +14,8 @@
 #include "Engine/Engine.h"
 #include "Widgets/Layout/SSpacer.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioPlatformSpecificWidget)
+
 TSharedRef<SWidget> UModioPlatformSpecificWidget::RebuildWidget()
 {
 	/*if (ConcreteWidget == nullptr || bContentRequiresUpdate)

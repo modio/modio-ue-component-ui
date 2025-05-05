@@ -10,6 +10,8 @@
 
 #include "UI/Components/ModPropVisualizers/ModioModPropCollectionVisualizer.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioModPropCollectionVisualizer)
+
 TArray<TScriptInterface<IModioUIDataSourceWidget>> UModioModPropCollectionVisualizer::
 	GetModPropertyVisualizerWidgets_Implementation()
 {

@@ -10,6 +10,8 @@
 
 #include "UI/Components/ModioUIComponentBase.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUIComponentBase)
+
 void UModioUIComponentBase::NativeSetDataSource(UObject* InDataSource)
 {
 	DataSource = InDataSource;

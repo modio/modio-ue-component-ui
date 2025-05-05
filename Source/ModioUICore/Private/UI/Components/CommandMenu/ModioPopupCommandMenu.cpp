@@ -12,6 +12,8 @@
 
 #include "UI/Components/ComponentHelpers.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioPopupCommandMenu)
+
 void UModioPopupCommandMenu::ConstructCommandMenuWidget_Implementation() {}
 
 TScriptInterface<IModioUICommandMenu> UModioPopupCommandMenu::GetCommandMenuWidget_Implementation() const

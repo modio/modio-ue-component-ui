@@ -13,6 +13,8 @@
 #include "ModioUISubsystem.h"
 #include "Widgets/Layout/SSpacer.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioFeatureVisibilityWidget)
+
 TSharedRef<SWidget> UModioFeatureVisibilityWidget::RebuildWidget()
 {
 	if (UModioUISubsystem* UISubsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>())

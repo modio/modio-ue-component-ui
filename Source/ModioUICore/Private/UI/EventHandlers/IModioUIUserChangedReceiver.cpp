@@ -12,6 +12,8 @@
 #include "Engine/Engine.h"
 #include "Types/ModioUser.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUIUserChangedReceiver)
+
 void IModioUIUserChangedReceiver::UserChangedHandler(TOptional<FModioUser> NewUser)
 {
 	bRoutedUserChanged = false;

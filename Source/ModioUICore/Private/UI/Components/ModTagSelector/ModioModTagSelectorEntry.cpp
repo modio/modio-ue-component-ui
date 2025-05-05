@@ -12,6 +12,8 @@
 
 #include "UI/Interfaces//IModioModTagUIDetails.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioModTagSelectorEntry)
+
 void UModioModTagSelectorEntry::NotifySelectionChanged()
 {
 	if (bAllowSelection)

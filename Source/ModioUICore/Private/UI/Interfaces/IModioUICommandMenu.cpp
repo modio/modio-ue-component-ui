@@ -14,6 +14,8 @@
 #include "Brushes/SlateNoResource.h"
 #include "Engine/DataTable.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUICommandMenu)
+
 const FModioUICommandAssetEntry& UModioUICommandLibrary::GetCommandAssetEntry(const FString& CommandID, bool& bResolved)
 {
 	static const FModioUICommandAssetEntry DefaultEntry {};

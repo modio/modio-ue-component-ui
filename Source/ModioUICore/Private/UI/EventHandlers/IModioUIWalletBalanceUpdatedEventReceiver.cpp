@@ -11,6 +11,8 @@
 #include "UI/EventHandlers/IModioUIWalletBalanceUpdatedEventReceiver.h"
 #include "Engine/Engine.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUIWalletBalanceUpdatedEventReceiver)
+
 void IModioUIWalletBalanceUpdatedEventReceiver::WalletBalanceUpdatedHandler(uint64 NewBalance)
 {
 	bRoutedWalletBalanceUpdated = false;

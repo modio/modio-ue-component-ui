@@ -15,6 +15,8 @@
 #include "Layout/WidgetPath.h"
 #include "Misc/EngineVersionComparison.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultEditableTextBox)
+
 void SModioEditableTextBox::OnFocusChanging(const FWeakWidgetPath& PreviousFocusPath, const FWidgetPath& NewWidgetPath,
                                             const FFocusEvent& InFocusEvent)
 {

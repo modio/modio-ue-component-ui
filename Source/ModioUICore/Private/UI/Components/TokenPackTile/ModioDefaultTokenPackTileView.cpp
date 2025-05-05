@@ -17,7 +17,11 @@
 
 #if WITH_EDITOR
 #include "Editor/WidgetCompilerLog.h"
+#endif
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultTokenPackTileView)
+
+#if WITH_EDITOR
 void UModioDefaultTokenPackTileView::ValidateCompiledDefaults(IWidgetCompilerLog& CompileLog) const
 {
 	Super::ValidateCompiledDefaults(CompileLog);

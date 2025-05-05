@@ -24,6 +24,8 @@
 
 #include "Loc/BeginModioLocNamespace.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultCodeInputTextBox)
+
 FModioDefaultCodeInputTextBoxStyle::FModioDefaultCodeInputTextBoxStyle()
 {
 	SetFont(FCoreStyle::GetDefaultFontStyle("Bold", 18));

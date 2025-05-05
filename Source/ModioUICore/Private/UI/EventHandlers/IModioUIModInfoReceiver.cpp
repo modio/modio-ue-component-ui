@@ -10,6 +10,8 @@
 
 #include "UI/EventHandlers/IModioUIModInfoReceiver.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUIModInfoReceiver)
+
 void IModioUIModInfoReceiver::ModInfoRequestHandler(FModioModID ModID, FModioErrorCode ErrorCode,
 													TOptional<FModioModInfo> Info)
 {

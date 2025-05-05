@@ -10,6 +10,8 @@
 
 #include "UI/Components/EnumSelector/ModioEnumSelectorMenu.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioEnumSelectorMenu)
+
 void UModioEnumSelectorMenu::SetValues_Implementation(const TArray<UObject*>& InValues)
 {
 	CachedValues = InValues;

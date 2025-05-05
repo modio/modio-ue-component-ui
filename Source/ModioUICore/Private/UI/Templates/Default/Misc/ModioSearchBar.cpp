@@ -10,6 +10,8 @@
 
 #include "UI/Templates/Default/Misc/ModioSearchBar.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioSearchBar)
+
 TScriptInterface<IModioUIStringInputWidget> UModioSearchBar::GetSearchBoxWidget_Implementation() const
 {
 	return nullptr;

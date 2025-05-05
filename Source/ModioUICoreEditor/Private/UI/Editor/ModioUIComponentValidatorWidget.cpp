@@ -13,6 +13,8 @@
 #include "Widgets/Views/ITableRow.h"
 #include "Widgets/Views/SListView.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUIComponentValidatorWidget)
+
 enum class EModioUIComponentValidationLineType
 {
 	Success,
@@ -324,7 +326,7 @@ TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildInterfaceValidation
 	{
 		return SNew(SListView<UClass*>)
 			.Orientation(EOrientation::Orient_Vertical)
-			.ListItemsSource(&Metadata.RequiredInterfaces)
+			.ListItemsSource(&ObjectPtrDecay(Metadata.RequiredInterfaces))
 			.OnGenerateRow_Static(&UModioUIComponentValidatorWidget::GenerateInterfaceTestWidget, ImplementingObject);
 	}
 	else

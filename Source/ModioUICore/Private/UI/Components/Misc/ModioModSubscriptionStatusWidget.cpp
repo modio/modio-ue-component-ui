@@ -12,6 +12,8 @@
 
 #include "UI/Interfaces/IModioModInfoUIDetails.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioModSubscriptionStatusWidget)
+
 void UModioModSubscriptionStatusWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();

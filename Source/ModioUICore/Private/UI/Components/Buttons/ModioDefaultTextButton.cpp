@@ -10,6 +10,8 @@
 
 #include "UI/Components/Buttons/ModioDefaultTextButton.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultTextButton)
+
 TScriptInterface<IModioUIHasTextWidget> UModioDefaultTextButton::GetLabelWidget_Implementation() const
 {
 	return nullptr;

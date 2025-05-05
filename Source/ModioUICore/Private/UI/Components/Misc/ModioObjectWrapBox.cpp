@@ -13,6 +13,8 @@
 #include "Editor/WidgetCompilerLog.h"
 #include "UI/Interfaces/IModioUIDataSourceWidget.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioObjectWrapBox)
+
 void UModioObjectWrapBox::NativeSetObjects(const TArray<UObject*>& InObjects)
 {
 	BoundObjects = InObjects;

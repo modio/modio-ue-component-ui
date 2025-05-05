@@ -18,6 +18,8 @@
 #include "Core/ModioModDependencyUI.h"
 #include "Types/ModioModInfoList.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUIModListViewInterface)
+
 void IModioUIModListViewInterface::SetModSelectionByID_Implementation(FModioModID ModID)
 {
 	NativeSetModSelectionByID(ModID);

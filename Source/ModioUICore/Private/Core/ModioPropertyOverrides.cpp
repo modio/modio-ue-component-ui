@@ -10,6 +10,8 @@
 
 #include "Core/ModioPropertyOverrides.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioPropertyOverrides)
+
 int32 UPropertyOverridesLibrary::ResolveIntOverride(const FIntegerOverride& Target, bool& bOverrideSet)
 {
 	bOverrideSet = Target.bOverride;

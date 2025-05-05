@@ -11,6 +11,8 @@
 
 #include "UI/Components/Misc/ModioModEnabledStatusWidget.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioModEnabledStatusWidget)
+
 void UModioModEnabledStatusWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();

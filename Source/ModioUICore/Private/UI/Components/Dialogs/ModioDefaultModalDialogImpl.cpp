@@ -14,6 +14,8 @@
 #include "Algo/ForEach.h"
 #include "UI/Components/ComponentHelpers.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultModalDialogImpl)
+
 void UModioDefaultModalDialogImpl::AddDialogConfirmedHandler_Implementation(const FModioDialogEvent& Handler)
 {
 	MODIO_INTERFACE_UNIMPLEMENTED_FUNCTION_MSG(

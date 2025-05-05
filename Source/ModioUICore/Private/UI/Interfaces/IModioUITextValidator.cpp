@@ -2,6 +2,8 @@
 
 #include "UI/Interfaces/IModioUITextValidator.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUITextValidator)
+
 bool IModioUITextValidator::ValidateText_Implementation(const FText& InputText, FText& ValidationMessageText)
 {
 	return UModioUIInputValidationLibrary::DefaultValidateText(Cast<UObject>(this), InputText, ValidationMessageText);
