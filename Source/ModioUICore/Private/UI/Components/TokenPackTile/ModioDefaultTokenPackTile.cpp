@@ -15,6 +15,8 @@
 #include "UI/Interfaces/IModioUICommandMenu.h"
 #include "UI/Interfaces/ModioTokenPackUIDetails.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultTokenPackTile)
+
 void UModioDefaultTokenPackTile::NotifyClicked()
 {
 	if (bEmitClickEvents)

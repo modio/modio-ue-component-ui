@@ -15,6 +15,7 @@ It can be added either directly into existing screens or in dedicated browser an
 == Engine & Platform Compatibility
 
 This plugin requires the core mod.io plugin to be installed alongside it. Support for both plugins is generally maintained to support the 3 most recent versions of Unreal Engine. 
+
 === Engine compatibility
 
 |===
@@ -34,11 +35,14 @@ This plugin requires the core mod.io plugin to be installed alongside it. Suppor
 * Template/reference implementation of a mod browser suitable for use as the basis of your own UI
 * Permissive MIT/BSL-license
 
+== Documentation
+Comprehensive documentation for this plugin https://docs.mod.io/unreal/component-ui/overview/[can be found here].
+
 == Installation
 
 === Prerequisites
 
-. This plugin relies on the mod.io core plugin, available at https://github.com/modio/modio-ue. Please ensure you have downloaded and installed and configured the plugin prior to installing the Component UI plugin. 
+. This plugin relies on the mod.io core plugin, available at https://github.com/modio/modio-ue. Please ensure you have downloaded, installed and configured the core plugin prior to installing the Component UI plugin. 
 
 . To use this initial release of the Component UI plugin, you will need to remove our Legacy UE5 UI from the core plugin. Please delete the following folders from the core plugin's directories before proceeding:
 

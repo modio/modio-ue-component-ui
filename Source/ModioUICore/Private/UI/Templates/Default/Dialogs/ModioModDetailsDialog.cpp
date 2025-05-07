@@ -15,6 +15,8 @@
 #include "UI/Templates/Default/Commands/ModioUIReportModCommand.h"
 #include "UI/Templates/Default/Commands/ModioUIToggleModEnabledCommand.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioModDetailsDialog)
+
 bool UModioModDetailsDialog::IsUserSubscribed()
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())

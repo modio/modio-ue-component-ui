@@ -10,6 +10,8 @@
 
 #include "UI/EventHandlers/IModioUITokenPackReceiver.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUITokenPackReceiver)
+
 void IModioUITokenPackReceiver::TokenPackRequestHandler(FModioTokenPackID TokenPackID, FModioErrorCode ErrorCode,
 	TOptional<FModioTokenPack> Pack)
 {

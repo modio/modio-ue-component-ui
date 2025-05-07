@@ -11,6 +11,8 @@
 
 #include "UI/Components/User/ModioUserDisplay.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUserDisplay)
+
 void UModioUserDisplay::NativePreConstruct()
 {
 	

@@ -10,6 +10,8 @@
 
 #include "UI/Components/CommandMenu/ModioCommandMenu.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioCommandMenu)
+
 void UModioCommandMenu::AddCommandListBuilder_Implementation(const FModioCommandListBuilder& Builder)
 {
 	OnBuildCommandList.AddUnique(Builder);
@@ -23,7 +25,7 @@ void UModioCommandMenu::RemoveCommandListBuilder_Implementation(const FModioComm
 void UModioCommandMenu::RebuildCommandList_Implementation()
 {
 	CommandObjects.Empty();
-	OnBuildCommandList.Broadcast(CommandObjects, this);
+	OnBuildCommandList.Broadcast(MutableView(CommandObjects), this);
 	if (UWidget* SelectorWidget = ModioUI::GetInterfaceWidgetChecked(GetSelectorWidget()))
 	{
 		IModioUIObjectSelector::Execute_SetValues(SelectorWidget, CommandObjects);

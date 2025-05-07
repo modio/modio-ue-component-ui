@@ -22,6 +22,8 @@
 #include "UI/Templates/Default/Commands/ModioUIToggleModEnabledCommand.h"
 #include "UI/Templates/Default/Commands/ModioUIViewModCommand.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultModTile)
+
 void UModioDefaultModTile::NotifyClicked()
 {
 	if (bEmitClickEvents)

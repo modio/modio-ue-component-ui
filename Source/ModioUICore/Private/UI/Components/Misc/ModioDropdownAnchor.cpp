@@ -10,6 +10,8 @@
 
 #include "UI/Components/Misc/ModioDropdownAnchor.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDropdownAnchor)
+
 void UModioDropdownAnchor::OnWidgetRebuilt()
 {
 	Super::OnWidgetRebuilt();

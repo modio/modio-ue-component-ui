@@ -13,6 +13,8 @@
 
 #include "Widgets/Input/SMultiLineEditableTextBox.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultMultiLineEditableTextBox)
+
 FReply SModioCommonMultiLineEditableTextBox::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
 {
 	if (bIgnoreOnKeyDown)

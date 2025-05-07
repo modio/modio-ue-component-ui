@@ -13,6 +13,8 @@
 #include "Widgets/Views/ITableRow.h"
 #include "Widgets/Views/SListView.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUIComponentValidatorWidget)
+
 enum class EModioUIComponentValidationLineType
 {
 	Success,

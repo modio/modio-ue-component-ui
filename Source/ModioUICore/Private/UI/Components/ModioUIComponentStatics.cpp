@@ -27,6 +27,8 @@
 #include "UI/Interfaces/IModioUIStringInputWidget.h"
 #include "UI/Interfaces/IModioUITextValidator.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUIComponentStatics)
+
 const TMap<EModioUIComponentID, FModioUIComponentMetadata>& UModioUIComponentStatics::GetAllComponentMetadata()
 {
 	static TMap<EModioUIComponentID, FModioUIComponentMetadata> ComponentRequirementMetadata = []() {

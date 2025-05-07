@@ -13,6 +13,8 @@
 #include "UI/Interfaces/IModioModInfoUIDetails.h"
 #include "UI/Interfaces/IModioUIHasTextWidget.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioModRatingDisplay)
+
 TScriptInterface<IModioUIHasTextWidget> UModioModRatingDisplay::GetRatingPercentageLabelWidget_Implementation() const 
 {
 	return nullptr;

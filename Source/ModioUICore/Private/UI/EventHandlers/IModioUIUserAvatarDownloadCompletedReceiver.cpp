@@ -11,6 +11,8 @@
 #include "UI/EventHandlers/IModioUIUserAvatarDownloadCompletedReceiver.h"
 #include "Engine/Engine.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUIUserAvatarDownloadCompletedReceiver)
+
 void IModioUIUserAvatarDownloadCompletedReceiver::UserAvatarDownloadCompletedHandler(
 	FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image)
 {

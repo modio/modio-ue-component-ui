@@ -11,6 +11,7 @@
 
 #include "Core/ModioEnumEntryUI.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioEnumEntryUI)
 
 void UModioEnumEntryUI::GetEnumEntryDetails_Implementation(uint8& EnumValue,
 														   FText& EnumValueDisplayText)

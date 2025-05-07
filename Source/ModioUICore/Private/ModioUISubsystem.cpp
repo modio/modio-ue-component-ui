@@ -36,6 +36,8 @@
 #include "Libraries/ModioPlatformHelpersLibrary.h"
 #include "Libraries/ModioSDKLibrary.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUISubsystem)
+
 void UModioUISubsystem::GetPreloadDependencies(TArray<UObject*>& OutDeps)
 {
 	Super::GetPreloadDependencies(OutDeps);

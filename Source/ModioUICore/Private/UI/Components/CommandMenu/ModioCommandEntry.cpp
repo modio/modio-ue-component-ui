@@ -12,6 +12,8 @@
 
 #include "UI/Interfaces/IModioUICommandMenu.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioCommandEntry)
+
 void UModioCommandEntry::NativeSetDataSource(UObject* InDataSource)
 {
 	if (InDataSource && InDataSource->GetClass()->ImplementsInterface(UModioUICommandObject::StaticClass()))

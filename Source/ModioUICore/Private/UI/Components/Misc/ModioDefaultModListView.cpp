@@ -18,6 +18,8 @@
 	#include "Editor/WidgetCompilerLog.h"
 #endif
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultModListView)
+
 #if WITH_EDITOR
 void UModioDefaultModListView::ValidateCompiledDefaults(IWidgetCompilerLog& CompileLog) const
 {

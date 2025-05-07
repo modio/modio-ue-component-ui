@@ -14,6 +14,8 @@
 #include "ModioUISubsystem.h"
 #include "UI/Templates/Default/Dialogs/ModioModDetailsDialog.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioModBrowser)
+
 void UModioModBrowser::NativePreConstruct()
 {
 	Super::NativePreConstruct();

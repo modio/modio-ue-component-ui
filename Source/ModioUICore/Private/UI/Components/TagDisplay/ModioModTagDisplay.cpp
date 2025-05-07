@@ -15,6 +15,8 @@
 #include "UI/Interfaces/IModioUIObjectListWidget.h"
 #include "UI/ModioUICommonFunctionLibrary.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioModTagDisplay)
+
 TScriptInterface<IModioUIObjectListWidget> UModioModTagDisplay::GetTagContainerWidget_Implementation() const
 {
 	return nullptr;

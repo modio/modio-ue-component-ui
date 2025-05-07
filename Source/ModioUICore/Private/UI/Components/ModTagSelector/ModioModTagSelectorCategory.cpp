@@ -15,6 +15,8 @@
 
 #include "Components/ListView.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioModTagSelectorCategory)
+
 TScriptInterface<IModioUIObjectSelector> UModioModTagSelectorCategory::GetCategoryTagListWidget_Implementation() const
 {
 	return nullptr;

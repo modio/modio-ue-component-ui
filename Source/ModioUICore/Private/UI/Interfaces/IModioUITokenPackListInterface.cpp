@@ -12,6 +12,8 @@
 
 #include "Core/ModioTokenPackUI.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(IModioUITokenPackListInterface)
+
 void IModioUITokenPackListInterface::SetTokenPacksFromTokenPackList_Implementation(const FModioTokenPackList& InList,
                                                                                     bool bAddToExisting)
 {

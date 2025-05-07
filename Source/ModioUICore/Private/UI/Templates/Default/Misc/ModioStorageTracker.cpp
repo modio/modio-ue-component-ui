@@ -13,6 +13,8 @@
 #include "Libraries/ModioSDKLibrary.h"
 #include "ModioSubsystem.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioStorageTracker)
+
 void UModioStorageTracker::NativePreConstruct()
 {
 	Super::NativePreConstruct();

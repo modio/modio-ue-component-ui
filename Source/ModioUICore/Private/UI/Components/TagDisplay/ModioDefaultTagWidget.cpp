@@ -12,6 +12,8 @@
 
 #include "UI/Interfaces/IModioModTagUIDetails.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultTagWidget)
+
 TScriptInterface<IModioUIHasTextWidget> UModioDefaultTagWidget::GetLabelWidget_Implementation() const 
 {
 	return nullptr;

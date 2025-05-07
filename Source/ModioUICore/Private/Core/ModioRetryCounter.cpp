@@ -11,6 +11,8 @@
 
 #include "Core/ModioRetryCounter.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioRetryCounter)
+
 #if WITH_EDITORONLY_DATA
 	#define DEBUG_RETRY_MESSAGE(Text) \
 UE_LOG(LogTemp, Display, TEXT(#Text " %s"), *DebugName.ToString())

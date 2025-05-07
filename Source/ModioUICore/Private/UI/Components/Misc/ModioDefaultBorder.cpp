@@ -11,6 +11,8 @@
 #include "UI/Components/Misc/ModioDefaultBorder.h"
 #include "ModioUICore.h"
 
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultBorder)
+
 void UModioDefaultBorder::ConfigureWidgetColorDirectly_Implementation(FName ColorName, FSlateColor ColorValue)
 {
 	SetBrushColor(ColorValue.GetSpecifiedColor());

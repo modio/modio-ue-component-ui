@@ -14,7 +14,7 @@
 #include "Engine/Texture2DDynamic.h"
 #include "Brushes/SlateImageBrush.h"
 
-
+#include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultIconButton)
 
 TScriptInterface<IModioUIImageDisplayWidget> UModioDefaultIconButton::GetImageWidget_Implementation() const
 {
