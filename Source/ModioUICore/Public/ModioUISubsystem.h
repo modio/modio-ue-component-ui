@@ -87,6 +87,8 @@ DECLARE_DELEGATE_TwoParams(FOnGetTokenPackDelegateFast, FModioErrorCode, TOption
 
 DECLARE_MULTICAST_DELEGATE(FOnEntitlementRefreshRequest);
 
+DECLARE_DELEGATE_RetVal_OneParam(bool, FOnPreUninstallDelegate, FModioModID);
+
 
 UENUM(BlueprintType)
 enum class EModioUIFeatureFlags : uint8
@@ -400,6 +402,10 @@ public:
 
 	// Perhaps this should also carry the error code and a TOptional<bool> for the newly changed state?
 	FOnModSubscriptionStatusChanged OnSubscriptionStatusChanged;
+
+	// Delegate that is called before unsubscribing or uninstalling a mod
+	// If returns true, the uninstall will proceed, otherwise it will be cancelled
+	FOnPreUninstallDelegate OnPreUninstall;
 
 	/**
 	 * @docpublic

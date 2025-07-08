@@ -25,7 +25,7 @@ TScriptInterface<IModioUIObjectListWidget> UModioModTagDisplay::GetTagContainerW
 void UModioModTagDisplay::NativeSetDataSource(UObject* InDataSource)
 {
 	Super::NativeSetDataSource(InDataSource);
-	if (InDataSource->Implements<UModioModInfoUIDetails>())
+	if (InDataSource && InDataSource->Implements<UModioModInfoUIDetails>())
 	{
 		FModioModInfo UnderlyingMod = IModioModInfoUIDetails::Execute_GetFullModInfo(InDataSource);
 		TArray<UObject*> BoundTags;

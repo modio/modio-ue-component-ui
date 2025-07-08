@@ -276,6 +276,14 @@ void UModioUISubsystem::RequestRemoveSubscriptionForModIDWithHandler(FModioModID
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
+		// Only proceed with uninstall if the delegate returns true or is not bound
+		if (OnPreUninstall.IsBound() && !OnPreUninstall.Execute(ID))
+		{
+			UE_LOG(ModioUICore, Warning, TEXT("Uninstall for mod %s was prevented by PreUninstall delegate"), *ID.ToString());
+			DedicatedCallback.ExecuteIfBound(FModioErrorCode::CancelledError());
+			return;
+		}
+
 		Subsystem->UnsubscribeFromModAsync(
 			ID, FOnErrorOnlyDelegateFast::CreateLambda([HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
 															this, &UModioUISubsystem::UnsubscribeHandler, ID),
@@ -290,6 +298,14 @@ void UModioUISubsystem::RequestUninstallForModID(FModioModID ID, FOnErrorOnlyDel
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
+		// Only proceed with uninstall if the delegate returns true or is not bound
+		if (OnPreUninstall.IsBound() && !OnPreUninstall.Execute(ID))
+		{
+			UE_LOG(ModioUICore, Warning, TEXT("Uninstall for mod %s was prevented by PreUninstall delegate"), *ID.ToString());
+			DedicatedCallback.ExecuteIfBound(FModioErrorCode::CancelledError());
+			return;
+		}
+		
 		Subsystem->ForceUninstallModAsync(
 			ID, FOnErrorOnlyDelegateFast::CreateLambda([HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
 															this, &UModioUISubsystem::UninstallHandler, ID),
@@ -356,6 +372,13 @@ void UModioUISubsystem::RequestRemoveSubscriptionForModID(FModioModID ID)
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
+		// Only proceed with uninstall if the delegate returns true or is not bound
+		if (OnPreUninstall.IsBound() && !OnPreUninstall.Execute(ID))
+		{
+			UE_LOG(ModioUICore, Warning, TEXT("Uninstall for mod %s was prevented by PreUninstall delegate"), *ID.ToString());
+			return;
+		}
+		
 		Subsystem->UnsubscribeFromModAsync(
 			ID, FOnErrorOnlyDelegateFast::CreateUObject(this, &UModioUISubsystem::UnsubscribeHandler, ID));
 	}
