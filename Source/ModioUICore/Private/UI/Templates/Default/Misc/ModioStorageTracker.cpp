@@ -32,6 +32,12 @@ void UModioStorageTracker::NativeOnModManagementEvent(FModioModManagementEvent E
 		case EModioModManagementEventType::Uploaded:
 		case EModioModManagementEventType::Updated:
 			RefreshData();
+
+		case EModioModManagementEventType::BeginInstall:
+		case EModioModManagementEventType::BeginUninstall:
+		case EModioModManagementEventType::BeginUpdate:
+		case EModioModManagementEventType::BeginUpload:
+			break;
 	}
 }
 void UModioStorageTracker::RefreshData()
@@ -46,7 +52,7 @@ void UModioStorageTracker::RefreshData()
 		{
 			IModioUIHasTextWidget::Execute_SetWidgetText(
 				TextWidget,
-				UModioSDKLibrary::Filesize_ToString(TotalSize.Underlying, 2, 2, EFileSizeUnit::Largest, true));
+				UModioSDKLibrary::Filesize_ToString(int64(TotalSize.Underlying), 2, 2, EFileSizeUnit::Largest, true));
 		}
 	}
 }

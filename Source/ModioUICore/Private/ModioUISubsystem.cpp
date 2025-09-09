@@ -507,7 +507,7 @@ bool UModioUISubsystem::RequestPurchaseTokenPack(FModioTokenPackID TokenPackID, 
 				PurchaseRequest.AddPurchaseOffer("", TokenPackID.ToString(), 1, true);
 				FOnPurchaseCheckoutComplete CheckoutCallback;
 				CheckoutCallback.BindLambda(
-					[this, ModioSubsystem, OnlineSubsystem, Callback, Id](const FOnlineError& Error,
+					[OnlineSubsystem, Callback, Id](const FOnlineError& Error,
 																		  const TSharedRef<FPurchaseReceipt>& Receipt) {
 						if (!Error.WasSuccessful())
 						{
@@ -810,7 +810,7 @@ EModioOpenStoreResult UModioUISubsystem::RequestShowTokenPurchaseUIWithHandler(
 				// If we are not Steam, use the OSS ExternalUIInterface
 				FOnShowStoreUIClosedDelegate OnStoreClosedHandler;
 				OnStoreClosedHandler.BindLambda(
-					[this, Callback, ModioSubsystem](bool bResult) 
+					[this, Callback](bool bResult) 
 					{
 						// Purchase made
 

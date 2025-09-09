@@ -21,6 +21,9 @@
 
 class MODIOUICORE_API SModioDefaultCheckBox : public SCheckBox
 {
+	SModioDefaultCheckBox(SModioDefaultCheckBox&&) = delete;
+	SModioDefaultCheckBox& operator = (SModioDefaultCheckBox&&) = delete;
+
 	virtual void OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override
 	{
 		OnHoverChanged.Broadcast(true);
@@ -46,6 +49,7 @@ class MODIOUICORE_API SModioDefaultCheckBox : public SCheckBox
 	}
 
 public:
+	SModioDefaultCheckBox() : SCheckBox() {}
 	DECLARE_MULTICAST_DELEGATE_OneParam(FOnHoverChanged, bool);
 	FOnHoverChanged OnHoverChanged;
 };

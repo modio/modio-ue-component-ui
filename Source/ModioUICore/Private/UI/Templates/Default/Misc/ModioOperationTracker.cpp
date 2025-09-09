@@ -67,6 +67,11 @@ void UModioOperationTracker::NativeOnModManagementEvent(FModioModManagementEvent
 		case EModioModManagementEventType::Updated:
 			HandleOperationComplete();
 			break;
+
+		case EModioModManagementEventType::BeginUninstall:
+		case EModioModManagementEventType::Uninstalled:
+		case EModioModManagementEventType::Uploaded:
+			break;
 	}
 	RefreshQueueData();
 }
@@ -178,7 +183,7 @@ void UModioOperationTracker::RefreshSizeAndSpeedText(FModioModProgressInfo Progr
 					IModioUIHasTextWidget::Execute_SetWidgetText(
 						DownloadSpeedTextWidget,
 						FText::Format(FTextFormat(SpeedFormatText),
-									  UModioSDKLibrary::Filesize_ToString(SizePerSecond.Underlying, 2, 2,
+									  UModioSDKLibrary::Filesize_ToString(int64_t(SizePerSecond.Underlying), 2, 2,
 																		  EFileSizeUnit::Largest, true)));
 				}
 				SizePerSecond = FModioUnsigned64(0);
@@ -220,6 +225,10 @@ float UModioOperationTracker::GetInstallProgressPercent(FModioModProgressInfo Pr
 				ProgressInfo.GetCurrentProgress(EModioModProgressState::Extracting),
 				ProgressInfo.GetTotalProgress(EModioModProgressState::Extracting));
 			break;
+		case EModioModProgressState::Initializing:
+		case EModioModProgressState::Compressing:
+		case EModioModProgressState::Uploading:
+			break;
 	}
 	return 0;
 }
@@ -229,9 +238,9 @@ void UModioOperationTracker::SetDownloadSizeText()
 	{
 		IModioUIHasTextWidget::Execute_SetWidgetText(
 			DownloadSizeWidget, FText::Format(FTextFormat(SizeFormatText),
-											  UModioSDKLibrary::Filesize_ToString(DownloadProgressSize.Underlying, 2, 2,
+											  UModioSDKLibrary::Filesize_ToString(int64_t(DownloadProgressSize.Underlying), 2, 2,
 																				  EFileSizeUnit::Largest, true),
-											  UModioSDKLibrary::Filesize_ToString(DownloadTotalSize.Underlying, 2, 2,
+											  UModioSDKLibrary::Filesize_ToString(int64_t(DownloadTotalSize.Underlying), 2, 2,
 																				  EFileSizeUnit::Largest, true)));
 	}
 }

@@ -26,6 +26,9 @@
  */
 class MODIOUICORE_API SModioEditableTextBox : public SEditableTextBox
 {
+	SModioEditableTextBox(SModioEditableTextBox&&) = delete;
+	SModioEditableTextBox& operator=(SModioEditableTextBox&&) = delete;
+
 	//~ Begin SWidget Interface
 	virtual void OnFocusChanging(const FWeakWidgetPath& PreviousFocusPath, const FWidgetPath& NewWidgetPath,
 	                             const FFocusEvent& InFocusEvent) override;
@@ -38,6 +41,8 @@ public:
 	 * @brief Delegate that fires when the focus of the editable text box changes
 	 */
 	FOnEditableTextBoxFocusChanged OnFocusChanged;
+
+	SModioEditableTextBox() : SEditableTextBox() {}
 };
 
 /**

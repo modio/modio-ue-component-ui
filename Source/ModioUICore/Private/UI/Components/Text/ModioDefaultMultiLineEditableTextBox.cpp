@@ -65,6 +65,8 @@ FReply SModioCommonMultiLineEditableTextBox::HandleNavigation(const FGeometry& M
 		case EUINavigation::Right: return EKeys::Right;
 		case EUINavigation::Up: return EKeys::Up;
 		case EUINavigation::Down: return EKeys::Down;
+		case EUINavigation::Num:
+		case EUINavigation::Invalid:
 		default:
 			{
 				UE_LOG(LogTemp, Error, TEXT("Invalid navigation direction '%s'"), *UEnum::GetValueAsString(Navigation));
@@ -96,6 +98,8 @@ FReply SModioCommonMultiLineEditableTextBox::HandleNavigation(const FGeometry& M
 		case EUINavigation::Right: return 1.0f;
 		case EUINavigation::Up: return 1.0f;
 		case EUINavigation::Down: return -1.0f;
+		case EUINavigation::Num:
+		case EUINavigation::Invalid:
 		default:
 			{
 				UE_LOG(LogTemp, Error, TEXT("Invalid navigation direction '%s'"), *UEnum::GetValueAsString(Navigation));
@@ -114,6 +118,8 @@ FReply SModioCommonMultiLineEditableTextBox::HandleNavigation(const FGeometry& M
 		case EUINavigation::Right: return EKeys::Gamepad_LeftX;
 		case EUINavigation::Up: return EKeys::Gamepad_LeftY;
 		case EUINavigation::Down: return EKeys::Gamepad_LeftY;
+		case EUINavigation::Num:
+		case EUINavigation::Invalid:
 		default:
 			{
 				UE_LOG(LogTemp, Error, TEXT("Invalid navigation direction '%s'"), *UEnum::GetValueAsString(Navigation));

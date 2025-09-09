@@ -1,4 +1,4 @@
-/*
+ /*
  *  Copyright (C) 2024 mod.io Pty Ltd. <https://mod.io>
  *
  *  This file is part of the mod.io UE Plugin.
@@ -87,7 +87,7 @@ DECLARE_DELEGATE_TwoParams(FOnGetTokenPackDelegateFast, FModioErrorCode, TOption
 
 DECLARE_MULTICAST_DELEGATE(FOnEntitlementRefreshRequest);
 
-DECLARE_DELEGATE_RetVal_OneParam(bool, FOnPreUninstallDelegate, FModioModID);
+DECLARE_DYNAMIC_DELEGATE_RetVal_OneParam(bool, FOnPreUninstallDelegate, FModioModID, ModID);
 
 
 UENUM(BlueprintType)
@@ -133,6 +133,7 @@ protected:
 	friend class IModioUIWalletBalanceUpdatedEventReceiver;
 	friend class IModioUITokenPackReceiver;
 	friend class IModioUIEntitlementRefreshEventReceiver;
+	friend class IModioUISubscriptionsChangedReceiver;
 
 #if WITH_EDITOR
 	// These test widgets are friends so they can manually trigger subsystem delegates to emit mock events for in-editor
@@ -155,7 +156,13 @@ protected:
 
 	UFUNCTION()
 	void OnModEnabledChanged(int64 RawModID, bool bNewEnabledState);
-
+	
+	// Perhaps this should also carry the error code and a TOptional<bool> for the newly changed state?
+	FOnModSubscriptionStatusChanged OnSubscriptionStatusChanged;
+	
+	// Delegate for the subscription success or fail
+	FOnSubscriptionCompleted OnSubscriptionRequestCompleted;
+	
 	UFUNCTION()
 	void SubscriptionHandler(FModioErrorCode ErrorCode, FModioModID ID);
 
@@ -187,6 +194,9 @@ protected:
 
 	FOnAuthenticatedUserChanged OnUserChanged;
 	FOnAuthenticationChangeStarted OnAuthenticationChangeStarted;
+
+	UPROPERTY()
+	FOnPreUninstallDelegate OnPreUninstall;
 
 	void OnAuthenticationComplete(FModioErrorCode ErrorCode);
 
@@ -397,15 +407,27 @@ public:
 		}
 	}
 
-	// Delegate for the subscription success or fail
-	FOnSubscriptionCompleted OnSubscriptionRequestCompleted;
+	/**
+	 * @docpublic
+	 * @brief Registers a callback that will be invoked before mods are uninstalled.
+	 *
+	 * @param Callback - The Callback to invoke before uninstall. Receives the FModioModID of the mod being uninstalled, and must return a bool indicating approval.
+	 */
+	UFUNCTION(BlueprintCallable, Category="mod.io|UI|ModioUISubsystem")
+	void RegisterPreUninstallHandler(const FOnPreUninstallDelegate& Callback)
+	{
+		OnPreUninstall = Callback;
+	}
 
-	// Perhaps this should also carry the error code and a TOptional<bool> for the newly changed state?
-	FOnModSubscriptionStatusChanged OnSubscriptionStatusChanged;
-
-	// Delegate that is called before unsubscribing or uninstalling a mod
-	// If returns true, the uninstall will proceed, otherwise it will be cancelled
-	FOnPreUninstallDelegate OnPreUninstall;
+	/**
+	 * @docpublic
+	 * @brief Unregisters the currently bound pre-uninstall callback, disabling any veto logic before uninstalls.
+	 */
+	UFUNCTION(BlueprintCallable, Category="mod.io|UI|ModioUISubsystem")
+	void UnregisterPreUninstallHandler()
+	{
+		OnPreUninstall.Unbind();
+	}
 
 	/**
 	 * @docpublic

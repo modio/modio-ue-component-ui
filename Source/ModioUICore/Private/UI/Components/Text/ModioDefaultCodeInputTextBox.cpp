@@ -89,7 +89,7 @@ void SModioDefaultCodeInputTextBox::RebuildChildren(uint32 NumChildren)
 
 	for (uint32 ChildIndex = 0; ChildIndex < NumChildren; ChildIndex++)
 	{
-		const int32 ColumnIndex = bIsRightToLeft ? NumChildren - ChildIndex - 1 : ChildIndex;
+		const int32 ColumnIndex = int32(bIsRightToLeft ? NumChildren - ChildIndex - 1U : ChildIndex);
 		SUniformGridPanel::FSlot& CurrentSlot = *MyCharacterGrid->AddSlot(ColumnIndex, 0).GetSlot();
 		CurrentSlot.SetHorizontalAlignment(HAlign_Center);
 		CurrentSlot.SetVerticalAlignment(VAlign_Center);
@@ -102,7 +102,7 @@ void SModioDefaultCodeInputTextBox::RebuildChildren(uint32 NumChildren)
 												  static_cast<uint32>(ChildIndex))]
 					 .HAlign(CodeInputStyle.FakeCaretHorizontalAlignment)
 					 .VAlign(CodeInputStyle.FakeCaretVerticalAlignment) +
-				 SOverlay::Slot()[CreateCharacterWidget(ChildIndex)]]);
+				 SOverlay::Slot()[CreateCharacterWidget(int32(ChildIndex))]]);
 	}
 
 	Invalidate(EInvalidateWidgetReason::Layout);
@@ -205,6 +205,12 @@ int32 SModioDefaultCodeInputTextBox::GetNumOfCharacters() const
 void SModioDefaultCodeInputTextBox::Construct(const FArguments& InArgs)
 {
 	bCanSupportFocus = true;
+
+	#ifdef _MSC_VER
+	#pragma warning(push)
+	// warning C4866: compiler may not enforce left-to-right evaluation order for call
+	#pragma warning(disable : 4866)
+	#endif
 	// clang-format off
 	ChildSlot
 	[
@@ -235,6 +241,9 @@ void SModioDefaultCodeInputTextBox::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+	#ifdef _MSC_VER
+	#pragma warning(pop)
+	#endif
 	// clang-format on
 
 	CodeInputStyle = InArgs._Style;
@@ -244,7 +253,7 @@ void SModioDefaultCodeInputTextBox::Construct(const FArguments& InArgs)
 	
 	TextFlowDirection = InArgs._TextFlowDirection;
 
-	RebuildChildren(InArgs._NumChildren);
+	RebuildChildren(uint32(InArgs._NumChildren));
 }
 
 void SModioDefaultCodeInputTextBox::SetStyle(const FModioDefaultCodeInputTextBoxStyle& NewStyle)
@@ -268,7 +277,7 @@ void SModioDefaultCodeInputTextBox::SetNumChildren(int32 NewNumChildren)
 {
 	if (NewNumChildren != GetNumOfCharacters())
 	{
-		RebuildChildren(NewNumChildren);
+		RebuildChildren(uint32_t(NewNumChildren));
 	}
 }
 

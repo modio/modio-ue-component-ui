@@ -66,7 +66,7 @@ struct MODIOUICORE_API FModioFeaturedCategoryParams
 			.WithTags(Tags)
 			.WithoutTags(ExcludedTags)
 			.SortBy(SortField, Direction)
-			.IndexedResults(0, Count);
+			.IndexedResults(0, uint64(Count));
 	}
 };
 

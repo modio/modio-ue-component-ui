@@ -44,7 +44,9 @@ enum class EModioModInstallationStatus : uint8
 	// Mod is currently uploading
 	Uploading,
 	// Mod upload has completed
-	Uploaded
+	Uploaded,
+	// Mod is currently compressing
+	Compressing
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnModInstallationStatusChanged, EModioModInstallationStatus, NewStatus);

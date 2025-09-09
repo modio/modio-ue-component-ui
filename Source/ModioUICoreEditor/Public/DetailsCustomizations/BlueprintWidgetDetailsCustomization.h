@@ -14,6 +14,7 @@
 #include "Customizations/IBlueprintWidgetCustomizationExtender.h"
 #include "DetailCategoryBuilder.h"
 #include "DetailLayoutBuilder.h"
+#include "Compat/MetadataCompat.h"
 #include "UObject/MetaData.h"
 
 namespace ModioUI
@@ -68,16 +69,22 @@ namespace ModioUI
 												   FText::FromString("Edit Blueprint Class Comment Metadata"),
 												   ObjectBeingCustomized.Get());
 							ObjectBeingCustomized->Modify();
-							UMetaData* BPMetadata = ObjectBeingCustomized->GetOutermost()->GetPackage()->GetMetaData();
+
+							auto* BPMetadata = ModioUICoreEditorMetadataEngineCompat::GetMetaData(
+								ObjectBeingCustomized->GetOutermost()->GetPackage());
 							BPMetadata->SetValue(ObjectBeingCustomized.Get(), FName("Comment"), *NewText.ToString());
+
 							bTextDirty = false;
 							FBlueprintEditorUtils::MarkBlueprintAsModified(
 								Cast<UBlueprint>(ObjectBeingCustomized.Get()));
 						}
 					};
 
-					UMetaData* BPMetadata = ObjectsBeingCustomized[0]->GetOutermost()->GetPackage()->GetMetaData();
+					auto* BPMetadata = ModioUICoreEditorMetadataEngineCompat::GetMetaData(ObjectsBeingCustomized[0]
+												->GetOutermost()
+												->GetPackage());
 					FString ExistingComment = BPMetadata->GetValue(ObjectsBeingCustomized[0].Get(), FName("Comment"));
+
 
 					const FText ToolTip = FText::FromString("Edit the Comment metadata for this class");
 					DetailLayout.EditCategory("Metadata")
