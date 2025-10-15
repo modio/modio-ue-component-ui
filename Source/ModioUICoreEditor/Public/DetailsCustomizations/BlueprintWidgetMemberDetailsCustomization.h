@@ -76,10 +76,10 @@ namespace ModioUI
 						// equivalent property from there maybe
 
 						auto ApplyCommentText = [ObjectBeingCustomized = AssociatedBlueprint,
-												 VariablePropertyBeingCustomized = VariablePropertyBeingCustomized,
+												 CapturedVariablePropertyBeingCustomized = VariablePropertyBeingCustomized,
 												 this](const FText& NewText,
 													   ETextCommit::Type CommitType = ETextCommit::Default) {
-							if (VariablePropertyBeingCustomized.IsValid())
+							if (CapturedVariablePropertyBeingCustomized.IsValid())
 							{
 								TStrongObjectPtr<UObject> PinnedObject {ObjectBeingCustomized.Get()};
 								if (PinnedObject)
@@ -91,7 +91,7 @@ namespace ModioUI
 									PinnedObject->Modify();
 									FBlueprintEditorUtils::SetBlueprintVariableMetaData(
 										Cast<UBlueprint>(PinnedObject.Get()),
-										VariablePropertyBeingCustomized->GetFName(), nullptr, FName("Comment"),
+										CapturedVariablePropertyBeingCustomized->GetFName(), nullptr, FName("Comment"),
 										*NewText.ToString());
 									bTextDirty = false;
 									FBlueprintEditorUtils::MarkBlueprintAsModified(
