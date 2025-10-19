@@ -2,7 +2,7 @@
 id: ue-building-a-screen
 title: Building a UGC Browser
 slug: /unreal/component-ui/building-a-screen
-custom_edit_url: https://github.com/modio/modio-ue4-internal/tree/main/Plugins/ModioComponentUI/Doc/doc_root/en-us/component-ui/building_a_screen_from_components.mdx
+custom_edit_url: https://github.com/modio/modio-ue4-internal/blob/develop/Plugins/ModioComponentUI/Doc/doc_root/en-us/component-ui/building_a_screen_from_components.mdx
 ---
 
 The majority of work involved in implementing the mod.io [Component UI](https://docs.mod.io/in-game-ui/component) framework will be building custom UI layouts for consuming content from mod.io by assembling components into more complex layouts.  This is a step-by-step guide demonstrating the appropriate workflow for building such a screen. 
@@ -72,7 +72,7 @@ Getter functions can be implemented in either C++ or Blueprint:
 
 ## Adding the preset filter selector
 
-The [Preset Filter Selector](/unreal/ui-refdocs#preset-filter-selector) component presents a game-defined list of preset filter values for a user to select. These filters can be passed to any plugin function that accepts a `FModioFilterParams` object. In this mod browser, the filter selector will be used to allow a user to quick-search. The list of preset filters is configurable via the mod.io plugin settings in the editor's **Project Settings** dialog.
+The [Preset Filter Selector](https://docs.mod.io/unreal/ui-refdocs#preset-filter-selector) component presents a game-defined list of preset filter values for a user to select. These filters can be passed to any plugin function that accepts a `FModioFilterParams` object. In this mod browser, the filter selector will be used to allow a user to quick-search. The list of preset filters is configurable via the mod.io plugin settings in the editor's **Project Settings** dialog.
 
 1. Add a `UModioPresetFilterSelector`-derived widget (such as the default `WBP_ModioDefaultPresetFilterSelectorWidget` from the reference design) to the hierarchy of the mod browser `UserWidget`.
 
@@ -128,7 +128,7 @@ The browser will need to provide a function with the appropriate signature, bind
 
 Your mod browser now has an event handler which will be executed when the user changes which filter they want to apply, but that handler currently does not have an implementation. The handler needs to retrieve the information about the selected filter and initiate a query for matching mods using the plugin.
 
-The **Preset Filter Selector** is a specialization of the [**Object Selector**](/unreal/ui-refdocs#object-selector) and will emit **Selection Changed** events, providing bound handlers with a `UObject` representing the newly selected filter. The component specification requires that the `UObject` implement the `IModioModFilterUIDetails` interface, which allows it to be queried for the `FModioFilterParams` that the `UObject` represents.
+The **Preset Filter Selector** is a specialization of the [**Object Selector**](https://docs.mod.io/unreal/ui-refdocs#object-selector) and will emit **Selection Changed** events, providing bound handlers with a `UObject` representing the newly selected filter. The component specification requires that the `UObject` implement the `IModioModFilterUIDetails` interface, which allows it to be queried for the `FModioFilterParams` that the `UObject` represents.
 
 As a result, the selection changed handler can retrieve the associated `FModioFilterParams` from the user's selection, and submit that to the mod.io REST API via the plugin to retrieve results.
 
@@ -352,7 +352,7 @@ Note there is no need to create another handler for the `ListAllModsCompleted` e
 
 The mod.io functionality for a basic mod browser widget is now complete. You may apply any layout and styling changes as desired — our example makes use of a background border, horizontal and vertical boxes, and in-built sizing and padding options found in the details panel of each sub-component.
 
-Once you are satisfied with your simple mod browser, [Initialize](/unreal/initialization) the mod.io plugin using your game's API key and Game ID, and add your new widget to the viewport so users can [Search for UGC](/unreal/searching-ugc).
+Once you are satisfied with your simple mod browser, [Initialize](https://docs.mod.io/unreal/initialization) the mod.io plugin using your game's API key and Game ID, and add your new widget to the viewport so users can [Search for UGC](https://docs.mod.io/unreal/searching-ugc).
 
-To learn how to switch existing components in and out, check out our [Substituting Components](/unreal/component-ui/substitute-components/) guide.
+To learn how to switch existing components in and out, check out our [Substituting Components](https://docs.mod.io/unreal/component-ui/substitute-components) guide.
 
