@@ -1,11 +1,13 @@
 ---
 id: ue-custom-components
 title: Creating Custom Components
-slug: /unreal/component-ui/custom-components
-custom_edit_url: https://github.com/modio/modio-ue4-internal/tree/main/Plugins/ModioComponentUI/Doc/doc_root/en-us/component-ui/custom_components.mdx
+slug: /unreal/component-ui/custom-components/
+custom_edit_url: https://github.com/modio/modio-ue4-internal/blob/develop/Plugins/ModioComponentUI/Doc/doc_root/en-us/component-ui/custom_components.mdx
 ---
 
-The [previous guide](/unreal/component-ui/substitute-components/) explains how interfaces are used throughout `WBP_ModioModBrowser` to enable easy customization by substituting mod.io components for your own custom components.
+# Creating Custom Components
+
+The [previous guide](https://docs.mod.io/unreal/component-ui/substitute-components) explains how interfaces are used throughout `WBP_ModioModBrowser` to enable easy customization by substituting mod.io components for your own custom components.
 
 There are 3 ways to create a custom component for use in the mod.io [Component UI](https://docs.mod.io/in-game-ui/component) framework:
 
@@ -27,7 +29,7 @@ This example demonstrates wrapping an existing simple Common UI button:
 
 ![Widget Blueprint of wrapped widget](img/customcomp-WrappedWidget.png)
 
-2. Check the [UI documentation](/unreal/ui-refdocs) for a list of the expected interfaces for the widget you're looking to replace.  The [documentation for a button](/unreal/ui-refdocs#button) specifies the following interfaces:
+2. Check the [UI documentation](https://docs.mod.io/unreal/ui-refdocs) for a list of the expected interfaces for the widget you're looking to replace.  The [documentation for a button](https://docs.mod.io/unreal/ui-refdocs#button) specifies the following interfaces:
     - `IModioUIClickableWidget`
     - `IModioUISelectableWidget`
     - `IModioUIHoverableWidget`
@@ -75,7 +77,7 @@ Once the required interface functions are implemented, the widget is ready for u
 
 ## Creating a new widget
 
-The mod.io component UI framework [emphasises flexibility and composability for widgets](/unreal/component-ui#emphasise-flexibility-and-composability-for-widgets).  This allows developers to easily create new widgets by combining existing components.  
+The mod.io component UI framework [emphasises flexibility and composability for widgets](https://docs.mod.io/unreal/component-ui#emphasise-flexibility-and-composability-for-widgets).  This allows developers to easily create new widgets by combining existing components.  
 
  :::note
 This example uses generic Unreal Engine widgets, but you can use mod.io components or a combination of both as long as the required interfaces are correctly implemented!
@@ -84,7 +86,7 @@ This example uses generic Unreal Engine widgets, but you can use mod.io componen
 ### Creating a labelled button 
 
 1. If using C++, create a new `UWidget`-derived class such as `UUserWidget`.  Alternatively, you can skip straight to step 5 and implement this widget in Blueprint only.
-2. Refer to the [UI documentation](/unreal/ui-refdocs/) for a list of the expected interfaces for the widget you're looking to create. For brevity, this example will focus on `IModioUIClickableWidget` and `IModioUIHasTextWidget` interfaces.  
+2. Refer to the [UI documentation](https://docs.mod.io/unreal/ui-refdocs) for a list of the expected interfaces for the widget you're looking to create. For brevity, this example will focus on `IModioUIClickableWidget` and `IModioUIHasTextWidget` interfaces.  
 3. Add the underlying components that will actually implement the behaviour of the outer component.
 4. Override any functions that you wish to implement in C++, and add any required variables and helper functions.  This example adds `FModioClickableOnClickedMulticast OnClicked` for use with `AddClickedHandler()`, and `FText DefaultLabel` so that an outer widget can set a default label in the editor details rather than relying on runtime changes. 
 
@@ -200,7 +202,7 @@ Interface functions can be implemented in C++, Blueprint, or both.  For brevity,
 7. Implement any remaining interface functions.  You may override native functions, or implement functions that have been omitted from the native implementation.  Once the required interface functions are implemented, the widget is ready for use. 
 
  :::note
-Refer to the [**Wrapping an existing button**](/unreal/component-ui/custom-components#wrapping-an-existing-button) section for a demonstration of implementing interface functions in Blueprint.
+Refer to the [**Wrapping an existing button**](https://docs.mod.io/unreal/component-ui/custom-components#wrapping-an-existing-button) section for a demonstration of implementing interface functions in Blueprint.
 :::
 
 ## Subclassing an existing widget
@@ -211,7 +213,7 @@ This is the most intrusive option, but it avoids the need to create an additiona
 
 1. Create a new C++ class with `UProgressBar` as its parent.
 
-2. The Component UI documentation states that a [Progress component](/unreal/ui-refdocs#progress) requires just one interface — `IModioUIProgressWidget`.  Add this to your subclassed progress bar.
+2. The Component UI documentation states that a [Progress component](https://docs.mod.io/unreal/ui-refdocs#progress) requires just one interface — `IModioUIProgressWidget`.  Add this to your subclassed progress bar.
 
 3. Add the interface functions, a `FModioProgressWidgetValueChangedMulticast` delegate for binding to add/remove handler events, and a `TOptional<FLinearColor>` to store a default color.  Your header file should look something like this:
 
