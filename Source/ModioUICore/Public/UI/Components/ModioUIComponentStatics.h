@@ -125,6 +125,24 @@ struct FModioUIEditableTextComponentMetadata : public FModioUIComponentMetadata
 
 /**
  * @base_component
+ * @brief The Multiline Editable Text component is a widget that gathers user-specified text input. It optionally can be
+ * configured with validation rules to use to check the user input for conformity.
+ * @component_display_name Multiline Editable Text
+ * @required_interface IModioUIStringInputWidget|Allows the widget to have its user input retrieved, and the hint text
+ * configured
+ * @required_interface IModioUITextValidator|Allows the widget to be externally configured with validation rules, or to
+ * be queried for the results of validation
+ */
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
+struct FModioUIMultilineEditableTextComponentMetadata : public FModioUIComponentMetadata
+{
+	GENERATED_BODY()
+
+	FModioUIMultilineEditableTextComponentMetadata();
+};
+
+/**
+ * @base_component
  * @brief The Image component is a widget that displays an externally-configurable image.
  * @component_display_name Image
  * @required_interface IModioUIImageDisplayWidget|Allows the widget to have its associated image/brush externally
@@ -151,6 +169,30 @@ struct FModioUIProgressBarComponentMetadata : public FModioUIComponentMetadata
 	GENERATED_BODY()
 
 	FModioUIProgressBarComponentMetadata();
+};
+
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
+struct FModioUICodeInputComponentMetadata : public FModioUIComponentMetadata
+{
+	GENERATED_BODY()
+
+	FModioUICodeInputComponentMetadata();
+};
+
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
+struct FModioUIModalDialogComponentMetadata : public FModioUIComponentMetadata
+{
+	GENERATED_BODY()
+
+	FModioUIModalDialogComponentMetadata();
+};
+
+USTRUCT(BlueprintType, Meta = (NoClassDoc))
+struct FModioUICheckBoxComponentMetadata : public FModioUIComponentMetadata
+{
+	GENERATED_BODY()
+
+	FModioUICheckBoxComponentMetadata();
 };
 
 /**
@@ -281,7 +323,7 @@ struct FModioUIPresetFilterSelectorComponentMetadata : public FModioUIComponentM
  * standard Unreal list and tile views
  * @required_interface IModioUIClickableWidget|Allows the widget to emit events when clicked to allow the filter
  * selector to trigger a selection change
- * @required_interface IModioUISelectableWidget|Allows the widget to internally track the selection state of the
+ * @required_interface IModioUISelectableWidget|Allows the widget to display and modify internally track the selection state of the
  * bound filter parameters, which can be externally queried
  * @required_interface IModioUIDataSourceWidget|Allows the widget to be data-bound to a UObject implementing
  * IModioModFilterUIDetails

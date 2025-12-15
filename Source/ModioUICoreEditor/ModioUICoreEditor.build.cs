@@ -12,7 +12,7 @@ public class ModioUICoreEditor : ModuleRules
             "Core", "CoreUObject", "AppFramework",
             "Engine", "InputCore", "UnrealEd", "Slate", "SlateCore", "Modio", "ModioUICore",
             "AssetTools", "DetailCustomizations", "PropertyEditor", "Blutility", "UMG", "UMGEditor", "Kismet",
-            "KismetCompiler", "DeveloperToolSettings"
+            "KismetCompiler", "DeveloperToolSettings", "ScriptableEditorWidgets"
         });
 
         PublicIncludePaths.AddRange(new string[] { Path.Combine(ModuleDirectory, "Public") });

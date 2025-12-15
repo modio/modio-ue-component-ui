@@ -11,7 +11,7 @@ Substitutability of components is one of the core design features of the mod.io 
 
 ## Interfaces and getter functions
 
-The previous guide to [building a simple mod browser from components](https://docs.mod.io/unreal/component-ui/building-a-screen) demonstrates a basic use of the interface design pattern seen throughout the template UI implementation. The outermost browser widget is composed of multiple sub-components, however these are never referenced directly. Each sub-component is instead typed as a `UWidget` with a desired interface accessed via a getter function.
+The previous guide to [building a simple mod browser from components](/unreal/component-ui/building-a-screen) demonstrates a basic use of the interface design pattern seen throughout the template UI implementation. The outermost browser widget is composed of multiple sub-components, however these are never referenced directly. Each sub-component is instead typed as a `UWidget` with a desired interface accessed via a getter function.
 
 ### `WBP_ModioModBrowser` library button example
 
@@ -55,11 +55,11 @@ With the exception of **Object** references, getter functions throughout the com
 ## Creating custom components to substitute
 
 By adhering to the above pattern, the template implementation allows you to substitute your own components directly into the Widget Blueprint provided the substituting component implements the expected interface(s). There are 3 ways to achieve this:
-* [Wrapping an existing widget](https://docs.mod.io/unreal/component-ui/custom-components#wrapping-an-existing-widget)
-* [Creating a new widget](https://docs.mod.io/unreal/component-ui/custom-components#creating-a-new-widget)
-* [Subclassing an existing widget](https://docs.mod.io/unreal/component-ui/custom-components#subclassing-an-existing-widget)
+* [Wrapping an existing widget](/unreal/component-ui/custom-components#wrapping-an-existing-widget)
+* [Creating a new widget](/unreal/component-ui/custom-components#creating-a-new-widget)
+* [Subclassing an existing widget](/unreal/component-ui/custom-components#subclassing-an-existing-widget)
 
-These techniques are explained in detail in [Creating Custom Components](https://docs.mod.io/unreal/component-ui/custom-components).
+These techniques are explained in detail in [Creating Custom Components](/unreal/component-ui/custom-components).
 
 ## Substituting a component
 
@@ -71,4 +71,4 @@ After creating a new component that implements the required interfaces, remove t
 
 ## Next steps
 
-Now you know how to sustitute an existing component, you may want to create your own componen for specific purposes. Check out our [Creating Custom Components](https://docs.mod.io/unreal/component-ui/custom-components) guide. 
+Now you know how to sustitute an existing component, you may want to create your own componen for specific purposes. Check out our [Creating Custom Components](/unreal/component-ui/custom-components) guide. 
