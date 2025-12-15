@@ -5,6 +5,8 @@
 #include "IDetailsView.h"
 #include "Modules/ModuleManager.h"
 #include "PropertyEditorModule.h"
+#include "Components/DetailsView.h"
+#include "Editor/ScriptableEditorWidgets/Public/Components/SinglePropertyView.h"
 #include "UI/Editor/ModioUIInterfaceValidationWidgets.h"
 #include "Widgets/Layout/SGridPanel.h"
 #include "Widgets/Layout/SSplitter.h"
@@ -26,6 +28,7 @@ struct FModioUIComponentValidationStatusLine
 {
 	FText Message;
 	EModioUIComponentValidationLineType LineType;
+
 	FModioUIComponentValidationStatusLine(FText Message, EModioUIComponentValidationLineType LineType)
 		: Message(Message),
 		  LineType(LineType) {};
@@ -89,7 +92,10 @@ TSharedRef<ITableRow> UModioUIComponentValidatorWidget::GenerateStatusLineWidget
 		];
 		// clang-format on
 	}
-	return SNew(STableRow<TSharedPtr<FModioUIComponentValidationStatusLine>>, OwningTable).Content()[ContentWidget];
+	return SNew(STableRow<TSharedPtr<FModioUIComponentValidationStatusLine>>, OwningTable).Content()
+		[
+			ContentWidget
+		];
 }
 
 TSharedRef<ITableRow> UModioUIComponentValidatorWidget::GenerateInterfaceTestWidget(
@@ -98,23 +104,21 @@ TSharedRef<ITableRow> UModioUIComponentValidatorWidget::GenerateInterfaceTestWid
 	if (InterfaceClass && ImplementingWidget)
 	{
 		return SNew(STableRow<UClass*>, OwningTable)
-			.Content()[MakeInterfaceTestWidgetForClass(InterfaceClass, ImplementingWidget)];
+			.Content()
+			[
+				MakeInterfaceTestWidgetForClass(InterfaceClass, ImplementingWidget)
+			];
 	}
-	else
-	{
-		return SNew(STableRow<UClass*>, OwningTable).Content()[SNullWidget::NullWidget];
-	}
+	return SNew(STableRow<UClass*>, OwningTable).Content()
+		[
+			SNullWidget::NullWidget
+		];
 }
 
 void UModioUIComponentValidatorWidget::OnStatusWidgetDesiredVisibilityChanged(ECheckBoxState NewState)
 {
 	bShowValidationStatusWidget = (NewState == ECheckBoxState::Checked);
 	InvalidateLayoutAndVolatility();
-	/*if (CachedValidationStatusWidget)
-	{
-		CachedValidationStatusWidget->SetVisibility(GetStatusWidgetVisibility());
-		CachedValidationStatusWidget->Invalidate(EInvalidateWidgetReason::Visibility);
-	}*/
 }
 
 ECheckBoxState UModioUIComponentValidatorWidget::GetStatusWidgetDesiredVisibility() const
@@ -127,12 +131,101 @@ EVisibility UModioUIComponentValidatorWidget::GetStatusWidgetVisibility() const
 	return bShowValidationStatusWidget ? EVisibility::SelfHitTestInvisible : EVisibility::Collapsed;
 }
 
-void UModioUIComponentValidatorWidget::OnComponentPropertyChanged(const FPropertyChangedEvent& Event)
+#if WITH_EDITOR
+void UModioUIComponentValidatorWidget::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
 {
-	if (ConcreteManagedWidget)
+	const FName PropertyName = PropertyChangedEvent.GetPropertyName();
+	const bool ComponentArchetypeChanged = (PropertyName == GET_MEMBER_NAME_CHECKED(
+		                                        UModioUIComponentValidatorWidget, ComponentToValidateAgainst));
+	const bool WidgetClassChanged = (PropertyName == GET_MEMBER_NAME_CHECKED(UModioUIComponentValidatorWidget,
+	                                                                         WidgetClassToValidate));
+
+	if (ComponentArchetypeChanged || WidgetClassChanged)
 	{
-		ConcreteManagedWidget->InvalidateLayoutAndVolatility();
-		InvalidateLayoutAndVolatility();
+		BuildWidgetToValidate();
+		BuildValidationStatusWidget();
+		BuildInterfaceValidationControls(ComponentToValidateAgainst, WidgetToValidate);
+	}
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UModioUIComponentValidatorWidget, HorizontalAlignment))
+	{
+		WidgetToValidateSlot->SetHAlign(HorizontalAlignment);
+	}
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UModioUIComponentValidatorWidget, VerticalAlignment))
+	{
+		WidgetToValidateSlot->SetVAlign(VerticalAlignment);
+	}
+
+	InvalidateLayoutAndVolatility();
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+}
+#endif
+
+void UModioUIComponentValidatorWidget::LoadExampleWidgetClass()
+{
+	if (!ModioComponentExampleWidgets.Contains(ComponentToValidateAgainst))
+	{
+		return;
+	}
+	if (!IsValid(ModioComponentExampleWidgets[ComponentToValidateAgainst]))
+	{
+		return;
+	}
+
+	WidgetClassToValidate = ModioComponentExampleWidgets[ComponentToValidateAgainst];
+
+	// Manually trigger property changed response
+	FProperty* prop = FindFProperty<FProperty>(
+		GetClass(), GET_MEMBER_NAME_CHECKED(UModioUIComponentValidatorWidget, WidgetClassToValidate));
+	FPropertyChangedEvent event(prop, EPropertyChangeType::ValueSet);
+	PostEditChangeProperty(event);
+}
+
+void UModioUIComponentValidatorWidget::BuildWidgetToValidate()
+{
+	FText FailureReason;
+	if (ValidateConcreteWidget(FailureReason))
+	{
+		WidgetToValidate = NewObject<UWidget>(this, WidgetClassToValidate);
+		DetailsView->SetObject(WidgetToValidate);
+		CachedWidgetToValidateSlate = WidgetToValidate->TakeWidget();
+		WidgetToValidateSlot->SetContent(CachedWidgetToValidateSlate.ToSharedRef());
+	}
+	else
+	{
+		DetailsView->SetObject(nullptr);
+		WidgetToValidate = nullptr;
+		WidgetToValidateSlot->SetContent(SAssignNew(CachedWidgetToValidateSlate, STextBlock).Text(FailureReason));
+	}
+}
+
+void UModioUIComponentValidatorWidget::BuildValidationStatusWidget()
+{
+	TSharedRef<SWidget> StatusWidget =
+		SAssignNew(CachedValidationStatusWidget, SListView<TSharedPtr<FModioUIComponentValidationStatusLine>>)
+		.Orientation(Orient_Vertical)
+		.ListItemsSource(&ValidationMessages)
+		.OnGenerateRow_Static(&UModioUIComponentValidatorWidget::GenerateStatusLineWidget)
+		.Visibility_UObject(this, &UModioUIComponentValidatorWidget::GetStatusWidgetVisibility);
+
+	ValidationStatusWidgetSlot->SetContent(StatusWidget);
+}
+
+void UModioUIComponentValidatorWidget::BuildInterfaceValidationControls(EModioUIComponentID ComponentType,
+                                                                        TObjectPtr<UObject> ImplementingObject)
+{
+	bool bFoundComponentMetadata;
+	const FModioUIComponentMetadata& Metadata =
+		UModioUIComponentStatics::GetMetadataForComponent(ComponentType, bFoundComponentMetadata);
+	if (bFoundComponentMetadata && ImplementingObject)
+	{
+		InterfaceValidationControlsSlot->SetContent(SNew(SListView<UClass*>)
+		.Orientation(Orient_Vertical)
+		.ListItemsSource(&ObjectPtrDecay(Metadata.RequiredInterfaces))
+		.OnGenerateRow_Static(&UModioUIComponentValidatorWidget::GenerateInterfaceTestWidget, ImplementingObject));
+	}
+	else
+	{
+		InterfaceValidationControlsSlot->SetContent(SNullWidget::NullWidget);
 	}
 }
 
@@ -142,7 +235,7 @@ bool UModioUIComponentValidatorWidget::ValidateConcreteWidget(FText& FailureReas
 	FailureReason = {};
 	ValidationMessages.Empty();
 
-	if (ConcreteComponentClassToValidate)
+	if (WidgetClassToValidate)
 	{
 		bool bFoundComponentMetadata;
 		FModioUIComponentMetadata Metadata =
@@ -152,7 +245,7 @@ bool UModioUIComponentValidatorWidget::ValidateConcreteWidget(FText& FailureReas
 			bool bMeetsComponentRequirements = true;
 			for (const UClass* InterfaceClass : Metadata.RequiredInterfaces)
 			{
-				if (ConcreteComponentClassToValidate->ImplementsInterface(InterfaceClass))
+				if (WidgetClassToValidate->ImplementsInterface(InterfaceClass))
 				{
 					ValidationMessages.Add(MakeSuccessLine(FText::FormatOrdered(
 						FTextFormat::FromString("Implements {0}"), FText::FromName(InterfaceClass->GetFName()))));
@@ -162,7 +255,7 @@ bool UModioUIComponentValidatorWidget::ValidateConcreteWidget(FText& FailureReas
 					bMeetsComponentRequirements = false;
 					ValidationMessages.Add(
 						MakeErrorLine(FText::FormatOrdered(FTextFormat::FromString("Does not implement {0}"),
-														   FText::FromName(InterfaceClass->GetFName()))));
+						                                   FText::FromName(InterfaceClass->GetFName()))));
 				}
 			}
 			if (bMeetsComponentRequirements)
@@ -172,14 +265,14 @@ bool UModioUIComponentValidatorWidget::ValidateConcreteWidget(FText& FailureReas
 			else
 			{
 				FailureReason = FText::FromString("Specified component failed validation, please check that you have "
-												  "implemented all the required interfaces.");
+					"implemented all the required interfaces.");
 			}
 		}
 		else
 		{
 			FailureReason =
 				FText::FromString("Please ensure component metadata for the specified component type is set in "
-								  "ModioUIComponentStatics");
+					"ModioUIComponentStatics");
 		}
 	}
 	else
@@ -197,7 +290,7 @@ TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildWidget()
 {
 	// clang-format off
 	RootSlateWidget = SNew(SSplitter) 
-	.Orientation(EOrientation::Orient_Vertical)
+	.Orientation(Orient_Vertical)
 	+SSplitter::Slot().MinSize(300).Value(20)
 	[
 		SNew(SVerticalBox)
@@ -206,22 +299,24 @@ TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildWidget()
 		[
 			SNew(SOverlay)
 			+SOverlay::Slot()
-			.HAlign(TargetWidgetHAlign)
-			.VAlign(TargetWidgetVAlign)
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
 			[
-				RebuildConcreteWidget()
+				SAssignNew(WidgetToValidateSlot, SBox)
+				.HAlign(HorizontalAlignment)
+				.VAlign(VerticalAlignment)
 			]
 			+SOverlay::Slot()
-			.HAlign(EHorizontalAlignment::HAlign_Right)
-			.VAlign(EVerticalAlignment::VAlign_Top)
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Top)
 			.Padding(32)
 			[
-				RebuildValidationStatusWidget()
+				SAssignNew(ValidationStatusWidgetSlot, SBox)
 			]
 		]
 		+SVerticalBox::Slot()
 		.AutoHeight()
-		.HAlign(EHorizontalAlignment::HAlign_Right)
+		.HAlign(HAlign_Right)
 		.Padding(0,0,8,0)
 		[
 			SNew(SCheckBox)
@@ -236,11 +331,11 @@ TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildWidget()
 	+SSplitter::Slot().MinSize(300).Value(20)
 	[
 		SNew(SSplitter)
-		.Orientation(EOrientation::Orient_Horizontal)
+		.Orientation(Orient_Horizontal)
 		+SSplitter::Slot()
 		.MinSize(300)
 		[
-			RebuildInterfaceValidationControls(ComponentToValidateAgainst, ConcreteManagedWidget) 
+			SAssignNew(InterfaceValidationControlsSlot, SBox)
 		]
 		+SSplitter::Slot()
 		[
@@ -248,7 +343,42 @@ TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildWidget()
 			+SVerticalBox::Slot()
 			.AutoHeight()
 			[
-				CustomValidationControls? CustomValidationControls->TakeWidget() : SNullWidget::NullWidget
+				RebuildComponentPropertyView()
+			]
+			+SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				RebuildWidgetClassPropertyView()
+			]
+			+SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				RebuildHAlignmentPropertyView()
+			]
+			+SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				RebuildVAlignmentPropertyView()
+			]
+			+SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				SNew(SButton)
+				.HAlign(HAlign_Left)
+				.VAlign(VAlign_Center)
+				.OnClicked_Lambda([this]() {
+					LoadExampleWidgetClass();
+					return FReply::Handled();
+				})
+				[
+					SNew(STextBlock)
+					.Text(FText::FromString("Load Example Widget Class for Component"))
+				]
+			]
+			+SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				CustomValidationControls ? CustomValidationControls->TakeWidget() : SNullWidget::NullWidget
 			]
 			+SVerticalBox::Slot()
 			[
@@ -257,126 +387,65 @@ TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildWidget()
 		]
 	];
 	// clang-format on
+
+	BuildWidgetToValidate();
 	return RootSlateWidget.ToSharedRef();
 }
 
-TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildConcreteWidget()
+TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildWidgetClassPropertyView()
 {
-	FText FailureReason;
-	if (ValidateConcreteWidget(FailureReason))
-	{
-		if (!ConcreteManagedWidget || (ConcreteManagedWidget->GetClass() != ConcreteComponentClassToValidate))
-		{
-			ConcreteManagedWidget = NewObject<UWidget>(this, ConcreteComponentClassToValidate);
-		}
+	WidgetClassPropertyView = NewObject<USinglePropertyView>(this);
+	WidgetClassPropertyView->SetPropertyName("WidgetClassToValidate");
+	WidgetClassPropertyView->SetObject(this);
 
-		if (ComponentDetailsWidget)
-		{
-			ComponentDetailsWidget->SetObject(ConcreteManagedWidget);
-		}
-
-		CachedConcreteSlateWidget = ConcreteManagedWidget->TakeWidget();
-		return CachedConcreteSlateWidget.ToSharedRef();
-	}
-	else
-	{
-		if (ComponentDetailsWidget)
-		{
-			ComponentDetailsWidget->SetObject(nullptr);
-		}
-		return SAssignNew(CachedConcreteSlateWidget, STextBlock).Text(FailureReason);
-	}
+	return WidgetClassPropertyView->TakeWidget();
 }
 
-TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildValidationStatusWidget()
+TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildComponentPropertyView()
 {
-	TSharedRef<SWidget> RebuiltWidget =
-		SAssignNew(CachedValidationStatusWidget, SListView<TSharedPtr<FModioUIComponentValidationStatusLine>>)
-			.Orientation(EOrientation::Orient_Vertical)
-			.ListItemsSource(&ValidationMessages)
-			.OnGenerateRow_Static(&UModioUIComponentValidatorWidget::GenerateStatusLineWidget)
-			.Visibility_UObject(this, &UModioUIComponentValidatorWidget::GetStatusWidgetVisibility);
-	return RebuiltWidget;
+	ComponentPropertyView = NewObject<USinglePropertyView>(this);
+	ComponentPropertyView->SetPropertyName("ComponentToValidateAgainst");
+	ComponentPropertyView->SetObject(this);
+
+	return ComponentPropertyView->TakeWidget();
+}
+
+TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildHAlignmentPropertyView()
+{
+	HAlignmentPropertyView = NewObject<USinglePropertyView>(this);
+	HAlignmentPropertyView->SetPropertyName("HorizontalAlignment");
+	HAlignmentPropertyView->SetObject(this);
+
+	return HAlignmentPropertyView->TakeWidget();
+}
+
+TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildVAlignmentPropertyView()
+{
+	VAlignmentPropertyView = NewObject<USinglePropertyView>(this);
+	VAlignmentPropertyView->SetPropertyName("VerticalAlignment");
+	VAlignmentPropertyView->SetObject(this);
+
+	return VAlignmentPropertyView->TakeWidget();
 }
 
 TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildDetailsWidget()
 {
-	FPropertyEditorModule& PropertyEditorModule =
-		FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
-
-	FDetailsViewArgs DetailsViewArgs;
-	DetailsViewArgs.bHideSelectionTip = true;
-	DetailsViewArgs.bAllowSearch = false;
-	DetailsViewArgs.DefaultsOnlyVisibility = EEditDefaultsOnlyNodeVisibility::Hide;
-	TSharedPtr<IDetailsView> ComponentDetailsView = PropertyEditorModule.CreateDetailView(DetailsViewArgs);
-	ComponentDetailsView->SetObject(ConcreteManagedWidget);
-	ComponentDetailsView->OnFinishedChangingProperties().AddUObject(
-		this, &UModioUIComponentValidatorWidget::OnComponentPropertyChanged);
-	ComponentDetailsWidget = ComponentDetailsView;
-	return ComponentDetailsWidget.ToSharedRef();
-}
-
-TSharedRef<SWidget> UModioUIComponentValidatorWidget::RebuildInterfaceValidationControls(
-	EModioUIComponentID ComponentType, TObjectPtr<UObject> ImplementingObject)
-{
-	bool bFoundComponentMetadata;
-	const FModioUIComponentMetadata& Metadata =
-		UModioUIComponentStatics::GetMetadataForComponent(ComponentType, bFoundComponentMetadata);
-	if (bFoundComponentMetadata)
-	{
-		return SNew(SListView<UClass*>)
-			.Orientation(EOrientation::Orient_Vertical)
-			.ListItemsSource(&ObjectPtrDecay(Metadata.RequiredInterfaces))
-			.OnGenerateRow_Static(&UModioUIComponentValidatorWidget::GenerateInterfaceTestWidget, ImplementingObject);
-	}
-	else
-	{
-		return SNullWidget::NullWidget;
-	}
-}
-
-void UModioUIComponentValidatorWidget::SynchronizeProperties()
-{
-	Super::SynchronizeProperties();
-	RebuildWidget();
+	DetailsView = NewObject<UDetailsView>(this);
+	DetailsView->bAllowFiltering = false;
+	DetailsView->SetObject(WidgetToValidate);
+	CachedDetailsViewSlate = DetailsView->TakeWidget();
+	return CachedDetailsViewSlate.ToSharedRef();
 }
 
 void UModioUIComponentValidatorWidget::ReleaseSlateResources(bool bReleaseChildren)
 {
 	Super::ReleaseSlateResources(bReleaseChildren);
-	ConcreteManagedWidget = nullptr;
-	CachedConcreteSlateWidget.Reset();
+	WidgetToValidate = nullptr;
 	RootSlateWidget.Reset();
 	CachedValidationStatusWidget.Reset();
-}
-
-UWidget* UModioUIComponentValidatorWidget::GetWidgetBeingValidated() const
-{
-	return ConcreteManagedWidget;
-}
-
-void UModioUIComponentValidatorWidget::GetSlotNames(TArray<FName>& SlotNames) const
-{
-	SlotNames.Add(CustomControlsSlotName);
-}
-
-UWidget* UModioUIComponentValidatorWidget::GetContentForSlot(FName SlotName) const
-{
-	if (SlotName == CustomControlsSlotName)
-	{
-		return CustomValidationControls;
-	}
-	return nullptr;
-}
-
-void UModioUIComponentValidatorWidget::SetContentForSlot(FName SlotName, UWidget* Content)
-{
-	if (SlotName == CustomControlsSlotName)
-	{
-		if (CustomValidationControls)
-		{
-			CustomValidationControls->ReleaseSlateResources(true);
-		}
-		CustomValidationControls = Content;
-	}
+	CachedWidgetToValidateSlate.Reset();
+	CachedDetailsViewSlate.Reset();
+	WidgetToValidateSlot.Reset();
+	ValidationStatusWidgetSlot.Reset();
+	InterfaceValidationControlsSlot.Reset();
 }

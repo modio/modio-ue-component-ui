@@ -9,12 +9,15 @@
  */
 
 #include "UI/Components/ModioUIComponentStatics.h"
+
 #include "Blueprint/IUserObjectListEntry.h"
 #include "Containers/Array.h"
 #include "Containers/Map.h"
+#include "InstancedStruct.h"
 #include "UI/Interfaces/IModioUIClickableWidget.h"
 #include "UI/Interfaces/IModioUICommandMenu.h"
 #include "UI/Interfaces/IModioUIDataSourceWidget.h"
+#include "UI/Interfaces/IModioUIDialog.h"
 #include "UI/Interfaces/IModioUIHasTextWidget.h"
 #include "UI/Interfaces/IModioUIHasTooltipWidget.h"
 #include "UI/Interfaces/IModioUIHoverableWidget.h"
@@ -26,113 +29,68 @@
 #include "UI/Interfaces/IModioUISelectableWidget.h"
 #include "UI/Interfaces/IModioUIStringInputWidget.h"
 #include "UI/Interfaces/IModioUITextValidator.h"
+#include "UObject/UObjectIterator.h"
+#include "Misc/EngineVersionComparison.h"
+
+#if UE_VERSION_NEWER_THAN(5, 5, 0)
+#include "StructUtils/InstancedStruct.h"
+#else
+#include "InstancedStruct.h"
+#endif
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUIComponentStatics)
 
 const TMap<EModioUIComponentID, FModioUIComponentMetadata>& UModioUIComponentStatics::GetAllComponentMetadata()
 {
 	static TMap<EModioUIComponentID, FModioUIComponentMetadata> ComponentRequirementMetadata = []() {
-		// clang-format off
-		return TMap<EModioUIComponentID, FModioUIComponentMetadata>(
+		TMap<EModioUIComponentID, FModioUIComponentMetadata> Result;
+		UScriptStruct* Base = FModioUIComponentMetadata::StaticStruct();
+		TArray<UScriptStruct*> ArchetypeStructs;
+
+		for (TObjectIterator<UScriptStruct> It; It; ++It)
+		{
+			UScriptStruct* S = *It;
+			if (!S || S == Base)
 			{
-				{
-					EModioUIComponentID::Button,
-					{{
-						UModioUIClickableWidget::StaticClass(), 
-						UModioUISelectableWidget::StaticClass(),
-						UModioUIHasTextWidget::StaticClass(), 
-						UModioUIHasTooltipWidget::StaticClass(),
-						UModioUIHoverableWidget::StaticClass()
-					}}
-				},
-				{
-					EModioUIComponentID::StaticText, 
-					{{
-						UModioUIHasTextWidget::StaticClass()
-					}}
-				},
-				{
-					EModioUIComponentID::EditableText,
-					{{
-						UModioUIStringInputWidget::StaticClass(), 
-						UModioUITextValidator::StaticClass()
-					}}
-				},
-				{
-					EModioUIComponentID::MultilineEditableText,
-					{{
-						UModioUIStringInputWidget::StaticClass(),
-						UModioUITextValidator::StaticClass()
-					}}
-				},
-				{
-					EModioUIComponentID::CodeInputText,
-					{{
-						UModioUIStringInputWidget::StaticClass(),
-						UModioUITextValidator::StaticClass()
-					}}
-				},
-				{
-					EModioUIComponentID::ModTile,
-					{{
-						UModioUIClickableWidget::StaticClass(),
-						UModioUISelectableWidget::StaticClass(),
-						UModioUIHoverableWidget::StaticClass(),
-						UModioUIDataSourceWidget::StaticClass()
-					}}
-				},
-				{
-					EModioUIComponentID::PresetFilterSelector,
-					{{
-						UModioUIObjectSelector::StaticClass()
-					}}
-				},
-				{
-					EModioUIComponentID::Image,
-					{{
-						UModioUIImageDisplayWidget::StaticClass()
-					}}
-				},
-				{
-					EModioUIComponentID::ProgressWidget,
-					{{
-						UModioUIProgressWidget::StaticClass()
-					}}
-				},
-				{
-					EModioUIComponentID::CheckBox,
-					{{
-						UModioUISelectableWidget::StaticClass(),
-						UModioUIHasTextWidget::StaticClass()
-					}}
-				},
-				{
-					EModioUIComponentID::ModList,
-					{{
-						UModioUIModListViewInterface::StaticClass(),
-						UModioUIObjectListWidget::StaticClass()
-					}}
-				}
-			});
-		// clang-format on
+				continue;
+			}
+			if (!(S->StructFlags & STRUCT_Native))
+			{
+				continue;
+			}
+			if (!S->IsChildOf(Base))
+			{
+				continue;
+			}
+
+			FInstancedStruct ArchetypeInstance;
+			ArchetypeInstance.InitializeAs(S);
+			const FModioUIComponentMetadata* ArchetypeMetadata = ArchetypeInstance.GetPtr<FModioUIComponentMetadata>();
+			if (Result.Contains(ArchetypeMetadata->ComponentID))
+			{
+				continue;
+			}
+
+			Result.Add(ArchetypeMetadata->ComponentID, *ArchetypeMetadata);
+		}
+
+		return Result;
 	}();
+
 	return ComponentRequirementMetadata;
 }
 
 const FModioUIComponentMetadata& UModioUIComponentStatics::GetMetadataForComponent(EModioUIComponentID ComponentType,
-																				   bool& bComponentTypeFound)
+	bool& bComponentTypeFound)
 {
-	static FModioUIComponentMetadata Default {};
+	static FModioUIComponentMetadata Default{};
 
 	bComponentTypeFound = GetAllComponentMetadata().Contains(ComponentType);
 	if (bComponentTypeFound)
 	{
 		return GetAllComponentMetadata()[ComponentType];
 	}
-	else
-	{
-		return Default;
-	}
+	return Default;
 }
 
 // clang-format off
@@ -175,8 +133,21 @@ FModioUIEditableTextComponentMetadata::FModioUIEditableTextComponentMetadata()
 		FName("Editable Text")
 	}
 {}
-	
-	
+
+
+FModioUIMultilineEditableTextComponentMetadata::FModioUIMultilineEditableTextComponentMetadata()
+: FModioUIComponentMetadata
+{	
+		{
+			UModioUIStringInputWidget::StaticClass(),
+			UModioUITextValidator::StaticClass()
+		},
+		EModioUIComponentID::EditableText,
+		FName("Multiline Editable Text")
+	}
+{}
+
+
 FModioUIImageComponentMetadata::FModioUIImageComponentMetadata()
 	: FModioUIComponentMetadata
 	{	
@@ -200,7 +171,44 @@ FModioUIImageComponentMetadata::FModioUIImageComponentMetadata()
 	}
 {}
 
- FModioUITagComponentMetadata::FModioUITagComponentMetadata()
+FModioUICodeInputComponentMetadata::FModioUICodeInputComponentMetadata()
+: FModioUIComponentMetadata
+{	
+		{
+			UModioUIStringInputWidget::StaticClass(),
+			UModioUITextValidator::StaticClass(),
+			UModioUIHasTooltipWidget::StaticClass(),
+		},
+		EModioUIComponentID::CodeInputText,
+		FName("Code Input")
+	}
+{}
+
+FModioUIModalDialogComponentMetadata::FModioUIModalDialogComponentMetadata()
+: FModioUIComponentMetadata
+{	
+		{
+			UModioUIDialog::StaticClass()
+		},
+		EModioUIComponentID::ModalDialog,
+		FName("Modal Dialog")
+	}
+{}
+
+FModioUICheckBoxComponentMetadata::FModioUICheckBoxComponentMetadata()
+	: FModioUIComponentMetadata
+	{	
+			{
+				UModioUISelectableWidget::StaticClass(),
+				UModioUIHasTextWidget::StaticClass(),
+				UModioUIHasTooltipWidget::StaticClass()
+			},
+			EModioUIComponentID::CheckBox,
+			FName("CheckBox")
+	}
+{}
+
+FModioUITagComponentMetadata::FModioUITagComponentMetadata()
 	: FModioUIComponentMetadata
 	{	
 		{
@@ -342,6 +350,4 @@ FModioUIModPropertyCollectionVisualizerComponentMetadata::FModioUIModPropertyCol
 		EModioUIComponentID::UserDisplay,
 		FName("User Display")
 	}
-{
-	
-}
+{}

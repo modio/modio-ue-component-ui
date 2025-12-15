@@ -30,4 +30,16 @@ UModioUISettings::UModioUISettings()
 	SortTrending.SortField = EModioSortFieldType::DownloadsToday;
 	SortTrending.Count = 100;
 	PresetNamedFilters.Add(MoveTemp(SortTrending));
+
+	DefaultCollectionsFilter.PresetName = LOCTABLE(
+		"/ModioComponentUI/UI/Data/ST_ModioModBrowserDefaultText.ST_ModioModBrowserDefaultText", "Page_Collections");
+	DefaultCollectionsFilter.Direction = EModioSortDirection::Descending;
+	DefaultCollectionsFilter.SortField = EModioSortFieldType::SubscriberCount;
+	DefaultCollectionsFilter.Count = 100;
+}
+
+FModioPresetFilterParams UModioUISettings::GetDefaultCollectionsFilter()
+{
+	UModioUISettings* Settings = GetMutableDefault<UModioUISettings>();
+	return Settings->DefaultCollectionsFilter;
 }

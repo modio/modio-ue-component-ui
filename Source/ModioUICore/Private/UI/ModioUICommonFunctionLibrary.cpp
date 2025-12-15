@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2024 mod.io Pty Ltd. <https://mod.io>
+ *  Copyright (C) 2024-2025 mod.io Pty Ltd. <https://mod.io>
  *
  *  This file is part of the mod.io UE Plugin.
  *
@@ -20,6 +20,7 @@
 #include "Libraries/ModioSDKLibrary.h"
 #include "UObject/UnrealType.h"
 #include "Loc/ModioEnumLocalizationHelpers.h"
+#include "UI/Interfaces/IModioModCollectionInfoUIDetails.h"
 #include "UI/Interfaces/IModioModDependencyUIDetails.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUICommonFunctionLibrary)
@@ -38,11 +39,11 @@ FText UModioUICommonFunctionLibrary::FormatTimespan(const FTimespan& Timespan, c
 	{
 		return FText::FormatOrdered(YearFormat, Years, Months, Days, Hours, Minutes);
 	}
-	else if (Months > 0)
+	if (Months > 0)
 	{
 		return FText::FormatOrdered(MonthFormat, Years, Months, Days, Hours, Minutes);
 	}
-	else if (Days > 0)
+	if (Days > 0)
 	{
 		return FText::FormatOrdered(DaysFormat, Years, Months, Days, Hours, Minutes);
 	}
@@ -67,9 +68,9 @@ FText UModioUICommonFunctionLibrary::FormatNumberWithSIUnit(int64 Value, const F
 		Value /= 1000;
 		++Prefix;
 	}
-	FNumberFormattingOptions Options {};
+	FNumberFormattingOptions Options{};
 	Options.MaximumFractionalDigits = 1;
-	const double FractionalValue = (double) Value / (double) 1000;
+	const double FractionalValue = static_cast<double>(Value) / static_cast<double>(1000);
 	Args.Add(FText::AsNumber(FractionalValue, &Options));
 	Args.Add(FText::FromString(FString(1, &Prefixes[Prefix])));
 	return FText::Format(FormatText, Args);
@@ -89,9 +90,9 @@ FText UModioUICommonFunctionLibrary::GetLocalizedTagCategory(const FModioModTagI
 }
 
 bool UModioUICommonFunctionLibrary::CheckLogoDownloadEventForDataSource(FModioModID EventModID,
-																		EModioLogoSize EventLogoSize,
-																		UObject* DataSource,
-																		EModioLogoSize RequestedSize)
+                                                                        EModioLogoSize EventLogoSize,
+                                                                        UObject* DataSource,
+                                                                        EModioLogoSize RequestedSize)
 {
 	if (DataSource && DataSource->GetClass()->ImplementsInterface(UModioModInfoUIDetails::StaticClass()))
 	{
@@ -101,14 +102,34 @@ bool UModioUICommonFunctionLibrary::CheckLogoDownloadEventForDataSource(FModioMo
 	return false;
 }
 
+bool UModioUICommonFunctionLibrary::CheckCollectionLogoDownloadEventForDataSource(
+	FModioModCollectionID EventModCollectionID, EModioLogoSize EventLogoSize, UObject* DataSource,
+	EModioLogoSize RequestedSize)
+{
+	if (DataSource && DataSource->GetClass()->ImplementsInterface(UModioModCollectionInfoUIDetails::StaticClass()))
+	{
+		FModioModCollectionID RequestedID = IModioModCollectionInfoUIDetails::Execute_GetModCollectionID(DataSource);
+		return (EventModCollectionID == RequestedID) && (EventLogoSize == RequestedSize);
+	}
+	return false;
+}
+
 bool UModioUICommonFunctionLibrary::CheckLogoDownloadEvent(FModioModID EventModID, EModioLogoSize EventLogoSize,
-														   FModioModID RequestedModID, EModioLogoSize RequestedSize)
+                                                           FModioModID RequestedModID, EModioLogoSize RequestedSize)
 {
 	return (EventModID == RequestedModID) && (EventLogoSize == RequestedSize);
 }
 
+bool UModioUICommonFunctionLibrary::CheckCollectionLogoDownloadEvent(FModioModCollectionID EventModCollectionID,
+                                                                     EModioLogoSize EventLogoSize,
+                                                                     FModioModCollectionID RequestedModCollectionID,
+                                                                     EModioLogoSize RequestedSize)
+{
+	return (EventModCollectionID == RequestedModCollectionID) && (EventLogoSize == RequestedSize);
+}
+
 bool UModioUICommonFunctionLibrary::MapValueIntoRangeIndex(const TArray<FInt32Range>& ValueRanges, int32 Value,
-														   int32& OutIndex)
+                                                           int32& OutIndex)
 {
 	OutIndex = -1;
 	for (int32 RangeIndex = 0; RangeIndex < ValueRanges.Num(); RangeIndex++)
@@ -160,7 +181,8 @@ UModioModTagInfoUI* UModioUICommonFunctionLibrary::CreateBindableModTagInfo(cons
 	return BindableTagInfo;
 }
 
-UModioModTagUI* UModioUICommonFunctionLibrary::CreateBindableModTag(const FModioModTagLocalizationData& InTagLocalizationData)
+UModioModTagUI* UModioUICommonFunctionLibrary::CreateBindableModTag(
+	const FModioModTagLocalizationData& InTagLocalizationData)
 {
 	UModioModTagUI* BindableTag = NewObject<UModioModTagUI>();
 	BindableTag->bSelectionState = false;
@@ -179,10 +201,25 @@ UModioModTagUI* UModioUICommonFunctionLibrary::CreateBindableModTagRawValue(cons
 	return NewWrappedTag;
 }
 
+UModioModTagUI* UModioUICommonFunctionLibrary::CreateBindableModTagRawValueFromString(const FString& InTag)
+{
+	UModioModTagUI* NewWrappedTag = NewObject<UModioModTagUI>();
+	NewWrappedTag->Underlying = InTag;
+	return NewWrappedTag;
+}
+
 TArray<UModioModTagUI*> UModioUICommonFunctionLibrary::CreateBindableModTagArray(const TArray<FModioModTag>& InTags)
 {
 	TArray<UModioModTagUI*> OutBoundTags;
 	Algo::Transform(InTags, OutBoundTags, &CreateBindableModTagRawValue);
+	return OutBoundTags;
+}
+
+TArray<UModioModTagUI*> UModioUICommonFunctionLibrary::CreateBindableModTagArrayFromStringArray(
+	const TArray<FString>& InTags)
+{
+	TArray<UModioModTagUI*> OutBoundTags;
+	Algo::Transform(InTags, OutBoundTags, &CreateBindableModTagRawValueFromString);
 	return OutBoundTags;
 }
 
@@ -191,6 +228,30 @@ UModioUserUI* UModioUICommonFunctionLibrary::CreateBindableUser(const FModioUser
 	UModioUserUI* NewUserObject = NewObject<UModioUserUI>();
 	NewUserObject->Underlying = InRawUser;
 	return NewUserObject;
+}
+
+TArray<UModioUserUI*> UModioUICommonFunctionLibrary::CreateBindableUserArrayFromArray(
+	const TArray<FModioUser>& InUserArray)
+{
+	TArray<UModioUserUI*> OutBoundUsers;
+	Algo::Transform(InUserArray, OutBoundUsers, &CreateBindableUser);
+	return OutBoundUsers;
+}
+
+UModioModCollectionInfoUI* UModioUICommonFunctionLibrary::CreateBindableModCollection(
+	const FModioModCollectionInfo& InRawCollection)
+{
+	UModioModCollectionInfoUI* CollectionObject = NewObject<UModioModCollectionInfoUI>();
+	CollectionObject->Underlying = InRawCollection;
+	return CollectionObject;
+}
+
+TArray<UModioModCollectionInfoUI*> UModioUICommonFunctionLibrary::CreateBindableModCollectionArrayFromList(
+	const FModioModCollectionInfoList& InModCollectionList)
+{
+	TArray<UModioModCollectionInfoUI*> OutCollections;
+	Algo::Transform(InModCollectionList.InternalList, OutCollections, &CreateBindableModCollection);
+	return OutCollections;
 }
 
 UModioEnumEntryUI* UModioUICommonFunctionLibrary::CreateBindableEnum(const uint8 InValue, const FText InText)
@@ -213,25 +274,43 @@ TArray<UModioEnumEntryUI*> UModioUICommonFunctionLibrary::CreateBindableReportTy
 
 		OutArray.Add(CreateBindableEnum(EnumValue, EntryText));
 	}
-	
+
 	return OutArray;
 }
 
-UModioModDependencyUI* UModioUICommonFunctionLibrary::CreateBindableModDependency(const FModioModDependency& InModDependency)
+UModioModDependencyUI* UModioUICommonFunctionLibrary::CreateBindableModDependency(
+	const FModioModDependency& InModDependency)
 {
 	UModioModDependencyUI* BindableModeDependency = NewObject<UModioModDependencyUI>();
 	BindableModeDependency->Underlying = InModDependency;
 	return BindableModeDependency;
 }
 
-TArray<UModioModDependencyUI*> UModioUICommonFunctionLibrary::CreateBindableModDependencyArrayFromArray(const TArray<FModioModDependency>& InModDependencyArray)
+UModioModInfoUI* UModioUICommonFunctionLibrary::CreateBindableModInfo(const FModioModInfo& InModInfo)
+{
+	UModioModInfoUI* BindableMod = NewObject<UModioModInfoUI>();
+	BindableMod->Underlying = InModInfo;
+	return BindableMod;
+}
+
+TArray<UModioModInfoUI*> UModioUICommonFunctionLibrary::CreateBindableModInfoArrayFromList(
+	const FModioModInfoList& InModInfoList)
+{
+	TArray<UModioModInfoUI*> OutBoundModInfos;
+	Algo::Transform(InModInfoList.InternalList, OutBoundModInfos, &CreateBindableModInfo);
+	return OutBoundModInfos;
+}
+
+TArray<UModioModDependencyUI*> UModioUICommonFunctionLibrary::CreateBindableModDependencyArrayFromArray(
+	const TArray<FModioModDependency>& InModDependencyArray)
 {
 	TArray<UModioModDependencyUI*> OutBoundModDependencies;
 	Algo::Transform(InModDependencyArray, OutBoundModDependencies, &CreateBindableModDependency);
 	return OutBoundModDependencies;
 }
 
-TArray<UModioModDependencyUI*> UModioUICommonFunctionLibrary::CreateBindableModDependencyArrayFromList(const FModioModDependencyList& InModDependencyList)
+TArray<UModioModDependencyUI*> UModioUICommonFunctionLibrary::CreateBindableModDependencyArrayFromList(
+	const FModioModDependencyList& InModDependencyList)
 {
 	TArray<UModioModDependencyUI*> OutBoundModDependencies;
 	Algo::Transform(InModDependencyList.InternalList, OutBoundModDependencies, &CreateBindableModDependency);
@@ -342,7 +421,7 @@ FText UModioUICommonFunctionLibrary::GetLocalizedTagValue(const FModioModTagLoca
 DEFINE_FUNCTION(UModioUICommonFunctionLibrary::execAsObjectArray)
 {
 	Stack.MostRecentProperty = nullptr;
-	Stack.StepCompiledIn<FArrayProperty>(NULL);
+	Stack.StepCompiledIn<FArrayProperty>(nullptr);
 	void* ArrayAddr = Stack.MostRecentPropertyAddress;
 	FArrayProperty* ArrayProperty = CastField<FArrayProperty>(Stack.MostRecentProperty);
 	if (!ArrayProperty)
@@ -353,14 +432,14 @@ DEFINE_FUNCTION(UModioUICommonFunctionLibrary::execAsObjectArray)
 
 	P_FINISH;
 	P_NATIVE_BEGIN;
-	*(TArray<UObject*>*) RESULT_PARAM = BPCastInterfaceToObjectArrayHelper(ArrayAddr, ArrayProperty);
+		*static_cast<TArray<UObject*>*>(RESULT_PARAM) = BPCastInterfaceToObjectArrayHelper(ArrayAddr, ArrayProperty);
 	P_NATIVE_END;
 }
 
 DEFINE_FUNCTION(UModioUICommonFunctionLibrary::execValidateWidget)
 {
 	Stack.MostRecentProperty = nullptr;
-	Stack.StepCompiledIn<FInterfaceProperty>(NULL);
+	Stack.StepCompiledIn<FInterfaceProperty>(nullptr);
 	void* InterfaceAddr = Stack.MostRecentPropertyAddress;
 	FInterfaceProperty* InterfaceProperty = CastField<FInterfaceProperty>(Stack.MostRecentProperty);
 	if (!InterfaceProperty)
@@ -372,21 +451,21 @@ DEFINE_FUNCTION(UModioUICommonFunctionLibrary::execValidateWidget)
 	P_FINISH;
 	P_NATIVE_BEGIN;
 
-	// if InterfaceClass member is ever treated as private, get the name from the property and load the uclass by name
-	// FString ActualClassName;
-	// InterfaceProperty->GetCPPMacroType(ActualClassName);
-	// ActualClassName.RightChopInline(1);
-	// UClass::TryFindTypeSlow<UClass>(*ActualClassName);
+		// if InterfaceClass member is ever treated as private, get the name from the property and load the uclass by name
+		// FString ActualClassName;
+		// InterfaceProperty->GetCPPMacroType(ActualClassName);
+		// ActualClassName.RightChopInline(1);
+		// UClass::TryFindTypeSlow<UClass>(*ActualClassName);
 
-	const FScriptInterface& ScriptInterface = InterfaceProperty->GetPropertyValue(InterfaceAddr);
-	UObject* WidgetObject = ScriptInterface.GetObject();
-	if (WidgetObject && WidgetObject->GetClass()->ImplementsInterface(InterfaceProperty->InterfaceClass))
-	{
-		*(UWidget**) RESULT_PARAM = Cast<UWidget>(WidgetObject);
-	}
-	else
-	{
-		*(UWidget**) RESULT_PARAM = nullptr;
-	}
+		const FScriptInterface& ScriptInterface = InterfaceProperty->GetPropertyValue(InterfaceAddr);
+		UObject* WidgetObject = ScriptInterface.GetObject();
+		if (WidgetObject && WidgetObject->GetClass()->ImplementsInterface(InterfaceProperty->InterfaceClass))
+		{
+			*static_cast<UWidget**>(RESULT_PARAM) = Cast<UWidget>(WidgetObject);
+		}
+		else
+		{
+			*static_cast<UWidget**>(RESULT_PARAM) = nullptr;
+		}
 	P_NATIVE_END;
 }

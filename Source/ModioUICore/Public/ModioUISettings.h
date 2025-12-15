@@ -41,4 +41,13 @@ public:
 	 */
 	UPROPERTY(EditDefaultsOnly, config, Category = "UI Configuration")
 	TArray<FModioPresetFilterParams> PresetNamedFilters;
+
+	/**
+	 * Named sets of filter parameters for use in defining preset collections search
+	 */
+	UPROPERTY(EditDefaultsOnly, config, Category = "UI Configuration")
+	FModioPresetFilterParams DefaultCollectionsFilter;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "UI Configuration")
+	static FModioPresetFilterParams GetDefaultCollectionsFilter();
 };

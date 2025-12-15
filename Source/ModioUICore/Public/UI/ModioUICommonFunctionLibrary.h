@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2024 mod.io Pty Ltd. <https://mod.io>
+ *  Copyright (C) 2024-2025 mod.io Pty Ltd. <https://mod.io>
  *
  *  This file is part of the mod.io UE Plugin.
  *
@@ -13,6 +13,8 @@
 #include "Components/Widget.h"
 #include "Core/ModioEnumEntryUI.h"
 #include "Core/ModioTagOptionsUI.h"
+#include "Core/ModioModInfoUI.h"
+#include "Core/ModioModCollectionInfoUI.h"
 #include "CoreMinimal.h"
 #include "Interfaces/IModioModInfoUIDetails.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
@@ -61,7 +63,7 @@ public:
 	/// @return The formatted text
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "mod.io|UI|Localization")
 	static FText FormatTimespan(const FTimespan& Timespan, const FText& YearFormat, const FText& MonthFormat,
-								const FText& DaysFormat, const FText& TodayFormat);
+	                            const FText& DaysFormat, const FText& TodayFormat);
 
 	/// @brief Localizes the specified value using the supplied formatting options and format string. Will calculate the
 	/// appropriate SI unit and pass a character indicating that unit to the format call.
@@ -91,9 +93,23 @@ public:
 	/// @param DataSource The data source containing the relevant mod ID
 	/// @param RequestedSize the size that the widget requested
 	/// @return
-	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities", meta = (ExpandBoolAsExecs = "ReturnValue"))
+	UFUNCTION(BlueprintCallable, DisplayName = "CheckLogoDownloadEventForDataSource (Mod)",
+		Category = "mod.io|UI|Utilities", meta = (ExpandBoolAsExecs = "ReturnValue"))
 	static bool CheckLogoDownloadEventForDataSource(FModioModID EventModID, EModioLogoSize EventLogoSize,
-													UObject* DataSource, EModioLogoSize RequestedSize);
+	                                                UObject* DataSource, EModioLogoSize RequestedSize);
+
+	/// @brief Utility method to validate if a logo download event is relevant for the given data source and requested
+	/// size
+	/// @param EventModCollectionID The event's associated mod collection ID
+	/// @param EventLogoSize The event's associated download size
+	/// @param DataSource The data source containing the relevant mod collection ID
+	/// @param RequestedSize the size that the widget requested
+	/// @return
+	UFUNCTION(BlueprintCallable, DisplayName = "CheckLogoDownloadEventForDataSource (Mod Collection)",
+		Category = "mod.io|UI|Utilities", meta = (ExpandBoolAsExecs = "ReturnValue"))
+	static bool CheckCollectionLogoDownloadEventForDataSource(FModioModCollectionID EventModCollectionID,
+	                                                          EModioLogoSize EventLogoSize,
+	                                                          UObject* DataSource, EModioLogoSize RequestedSize);
 
 	/// @brief Utility method to validate if a logo download event is relevant for the given mod ID and requested size
 	/// @param EventModID The event's associated mod ID
@@ -101,9 +117,23 @@ public:
 	/// @param RequestedModID The relevant mod ID for the widget that is making the check
 	/// @param RequestedSize The relevant size for the widget that is making the check
 	/// @return
-	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities", meta = (ExpandBoolAsExecs = "ReturnValue"))
+	UFUNCTION(BlueprintCallable, DisplayName = "CheckLogoDownloadEvent (Mod)", Category = "mod.io|UI|Utilities",
+		meta = (ExpandBoolAsExecs = "ReturnValue"))
 	static bool CheckLogoDownloadEvent(FModioModID EventModID, EModioLogoSize EventLogoSize, FModioModID RequestedModID,
-									   EModioLogoSize RequestedSize);
+	                                   EModioLogoSize RequestedSize);
+
+	/// @brief Utility method to validate if a logo download event is relevant for the given mod collection ID and requested size
+	/// @param EventModCollectionID The event's associated mod collection ID
+	/// @param EventLogoSize The event's associated download size
+	/// @param RequestedModCollectionID The relevant mod collection ID for the widget that is making the check
+	/// @param RequestedSize The relevant size for the widget that is making the check
+	/// @return
+	UFUNCTION(BlueprintCallable, DisplayName = "CheckLogoDownloadEvent (Mod Collection)",
+		Category = "mod.io|UI|Utilities", meta = (ExpandBoolAsExecs = "ReturnValue"))
+	static bool CheckCollectionLogoDownloadEvent(FModioModCollectionID EventModCollectionID,
+	                                             EModioLogoSize EventLogoSize,
+	                                             FModioModCollectionID RequestedModCollectionID,
+	                                             EModioLogoSize RequestedSize);
 
 	/// @brief Searches the specified value ranges and returns the index of the first range which contains the provided
 	/// value
@@ -140,36 +170,85 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Data Binding")
 	static UModioModTagUI* CreateBindableModTagRawValue(const FModioModTag& InTag);
 
+	/// @brief Creates a data-bindable UObject wrapper around a mod tag sourced from a FString
+	/// @param InTag The tag to make bindable
+	/// @return UObject suitable for use as a DataSource
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Data Binding")
+	static UModioModTagUI* CreateBindableModTagRawValueFromString(const FString& InTag);
+
 	/// @brief Creates an array of data-bindable UObject wrappers around mod tags coming from a FModioModInfo, ie for
 	/// display on the mod details
 	/// @param InTags The array of tags to make bindable
 	/// @return Array of UObjects suitable for use as a DataSource
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Data Binding")
 	static TArray<UModioModTagUI*> CreateBindableModTagArray(const TArray<FModioModTag>& InTags);
-	
+
+	/// @brief Creates an array of data-bindable UObject wrappers around and array of strings
+	/// @param InTags The array of tags to make bindable
+	/// @return Array of UObjects suitable for use as a DataSource as UModioModTagUI
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Data Binding")
+	static TArray<UModioModTagUI*> CreateBindableModTagArrayFromStringArray(const TArray<FString>& InTags);
+
 	/// @brief Creates a data-bindable UObject wrapper around an individual mod dependency value
 	/// @param InModDependency The raw string value of the tag
 	/// @return UObject suitable for use as a DataSource
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Data Binding")
 	static UModioModDependencyUI* CreateBindableModDependency(const FModioModDependency& InModDependency);
 
+	/// @brief Creates a data-bindable UObject wrapper around an individual mod info value
+	/// @param InModInfo The mod info to wrap
+	/// @return UObject suitable for use as a DataSource
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Data Binding")
+	static UModioModInfoUI* CreateBindableModInfo(const FModioModInfo& InModInfo);
+
+	/// @brief Creates an array of data-bindable UObject wrappers around mod infos coming from a
+	/// FModioModInfoList
+	/// @param InModInfoList The list of mods to make bindable
+	/// @return Array of UObjects suitable for use as a DataSource
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Data Binding")
+	static TArray<UModioModInfoUI*> CreateBindableModInfoArrayFromList(
+		const FModioModInfoList& InModInfoList);
+
 	/// @brief Creates an array of data-bindable UObject wrappers around mod dependencies coming from an array
 	/// @param InModDependencyArray The array of tags to make bindable
 	/// @return Array of UObjects suitable for use as a DataSource
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Data Binding")
-	static TArray<UModioModDependencyUI*> CreateBindableModDependencyArrayFromArray(const TArray<FModioModDependency>& InModDependencyArray);
+	static TArray<UModioModDependencyUI*> CreateBindableModDependencyArrayFromArray(
+		const TArray<FModioModDependency>& InModDependencyArray);
 
 	/// @brief Creates an array of data-bindable UObject wrappers around mod dependencies coming from a FModioModDependencyList
 	/// @param InModDependencyList The array of tags to make bindable
 	/// @return Array of UObjects suitable for use as a DataSource
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Data Binding")
-	static TArray<UModioModDependencyUI*> CreateBindableModDependencyArrayFromList(const FModioModDependencyList& InModDependencyList);
+	static TArray<UModioModDependencyUI*> CreateBindableModDependencyArrayFromList(
+		const FModioModDependencyList& InModDependencyList);
 
-	/// @brief
-	///	@param
-	///	@return
+	/// @brief Creates a data-bindable UObject wrapper around an FModioUser
+	///	@param InRawUser The user profile to wrap
+	///	@return A wrapped FModioUserUI pointer suitable for user a a DataSource
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Data Binding")
 	static UModioUserUI* CreateBindableUser(const FModioUser& InRawUser);
+
+	/// @brief Creates an array of data-bindable UObject wrappers around users coming from an array
+	/// @param InModDependencyArray The array of users to make bindable
+	/// @return Array of UObjects suitable for use as a DataSource
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Data Binding")
+	static TArray<UModioUserUI*> CreateBindableUserArrayFromArray(
+		const TArray<FModioUser>& InUserArray);
+
+	/// @brief Creates a data-bindable UObject wrapper around an FModioModCollectionInfo
+	///	@param InRawUser The collection profile to wrap
+	///	@return A wrapped FModioModCollectionInfoUI pointer suitable for use as a DataSource
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Data Binding")
+	static UModioModCollectionInfoUI* CreateBindableModCollection(const FModioModCollectionInfo& InRawCollection);
+
+	/// @brief Creates an array of data-bindable UObject wrappers around mod collections coming from a
+	/// FModioModCollectionInfoList
+	/// @param InModCollectionList The array of mod collections to make bindable
+	/// @return Array of UObjects suitable for use as a DataSource
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Data Binding")
+	static TArray<UModioModCollectionInfoUI*> CreateBindableModCollectionArrayFromList(
+		const FModioModCollectionInfoList& InModCollectionList);
 
 	/// @brief
 	///	@param
@@ -197,12 +276,13 @@ public:
 	/// @param TargetArray The array containing Interface references
 	/// @return Array of UObject*
 	UFUNCTION(BlueprintCallable, CustomThunk, meta = (ArrayParm = "TargetArray"),
-			  Category = "mod.io|UI|Utilities|Array")
+		Category = "mod.io|UI|Utilities|Array")
 	static TArray<UObject*> AsObjectArray(const TArray<int32>& TargetArray)
 	{
 		check(0); // should never execute
 		return {};
 	}
+
 	DECLARE_FUNCTION(execAsObjectArray);
 
 	UFUNCTION(BlueprintCallable, CustomThunk, Category = "mod.io|UI")
@@ -211,6 +291,7 @@ public:
 		check(0); // should never execute
 		return {};
 	}
+
 	DECLARE_FUNCTION(execValidateWidget);
 
 	/// @brief Utility method to dynamically resolve an FText from the primary mod.io string table
@@ -229,21 +310,22 @@ public:
 	/// @param Target The widget to check design-time for
 	/// @return True if Target has design-time flags set
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities",
-			  meta = (DefaultToSelf = "Target", ExpandEnumAsExecs = "ReturnValue"))
+		meta = (DefaultToSelf = "Target", ExpandEnumAsExecs = "ReturnValue"))
 	static bool IsDesignTimeAsExec(UWidget* Target);
 
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities", meta = (DefaultToSelf = "Target"))
 	static void ApplyTextPropertyOverridesHelper(const struct FSlateFontInfoOverride& FontPropertiesOverride,
-												 const struct FHAlignOverride& TextJustificationOverride,
-												 const struct FTextTransformOverride& TextTransformOverride,
-												 UObject* Target);
+	                                             const struct FHAlignOverride& TextJustificationOverride,
+	                                             const struct FTextTransformOverride& TextTransformOverride,
+	                                             UObject* Target);
 
-#if WITH_EDITORONLY_DATA
+	#if WITH_EDITORONLY_DATA
+
 private:
 	static bool& GetLoadPreviewDataFlagMutable();
 
 public:
 	static void SetLoadPreviewDataOverride(bool bEnabled);
 	static bool ShouldLoadPreviewData();
-#endif
+	#endif
 };

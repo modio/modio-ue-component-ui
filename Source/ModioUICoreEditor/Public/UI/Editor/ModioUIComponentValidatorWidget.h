@@ -12,13 +12,80 @@
 
 #include "ModioUIComponentValidatorWidget.generated.h"
 
+class UDetailsView;
+class USinglePropertyView;
+
 /**
  *
  */
-UCLASS()
-class MODIOUICOREEDITOR_API UModioUIComponentValidatorWidget : public UWidget, public INamedSlotInterface
+UCLASS(BlueprintType)
+class MODIOUICOREEDITOR_API UModioUIComponentValidatorWidget : public UWidget
 {
 	GENERATED_BODY()
+public:
+	// Widget Class to Validate
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|ComponentValidator")
+	TSubclassOf<UWidget> WidgetClassToValidate;
+
+	// Component Type to Validate Against
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|ComponentValidator")
+	EModioUIComponentID ComponentToValidateAgainst = EModioUIComponentID::Button;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|ComponentValidator")
+	TEnumAsByte<EHorizontalAlignment> HorizontalAlignment = EHorizontalAlignment::HAlign_Center;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|ComponentValidator")
+	TEnumAsByte<EVerticalAlignment> VerticalAlignment = EVerticalAlignment::VAlign_Center;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|ComponentValidator")
+	TMap<EModioUIComponentID, TSubclassOf<UWidget>> ModioComponentExampleWidgets;
+
+	#if WITH_EDITOR
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+	#endif
+
+	void LoadExampleWidgetClass();
+	bool ValidateConcreteWidget(FText& FailureReason);
+	void ReleaseSlateResources(bool bReleaseChildren) override;
+	
+protected: // Rebuild Widget Tree
+	TSharedRef<SWidget> RebuildWidget() override;
+	TSharedRef<SWidget> RebuildWidgetClassPropertyView();
+	TSharedRef<SWidget> RebuildComponentPropertyView();
+	TSharedRef<SWidget> RebuildHAlignmentPropertyView();
+	TSharedRef<SWidget> RebuildVAlignmentPropertyView();
+	TSharedRef<SWidget> RebuildDetailsWidget();
+
+private: // Dynamic Widget Tree
+	void BuildWidgetToValidate();
+	void BuildValidationStatusWidget();
+	void BuildInterfaceValidationControls(EModioUIComponentID ComponentType, TObjectPtr<UObject> ImplementingObject);
+	
+protected: // Cached UWidgets
+	UPROPERTY(Transient)
+	TObjectPtr<UWidget> WidgetToValidate;
+	UPROPERTY()
+	TObjectPtr<USinglePropertyView> WidgetClassPropertyView;
+	UPROPERTY()
+	TObjectPtr<USinglePropertyView> ComponentPropertyView;
+	UPROPERTY()
+	TObjectPtr<USinglePropertyView> VAlignmentPropertyView;
+	UPROPERTY()
+	TObjectPtr<USinglePropertyView> HAlignmentPropertyView;
+	UPROPERTY()
+	TObjectPtr<UDetailsView> DetailsView;
+	UPROPERTY(BlueprintReadOnly, Category = "mod.io|UI|ComponentValidator")
+	TObjectPtr<UWidget> CustomValidationControls;
+	
+private: // Cached Slate Resources
+	TSharedPtr<SWidget> RootSlateWidget;
+	TSharedPtr<class SListView<TSharedPtr<struct FModioUIComponentValidationStatusLine>>> CachedValidationStatusWidget;
+	TSharedPtr<SWidget> CachedWidgetToValidateSlate;
+	TSharedPtr<SWidget> CachedDetailsViewSlate;
+	
+	TSharedPtr<SBox> WidgetToValidateSlot;
+	TSharedPtr<SBox> ValidationStatusWidgetSlot;
+	TSharedPtr<SBox> InterfaceValidationControlsSlot;
 
 protected:
 	TArray<TSharedPtr<struct FModioUIComponentValidationStatusLine>> ValidationMessages;
@@ -31,65 +98,12 @@ protected:
 															 const TSharedRef<class STableViewBase>& OwningTable,
 															 TObjectPtr<UObject> ImplementingWidget);
 
-	bool bShowValidationStatusWidget = true;
+	
 	virtual void OnStatusWidgetDesiredVisibilityChanged(ECheckBoxState NewState);
 	virtual ECheckBoxState GetStatusWidgetDesiredVisibility() const;
 	virtual EVisibility GetStatusWidgetVisibility() const;
-
-	void OnComponentPropertyChanged(const FPropertyChangedEvent& Event);
-
+	
 	UPROPERTY(BlueprintReadOnly, Category = "mod.io|UI|ComponentValidator")
 	bool bValidationPassed = false;
-
-	bool ValidateConcreteWidget(FText& FailureReason);
-
-	UPROPERTY(BlueprintReadOnly, Category = "mod.io|UI|ComponentValidator")
-	TObjectPtr<UWidget> CustomValidationControls;
-
-	FName CustomControlsSlotName = FName("Custom Validation Controls");
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|ComponentValidator")
-	EModioUIComponentID ComponentToValidateAgainst;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|ComponentValidator")
-	TSubclassOf<UWidget> ConcreteComponentClassToValidate;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|ComponentValidator")
-	TEnumAsByte<EHorizontalAlignment> TargetWidgetHAlign = EHorizontalAlignment::HAlign_Center;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|ComponentValidator")
-	TEnumAsByte<EVerticalAlignment> TargetWidgetVAlign = EVerticalAlignment::VAlign_Center;
-
-	UPROPERTY(Transient)
-	TObjectPtr<UWidget> ConcreteManagedWidget;
-
-	TSharedPtr<SWidget> CachedConcreteSlateWidget;
-
-	TSharedPtr<SWidget> RootSlateWidget;
-
-	TSharedPtr<class SListView<TSharedPtr<struct FModioUIComponentValidationStatusLine>>> CachedValidationStatusWidget;
-
-	TSharedPtr<class IDetailsView> ComponentDetailsWidget;
-
-	TSharedRef<SWidget> RebuildWidget() override;
-
-	TSharedRef<SWidget> RebuildConcreteWidget();
-
-	TSharedRef<SWidget> RebuildValidationStatusWidget();
-
-	TSharedRef<SWidget> RebuildDetailsWidget();
-
-	TSharedRef<SWidget> RebuildInterfaceValidationControls(EModioUIComponentID ComponentType,
-														   TObjectPtr<UObject> ImplementingObject);
-	void SynchronizeProperties() override;
-
-	void ReleaseSlateResources(bool bReleaseChildren) override;
-
-public:
-	UWidget* GetWidgetBeingValidated() const;
-	void GetSlotNames(TArray<FName>& SlotNames) const override;
-
-	UWidget* GetContentForSlot(FName SlotName) const override;
-
-	void SetContentForSlot(FName SlotName, UWidget* Content) override;
+	bool bShowValidationStatusWidget = true;
 };
