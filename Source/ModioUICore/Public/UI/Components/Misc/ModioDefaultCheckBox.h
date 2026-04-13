@@ -100,7 +100,7 @@ protected:
 	/**
 	 * The class to use for the label widget
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MustImplement = "ModioUIHasTextWidget"),
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (MustImplement = "/Script/ModioUICore.ModioUIHasTextWidget"),
 			  Category = "mod.io|UI|Check Box", meta = (BlueprintProtected))
 	TSubclassOf<UWidget> LabelClass;
 

@@ -9,7 +9,6 @@
  */
 
 #pragma once
-#pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
@@ -65,7 +64,7 @@ struct MODIOUICORE_API FModioCommonButtonParams
 	 * @brief Style to apply to the button - only used if not a spacer, but a button
 	 */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "mod.io|UI|CommonButtonParams|Appearance",
-			  meta = (EditConditionHides, EditCondition = "!bIsSpacer", MetaClass = "CommonButtonStyle"))
+			  meta = (EditConditionHides, EditCondition = "!bIsSpacer", MetaClass = "/Script/CommonUI.CommonButtonStyle"))
 	FClassPathOverride Style;
 
 	/**

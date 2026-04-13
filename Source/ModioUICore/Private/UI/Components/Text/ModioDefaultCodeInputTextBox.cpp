@@ -71,7 +71,12 @@ TSharedRef<SWidget> SModioDefaultCodeInputTextBox::CreateCharacterWidget(int32 W
 
 FReply SModioDefaultCodeInputTextBox::OnKeyDownHandler(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
 {
+#if UE_VERSION_OLDER_THAN(5, 7, 0)
 	if (InKeyEvent.GetKey() == EKeys::Enter || InKeyEvent.GetKey() == EKeys::Virtual_Accept)
+#else
+	if (InKeyEvent.GetKey() == EKeys::Enter || InKeyEvent.GetKey() == EKeys::Virtual_Gamepad_Accept.GetVirtualKey())
+#endif
+	
 	{
 		OnCodeSubmit.ExecuteIfBound();
 	}
