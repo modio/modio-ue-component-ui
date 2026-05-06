@@ -33,7 +33,7 @@
 #include "Misc/EngineVersionComparison.h"
 
 #if UE_VERSION_NEWER_THAN(5, 5, 0)
-#include "StructUtils/InstancedStruct.h"
+	#include "StructUtils/InstancedStruct.h"
 #else
 #include "InstancedStruct.h"
 #endif

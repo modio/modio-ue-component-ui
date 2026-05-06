@@ -177,5 +177,5 @@ public:
 	 * @brief Transient set of bindable tag categories for use in the UI
 	 */
 	UPROPERTY(Transient, BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|ModioModTagOptionsUI")
-	TArray<UModioModTagInfoUI*> BindableTagCategories;
+	TArray<TObjectPtr<UModioModTagInfoUI>> BindableTagCategories;
 };

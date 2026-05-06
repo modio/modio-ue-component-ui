@@ -62,11 +62,6 @@
 		{
 			"Name": "OnlineSubsystem",
 			"Enabled": true
-		},
-		{
-			"Name": "StructUtils",
-			"Enabled": true,
-			"Optional": true
 		}
 	]
 }

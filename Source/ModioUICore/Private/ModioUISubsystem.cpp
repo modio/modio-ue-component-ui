@@ -36,6 +36,8 @@
 #include "Libraries/ModioPlatformHelpersLibrary.h"
 #include "Libraries/ModioSDKLibrary.h"
 
+#include "Algo/RemoveIf.h"
+
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUISubsystem)
 
 void UModioUISubsystem::GetPreloadDependencies(TArray<UObject*>& OutDeps)
@@ -875,6 +877,34 @@ void UModioUISubsystem::ListAllTokenPacksCompletedHandler(FModioErrorCode ErrorC
 	OnListAllTokenPacksRequestCompleted.Broadcast(ErrorCode, TokenPacks);
 }
 
+void UModioUISubsystem::ListUserFollowingCompletedHandler(FModioErrorCode ErrorCode,
+														  TOptional<FModioUserList> FollowingList)
+{
+	OnListUserFollowingRequestComplete.Broadcast(ErrorCode, FollowingList);
+	if (!ErrorCode && FollowingList.IsSet())
+	{
+		NativeRequestUserFollowingListChange(FollowingList.GetValue());
+	}
+}
+
+void UModioUISubsystem::FollowUserCompletedHandler(FModioErrorCode ErrorCode)
+{
+	OnFollowUserRequestCompleted.Broadcast(ErrorCode);
+	if (!ErrorCode)
+	{
+		FollowedUsers.Reset();
+	}
+}
+
+void UModioUISubsystem::UnfollowUserCompletedHandler(FModioErrorCode ErrorCode, FModioUserID UnfollowedUser)
+{
+	OnUnfollowUserRequestCompleted.Broadcast(ErrorCode);
+	if (!ErrorCode)
+	{
+		NativeRequestRemoveFollowedUser(UnfollowedUser);
+	}
+}
+
 void UModioUISubsystem::LogOut(FOnErrorOnlyDelegateFast DedicatedCallback)
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
@@ -989,6 +1019,54 @@ EModioRating UModioUISubsystem::NativeQueryModCollectionRating(int64 ModCollecti
 	}
 
 	return EModioRating::Neutral;
+}
+
+void UModioUISubsystem::NativeQueryUserFollowingList()
+{
+	if (FollowedUsers.IsSet())
+	{
+		OnListUserFollowingRequestComplete.Broadcast({}, FollowedUsers);
+	}
+	else
+	{
+		RequestListUserFollowing();
+	}
+}
+
+void UModioUISubsystem::NativeRequestUserFollowingListChange(FModioUserList NewFollowingList)
+{
+	FollowedUsers = NewFollowingList;
+}
+
+void UModioUISubsystem::NativeRequestAddFollowedUser(FModioUserID NewFollowedUser)
+{
+	if (FollowedUsers.IsSet())
+	{
+		if (!FollowedUsers->InternalList.FindByPredicate(
+				[NewFollowedUser](const FModioUser& User)
+			{return User.UserId == NewFollowedUser;}))
+		{
+			FollowedUsers.Reset();
+		}
+	}
+}
+
+void UModioUISubsystem::NativeRequestRemoveFollowedUser(FModioUserID UnfollowedUser)
+{
+	// Algo::RemoveIf takes all the elements which match the criteria
+	// then moves them to the end of the array, returning the index of the last-most 
+	// element that didn't meet the criteria
+	// so we `SetNum` to the result and we have effectivly trimmed all members that 
+	// match the given criteria. Does not preserve order, however
+	if (FollowedUsers.IsSet())
+	{
+		FollowedUsers->InternalList.SetNum(
+			Algo::RemoveIf(FollowedUsers->InternalList,
+						   [UnfollowedUser](const FModioUser& User)
+				{
+					return User.UserId == UnfollowedUser;
+				}));
+	}
 }
 
 EModioOpenStoreResult UModioUISubsystem::RequestShowTokenPurchaseUI()
@@ -1248,5 +1326,39 @@ bool UModioUISubsystem::NativeRequestModRatingChange(int64 ID, EModioRating NewR
 	return true;
 }
 
+void UModioUISubsystem::RequestListUserFollowing()
+{
+	if (FollowedUsers.IsSet())
+	{
+		ListUserFollowingCompletedHandler({}, FollowedUsers);
+	}
+	else if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->GetUserFollowersAsync(Subsystem->QueryUserProfile()->UserId,
+			FOnGetFollowsDelegateFast::CreateUObject(this, &UModioUISubsystem::ListUserFollowingCompletedHandler));
+	}
+}
+
+void UModioUISubsystem::RequestFollowUser(FModioUserID UserToFollow)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->FollowUserAsync(UserToFollow, FOnErrorOnlyDelegateFast::CreateLambda([this](FModioErrorCode ec)
+			{
+				FollowUserCompletedHandler(ec);
+			}));
+	}
+}
+
+void UModioUISubsystem::RequestUnfollowUser(FModioUserID UserToUnfollow)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->UnfollowUserAsync(UserToUnfollow,
+									 FOnErrorOnlyDelegateFast::CreateLambda([this, UserToUnfollow](FModioErrorCode ec) {
+										 UnfollowUserCompletedHandler(ec, UserToUnfollow);
+									 }));
+	}
+}
 
 #include "Loc/EndModioLocNamespace.h"

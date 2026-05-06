@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2024-2025 mod.io Pty Ltd. <https://mod.io>
+ *  Copyright (C) 2024-2026 mod.io Pty Ltd. <https://mod.io>
  *
  *  This file is part of the mod.io UE Plugin.
  *
@@ -24,13 +24,18 @@
 #include "Types/ModioOpenStoreResult.h"
 #include "Types/ModioTokenPack.h"
 #include "Types/ModioTokenPackList.h"
+#include "Types/ModioUser.h"
+#include "Types/ModioUserList.h"
 #include "UI/Interfaces/IModioModInfoUIDetails.h"
 #include "UI/Interfaces/IModioUIDialog.h"
 #include "UI/Interfaces/IModioUIModEnabledStateProvider.h"
 #include "UI/Interfaces/IModRatingStateProvider.h"
 #include "UI/Interfaces/IModCollectionRatingStateProvider.h"
+#include "UI/Interfaces/IUserFollowingListProvider.h"
 
 #include "ModioUISubsystem.generated.h"
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnErrorOnlyMulticastDelegate, FModioErrorCode);
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnSubscriptionCompleted, FModioErrorCode, FModioModID);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnModCollectionFollowCompleted, FModioErrorCode, FModioModCollectionID);
@@ -106,6 +111,8 @@ DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnTokenPackRequestCompleted, FModioToken
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnListAllTokenPacksRequestCompleted, FModioErrorCode,
                                      TOptional<FModioTokenPackList>);
 
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnListUserFollowingRequestCompleted, FModioErrorCode, TOptional<FModioUserList>);
+
 DECLARE_DELEGATE_TwoParams(FOnListAllTokenPacksDelegateFast, FModioErrorCode, TOptional<FModioTokenPackList>);
 DECLARE_DELEGATE_TwoParams(FOnGetTokenPackDelegateFast, FModioErrorCode, TOptional<FModioTokenPack>);
 
@@ -140,7 +147,8 @@ UCLASS()
 class MODIOUICORE_API UModioUISubsystem
 	: public UEngineSubsystem,
 	  public IModRatingStateProvider,
-	  public IModCollectionRatingStateProvider
+	  public IModCollectionRatingStateProvider,
+	  public IUserFollowingListProvider
 {
 	GENERATED_BODY()
 
@@ -165,6 +173,7 @@ protected:
 	friend class IModioUISubscriptionsChangedReceiver;
 	friend class IModioUIModCollectionInfoReceiver;
 	friend class IModioUICollectionFollowStateChangedReceiver;
+	friend class IModioUIUserFollowingInfoReceiver;
 
 	#if WITH_EDITOR
 	// These test widgets are friends so they can manually trigger subsystem delegates to emit mock events for in-editor
@@ -283,6 +292,15 @@ protected:
 
 	FOnListAllTokenPacksRequestCompleted OnListAllTokenPacksRequestCompleted;
 	void ListAllTokenPacksCompletedHandler(FModioErrorCode ErrorCode, TOptional<FModioTokenPackList> TokenPacks);
+
+	FOnListUserFollowingRequestCompleted OnListUserFollowingRequestComplete;
+	void ListUserFollowingCompletedHandler(FModioErrorCode ErrorCode, TOptional<FModioUserList> FollowingList);
+
+	FOnErrorOnlyMulticastDelegate OnFollowUserRequestCompleted;
+	void FollowUserCompletedHandler(FModioErrorCode ErrorCode);
+
+	FOnErrorOnlyMulticastDelegate OnUnfollowUserRequestCompleted;
+	void UnfollowUserCompletedHandler(FModioErrorCode ErrorCode, FModioUserID UnfollowedUser);
 
 	FOnModManagementEventUI OnModManagementEvent;
 
@@ -739,6 +757,11 @@ public:
 	virtual bool NativeRequestModCollectionRatingChange(int64 CollectionID, EModioRating NewRating) override;
 	virtual EModioRating NativeQueryModCollectionRating(int64 ModCollectionID) override;
 
+	virtual void NativeQueryUserFollowingList();
+	virtual void NativeRequestUserFollowingListChange(FModioUserList NewFollowingList);
+	virtual void NativeRequestAddFollowedUser(FModioUserID NewFollowedUser);
+	virtual void NativeRequestRemoveFollowedUser(FModioUserID UnfollowedUser);
+
 	/**
 	 * @docpublic
 	 * @brief Attempts to invoke the store for the current platform.
@@ -870,7 +893,32 @@ public:
 	void QueryIsUserFollowingModCollectionWithHandler(FModioModCollectionID ID,
 	                                                  FOnQueryFollowedModCollectionCompleted Handler);
 
+	/**
+	 * @docpublic
+	 * @brief Requests a list of all users the currently authenticated user follows.
+	 * Executes callbacks in implementations of IModioUIUserFollowingInfoReceiver.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
+	void RequestListUserFollowing();
+
+	/**
+	 * @docpublic
+	 * @brief Requests to follow the given user for the currently authenticated user.
+	 * Executes callbacks in implementations of IModioUIUserFollowingInfoReceiver.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
+	void RequestFollowUser(FModioUserID UserToFollow);
+
+	/**
+	 * @docpublic
+	 * @brief Requests to unfollow the given user for the currently authenticated user.
+	 * Executes callbacks in implementations of IModioUIUserFollowingInfoReceiver.
+	 */
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
+	void RequestUnfollowUser(FModioUserID UserToUnfollow);
+
 private:
 	TMap<int64, EModioRating> ModRatingMap;
 	TMap<int64, EModioRating> ModCollectionRatingMap;
+	TOptional<FModioUserList> FollowedUsers;
 };
