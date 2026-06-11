@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2024-2025 mod.io Pty Ltd. <https://mod.io>
+ *  Copyright (C) 2024-2026 mod.io Pty Ltd. <https://mod.io>
  *
  *  This file is part of the mod.io UE Plugin.
  *
@@ -24,9 +24,10 @@
 #include "Math/IntPoint.h"
 #include "ModioErrorCondition.h"
 #include "ModioSettings.h"
-#include "ModioSubsystem.h"
 #include "ModioUICore.h"
 #include "OnlineSubsystem.h"
+#include "IXRTrackingSystem.h"
+#include "IHeadMountedDisplay.h"
 
 #include "Interfaces/OnlineExternalUIInterface.h"
 #include "Interfaces/OnlineStoreInterfaceV2.h"
@@ -37,6 +38,7 @@
 #include "Libraries/ModioSDKLibrary.h"
 
 #include "Algo/RemoveIf.h"
+#include "Algo/Find.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUISubsystem)
 
@@ -124,6 +126,38 @@ bool UModioUISubsystem::QueryConnectivityState()
 	return bCurrentConnectivityState;
 }
 
+void UModioUISubsystem::NotifyInputModeChange(EModioUIInputMode NewInputModeState)
+{
+	if (CurrentInputModeState != NewInputModeState)
+	{
+		CurrentInputModeState = NewInputModeState;
+		OnInputModeChanged.Broadcast(CurrentInputModeState);
+	}
+}
+
+EModioUIInputMode UModioUISubsystem::QueryInputModeState()
+{
+	return CurrentInputModeState;
+}
+
+bool UModioUISubsystem::IsRunningInVR() 
+{
+	if (!GEngine->XRSystem.IsValid())
+	{
+		return false;
+	}
+
+	IHeadMountedDisplay* HMDDevice = GEngine->XRSystem->GetHMDDevice();
+	TSharedPtr<IStereoRendering, ESPMode::ThreadSafe> StereoDevice = GEngine->XRSystem->GetStereoRenderingDevice();
+
+	if (HMDDevice && StereoDevice.IsValid())
+	{
+		return HMDDevice->IsHMDEnabled() && StereoDevice->IsStereoEnabled();
+	}
+	
+	return false;
+}
+
 bool UModioUISubsystem::IsUGCFeatureEnabled(EModioUIFeatureFlags Feature)
 {
 	// Copy of the same function in UUGCSubsystem
@@ -148,6 +182,22 @@ bool UModioUISubsystem::IsUGCFeatureEnabled(EModioUIFeatureFlags Feature)
 	return false;
 }
 
+bool UModioUISubsystem::IsUserFollowingCreator(const FModioUserID CreatorId)
+{
+	if (!FollowedUsers.IsSet())
+	{
+		UE_LOG(ModioUICore, Error,
+			   TEXT("Cannot check if a user is followed until UModioUISubsystem::RequestListUserFollowing first to "
+					"populate the cache."));
+		return false;
+	}
+	FModioUser* FoundUser = Algo::FindByPredicate(FollowedUsers->InternalList, [&CreatorId](const FModioUser& InUser)
+		{
+			return InUser.UserId == CreatorId;
+		});
+	return FoundUser != nullptr;
+}
+
 void UModioUISubsystem::OnModEnabledChanged(int64 RawModID, bool bNewEnabledState)
 {
 	OnModEnabledStateChanged.Broadcast(FModioModID(RawModID), bNewEnabledState);
@@ -159,6 +209,10 @@ void UModioUISubsystem::ModCollectionFollowHandler(FModioErrorCode ErrorCode,
 	OnModCollectionFollowRequestComplete.Broadcast(ErrorCode, CollectionInfo.GetValue().Id);
 	if (!ErrorCode)
 	{
+		if (FollowedModCollections.IsSet())
+		{
+			FollowedModCollections->AddUnique(CollectionInfo.GetValue().Id);
+		}
 		OnModCollectionFollowStateChanged.Broadcast(CollectionInfo.GetValue().Id, true);
 	}
 	else
@@ -184,6 +238,10 @@ void UModioUISubsystem::ModCollectionUnfollowHandler(FModioErrorCode ErrorCode,
 {
 	if (!ErrorCode)
 	{
+		if (FollowedModCollections.IsSet())
+		{
+			FollowedModCollections->Remove(CollectionID);
+		}
 		OnModCollectionFollowStateChanged.Broadcast(CollectionID, false);
 	}
 	else
@@ -880,11 +938,11 @@ void UModioUISubsystem::ListAllTokenPacksCompletedHandler(FModioErrorCode ErrorC
 void UModioUISubsystem::ListUserFollowingCompletedHandler(FModioErrorCode ErrorCode,
 														  TOptional<FModioUserList> FollowingList)
 {
-	OnListUserFollowingRequestComplete.Broadcast(ErrorCode, FollowingList);
 	if (!ErrorCode && FollowingList.IsSet())
 	{
 		NativeRequestUserFollowingListChange(FollowingList.GetValue());
 	}
+	OnListUserFollowingRequestComplete.Broadcast(ErrorCode, FollowingList);
 }
 
 void UModioUISubsystem::FollowUserCompletedHandler(FModioErrorCode ErrorCode)
@@ -893,16 +951,17 @@ void UModioUISubsystem::FollowUserCompletedHandler(FModioErrorCode ErrorCode)
 	if (!ErrorCode)
 	{
 		FollowedUsers.Reset();
+		RequestListUserFollowing();
 	}
 }
 
 void UModioUISubsystem::UnfollowUserCompletedHandler(FModioErrorCode ErrorCode, FModioUserID UnfollowedUser)
 {
-	OnUnfollowUserRequestCompleted.Broadcast(ErrorCode);
 	if (!ErrorCode)
 	{
 		NativeRequestRemoveFollowedUser(UnfollowedUser);
 	}
+	OnUnfollowUserRequestCompleted.Broadcast(ErrorCode);
 }
 
 void UModioUISubsystem::LogOut(FOnErrorOnlyDelegateFast DedicatedCallback)
@@ -1152,9 +1211,42 @@ EModioOpenStoreResult UModioUISubsystem::RequestShowTokenPurchaseUIWithHandler(
 
 void UModioUISubsystem::RequestRefreshEntitlements()
 {
-	#if !WITH_EDITOR // Only do this in a build: editor context does not have Online Subsystems
-	OnEntitlementRefreshEvent.Broadcast();
-	#endif
+	UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>();
+	if (!Subsystem)
+	{
+		return;
+	}
+
+	FEntitlementParamsRequestedDelegate EntitlementParamsDelegate;
+	EntitlementParamsDelegate.BindDynamic(this, &UModioUISubsystem::OnEntitlementParamsReceived);
+
+	IModioPortalInterface::Execute_RequestEntitlementParams(Subsystem->GetPortalInterfaceObject(), {},
+															EntitlementParamsDelegate);
+}
+
+void UModioUISubsystem::OnEntitlementParamsReceived(const FModioEntitlementParams& EntitlementParams)
+{
+	UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>();
+	if (!Subsystem)
+	{
+		return;
+	}
+
+	Subsystem->RefreshUserEntitlementsAsync(
+		EntitlementParams,
+		FOnRefreshUserEntitlementsDelegateFast::CreateLambda(
+			[this](FModioErrorCode ErrorCode, TOptional<FModioEntitlementConsumptionStatusList> OptionalStatusList) {
+				if (!ErrorCode)
+				{
+					RequestWalletBalanceRefresh();
+					UE_LOG(ModioUICore, Log, TEXT("Successfully refreshed user entitlements"));
+				}
+				else
+				{
+					UE_LOG(ModioUICore, Error, TEXT("Failed to refresh user entitlements: \"%s\""),
+						   *ErrorCode.GetErrorMessage());
+				}
+			}));
 }
 
 void UModioUISubsystem::RequestFollowModCollection(FModioModCollectionID ID)
@@ -1258,52 +1350,100 @@ void UModioUISubsystem::RequestUnsubscribeFromModCollectionWithHandler(FModioMod
 	}
 }
 
-void UModioUISubsystem::QueryIsUserFollowingModCollection(FModioModCollectionID ID)
+void UModioUISubsystem::RequestListUserFollowingModCollections()
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
 		Subsystem->ListUserFollowedModCollectionsAsync(
 			{}, FOnListFollowedModCollectionsDelegateFast::CreateLambda(
-				[ID](FModioErrorCode ec, TOptional<FModioModCollectionInfoList> FollowedCollections) {
-					if (ec)
-					{
-						UE_LOG(ModioUICore, Error, TEXT("Failed to query user following collection state: \"%s\""),
-						       *ec.GetErrorMessage());
-					}
-				}));
+					[this](FModioErrorCode ec, TOptional<FModioModCollectionInfoList> FollowedCollections) {
+						if (ec)
+						{
+							UE_LOG(ModioUICore, Error, TEXT("Failed to query mod following collection state: \"%s\""),
+								   *ec.GetErrorMessage());
+						}
+						else
+						{
+							TArray<FModioModCollectionID> PreviouslyFollowedCollections;
+							if (FollowedModCollections.IsSet())
+							{
+								PreviouslyFollowedCollections = MoveTemp(FollowedModCollections.GetValue());
+							}
+							FollowedModCollections = TArray<FModioModCollectionID>();
+
+							bool bFoundCollection = false;
+							for (const FModioModCollectionInfo& Info : FollowedCollections.GetValue().GetRawList())
+							{
+								FollowedModCollections->Add(Info.Id);
+								if (!PreviouslyFollowedCollections.Contains(Info.Id))
+								{
+									// Went from not following to following, broadcast the change
+									OnModCollectionFollowStateChanged.Broadcast(Info.Id, true);
+								}
+							}
+
+							for (const FModioModCollectionID& CollectionID : PreviouslyFollowedCollections)
+							{
+								if (!FollowedModCollections->Contains(CollectionID))
+								{
+									// Went from following to not following, broadcast the change
+									OnModCollectionFollowStateChanged.Broadcast(CollectionID, false);
+								}
+							}
+						}
+					}));
 	}
 }
 
 void UModioUISubsystem::QueryIsUserFollowingModCollectionWithHandler(FModioModCollectionID ID,
                                                                      FOnQueryFollowedModCollectionCompleted Handler)
 {
-	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	if (FollowedModCollections.IsSet())
+	{
+		bool bFoundCollection = false;
+		for (const FModioModCollectionID& CollectionID : FollowedModCollections.GetValue())
+		{
+			if (CollectionID == ID)
+			{
+				bFoundCollection = true;
+				break;
+			}
+		}
+		Handler.ExecuteIfBound({}, bFoundCollection);
+	}
+	else if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
 		Subsystem->ListUserFollowedModCollectionsAsync({},
 		                                               FOnListFollowedModCollectionsDelegateFast::CreateLambda(
-			                                               [ID, Handler](
+			                                               [this, ID, Handler](
 			                                               FModioErrorCode ec,
 			                                               TOptional<FModioModCollectionInfoList> FollowedCollections) {
 				                                               if (ec)
 				                                               {
-					                                               Handler.Execute(ec, false);
+					                                               Handler.ExecuteIfBound(ec, false);
 				                                               }
 				                                               else
 				                                               {
 					                                               if (!FollowedCollections.IsSet())
 					                                               {
-						                                               Handler.Execute(ec, false);
-					                                               }
+																	   Handler.ExecuteIfBound(ec, false);
+																	   return;
+																   }
 
-					                                               // can probably do this better
-					                                               bool bFoundCollection = false;
-					                                               for (const FModioModCollectionInfo& Info :
-					                                                    FollowedCollections.GetValue().GetRawList())
-					                                               {
+																   FollowedModCollections =
+																	   TArray<FModioModCollectionID>();
+
+																   // can probably do this better
+																   bool bFoundCollection = false;
+																   for (const FModioModCollectionInfo& Info :
+																		FollowedCollections.GetValue().GetRawList())
+																   {
+																	   FollowedModCollections->Add(Info.Id);
+																	   OnModCollectionFollowStateChanged.Broadcast(
+																		   Info.Id, true);
 						                                               if (Info.Id == ID)
 						                                               {
 							                                               bFoundCollection = true;
-							                                               break;
 						                                               }
 					                                               }
 					                                               Handler.ExecuteIfBound(ec, bFoundCollection);
@@ -1334,7 +1474,7 @@ void UModioUISubsystem::RequestListUserFollowing()
 	}
 	else if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
-		Subsystem->GetUserFollowersAsync(Subsystem->QueryUserProfile()->UserId,
+		Subsystem->GetUserFollowingAsync(Subsystem->QueryUserProfile()->UserId,
 			FOnGetFollowsDelegateFast::CreateUObject(this, &UModioUISubsystem::ListUserFollowingCompletedHandler));
 	}
 }

@@ -22,6 +22,7 @@
 #include "Loc/ModioEnumLocalizationHelpers.h"
 #include "UI/Interfaces/IModioModCollectionInfoUIDetails.h"
 #include "UI/Interfaces/IModioModDependencyUIDetails.h"
+#include "Engine/AssetManager.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUICommonFunctionLibrary)
 
@@ -315,6 +316,31 @@ TArray<UModioModDependencyUI*> UModioUICommonFunctionLibrary::CreateBindableModD
 	TArray<UModioModDependencyUI*> OutBoundModDependencies;
 	Algo::Transform(InModDependencyList.InternalList, OutBoundModDependencies, &CreateBindableModDependency);
 	return OutBoundModDependencies;
+}
+
+void UModioUICommonFunctionLibrary::AsyncLoadClassArray(const TArray<TSoftClassPtr<UObject>>& SoftClassPtrs,
+														const FModioAsyncLoadClassesComplete& OnComplete)
+{
+	TArray<FSoftObjectPath> AssetsToLoad;
+	for (const TSoftClassPtr<UObject>& CurrentSoftClass : SoftClassPtrs)
+	{
+		AssetsToLoad.Add(CurrentSoftClass.ToSoftObjectPath());
+	}
+
+	FStreamableDelegate Delegate = FStreamableDelegate::CreateLambda([AssetsToLoad, OnComplete]() {
+		TArray<UClass*> LoadedClasses;
+		for (const FSoftObjectPath& CurrentAsset : AssetsToLoad)
+		{
+			if (UClass* LoadedClass = Cast<UClass>(CurrentAsset.ResolveObject()))
+			{
+				LoadedClasses.Add(LoadedClass);
+			}
+		}
+		OnComplete.ExecuteIfBound(LoadedClasses);
+	});
+
+	FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
+	StreamableManager.RequestAsyncLoad(AssetsToLoad, MoveTemp(Delegate));
 }
 
 FText UModioUICommonFunctionLibrary::GetModioText(FName StringKey)

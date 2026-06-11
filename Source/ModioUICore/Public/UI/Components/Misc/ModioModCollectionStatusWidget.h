@@ -70,10 +70,6 @@ protected:
 	virtual void NativePreConstruct() override;
 	//~ End UUserWidget Interface
 
-	//~ Begin IModioUIDataSourceWidget Interface
-	virtual void NativeSetDataSource(UObject* InDataSource) override;
-	//~ End IModioUIDataSourceWidget Interface
-
 	//~ Begin IModioUISubscriptionsChangedReceiver Interface
 	virtual void NativeOnSubscriptionsChanged(FModioModID ModID, bool bNewSubscriptionState) override;
 	//~ End IModioUISubscriptionsChangedReceiver Interface

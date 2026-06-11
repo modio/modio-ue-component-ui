@@ -42,6 +42,12 @@ void UModioDefaultModTile::NotifyHoverStateChanged(bool bNewHoveredState)
 
 bool UModioDefaultModTile::GetSelectedStateEx()
 {
+#if WITH_EDITOR
+	if (IsDesignTime())
+	{
+		return false;
+	}
+#endif
 	if (!IUserObjectListEntry::GetListItem())
 	{
 		return false;

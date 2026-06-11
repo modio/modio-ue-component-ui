@@ -11,6 +11,9 @@
 #pragma once
 #include "Widgets/SCompoundWidget.h"
 
+class SEditableTextBox;
+class STextBlock;
+
 class SModioUIHasTextTestWidget : public SCompoundWidget
 {
 	SLATE_BEGIN_ARGS(SModioUIHasTextTestWidget) : _TargetObject(nullptr) {}

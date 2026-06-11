@@ -12,6 +12,8 @@
 #include "Widgets/SCompoundWidget.h"
 #include "UI/Interfaces/IModioUIHasTooltipWidget.h"
 
+class SEditableTextBox;
+
 class SModioUIHasTooltipTestWidget : public SCompoundWidget
 {
 	SLATE_BEGIN_ARGS(SModioUIHasTooltipTestWidget) : _TargetObject(nullptr) {}

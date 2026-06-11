@@ -10,6 +10,10 @@
 
 #include "UI/Editor/ComponentTestWidgets/SModioUIStringInputTestWidget.h"
 #include "UI/Interfaces/IModioUIStringInputWidget.h"
+#include "Widgets/Input/SEditableTextBox.h"
+#include "Widgets/Text/STextBlock.h"
+#include "Widgets/Input/SButton.h"
+#include "Widgets/SBoxPanel.h"
 
 void SModioUIStringInputTestWidget::SetInputOnTarget()
 {

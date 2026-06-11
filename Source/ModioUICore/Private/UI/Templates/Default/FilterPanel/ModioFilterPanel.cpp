@@ -58,6 +58,14 @@ TArray<FString> UModioFilterPanel::GetSelectedTags_Implementation()
 	return {};
 }
 
+void UModioFilterPanel::SetTagSelectedState_Implementation(const TArray<FString>& InTags, bool bSelectedState)
+{
+	if (ModioUI::GetInterfaceWidgetChecked(GetTagSelectorWidget()))
+	{
+		IModioUIModTagSelector::Execute_SetTagSelectedState(GetTagSelectorWidget().GetObject(), InTags, bSelectedState);
+	}
+}
+
 void UModioFilterPanel::ClearSelectedTags_Implementation()
 {
 	if (ModioUI::GetInterfaceWidgetChecked(GetTagSelectorWidget()))

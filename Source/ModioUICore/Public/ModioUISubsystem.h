@@ -116,8 +116,6 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnListUserFollowingRequestCompleted, FModi
 DECLARE_DELEGATE_TwoParams(FOnListAllTokenPacksDelegateFast, FModioErrorCode, TOptional<FModioTokenPackList>);
 DECLARE_DELEGATE_TwoParams(FOnGetTokenPackDelegateFast, FModioErrorCode, TOptional<FModioTokenPack>);
 
-DECLARE_MULTICAST_DELEGATE(FOnEntitlementRefreshRequest);
-
 DECLARE_DYNAMIC_DELEGATE_RetVal_OneParam(bool, FOnPreUninstallDelegate, FModioModID, ModID);
 
 
@@ -130,6 +128,16 @@ enum class EModioUIFeatureFlags : uint8
 	ModCollections
 };
 
+UENUM(BlueprintType)
+enum class EModioUIInputMode : uint8
+{
+	None,
+	Mouse,
+	Touch,
+	Navigation
+};
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnInputModeChanged, EModioUIInputMode);
 
 /**
  * Default do-nothing implementation of IModioUIModEnabledStateProvider.
@@ -158,7 +166,6 @@ protected:
 	friend class IModioUIMediaDownloadCompletedReceiver;
 	friend class IModioUIModInfoReceiver;
 	friend class IModioUIModManagementEventReceiver;
-	friend class IModioUIInputDeviceChangedReceiver;
 	friend class IModioUIUserChangedReceiver;
 	friend class IModioUIUserAvatarDownloadCompletedReceiver;
 	friend class IModioUIAuthenticationChangedReceiver;
@@ -167,6 +174,7 @@ protected:
 	friend class IModioUIModEnabledStateChangedReceiver;
 	friend class IModioUIDialogDisplayEventReceiver;
 	friend class IModioUIConnectivityChangedReceiver;
+	friend class IModioUIInputModeChangedReceiver;
 	friend class IModioUIWalletBalanceUpdatedEventReceiver;
 	friend class IModioUITokenPackReceiver;
 	friend class IModioUIEntitlementRefreshEventReceiver;
@@ -186,7 +194,6 @@ protected:
 	FOnModEnabledChanged OnModEnabledStateChanged;
 
 	FOnDisplayDialogRequest OnDialogDisplayEvent;
-	FOnEntitlementRefreshRequest OnEntitlementRefreshEvent;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UObject> ModEnabledStateDataProvider;
@@ -255,6 +262,9 @@ protected:
 	FOnConnectivityChanged OnConnectivityChanged;
 	// The implementation currently assumes connectivity unless informed otherwise
 	bool bCurrentConnectivityState = true;
+
+	FOnInputModeChanged OnInputModeChanged;
+	EModioUIInputMode CurrentInputModeState = EModioUIInputMode::None;
 
 	FOnAuthenticatedUserChanged OnUserChanged;
 	FOnAuthenticationChangeStarted OnAuthenticationChangeStarted;
@@ -725,7 +735,7 @@ public:
 
 	/**
 	 * @docpublic
-	 * @brief Updates the current Connectivity state, and notifies implementations of IMOdioUIConnectivityChangedReceiver *only* if the state changes.
+	 * @brief Updates the current Connectivity state, and notifies implementations of IModioUIConnectivityChangedReceiver *only* if the state changes.
 	 * 
 	 * @param bNewConnectivityState - the new Connectivity state
 	 */
@@ -743,6 +753,33 @@ public:
 
 	/**
 	 * @docpublic
+	 * @brief Updates the current MouseInputMode state, and notifies implementations of IModioUIInputModeChangedReceiver *only* if the state changes.
+	 * 
+	 * @param NewMouseInputModeState - the new MouseInputMode state
+	 */
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
+	void NotifyInputModeChange(EModioUIInputMode NewInputModeState);
+
+	/**
+	 * @docpublic
+	 * @brief Gets the current MouseInputMode State
+	 * 
+	 * @return The current MouseInputMode State.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "mod.io|UI|ModioUISubsystem")
+	EModioUIInputMode QueryInputModeState();
+
+	/**
+	 * @docpublic
+	 * @brief Gets the current running in VR state
+	 *
+	 * @return True if HMD is connected and stereo rendering is enabled
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "mod.io|UI|ModioUISubsystem")
+	bool IsRunningInVR();
+
+	/**
+	 * @docpublic
 	 * @brief Indicates whether a UGC subsystem feature is enabled
 	 *
 	 * @param Feature The feature to query
@@ -750,6 +787,9 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "mod.io|UI|ModioUISubsystem")
 	bool IsUGCFeatureEnabled(EModioUIFeatureFlags Feature);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "mod.io|UI|ModioUISubsystem")
+	bool IsUserFollowingCreator(const FModioUserID CreatorId);
 
 	virtual bool NativeRequestModRatingChange(int64 ID, EModioRating NewRating) override;
 	virtual EModioRating NativeQueryModRating(int64 ModID) override;
@@ -789,6 +829,9 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
 	void RequestRefreshEntitlements();
+
+	UFUNCTION()
+	void OnEntitlementParamsReceived(const FModioEntitlementParams& EntitlementParams);
 
 	/**
 	 * @docpublic
@@ -876,11 +919,11 @@ public:
 
 	/**
 	 * @docpublic
-	 * @brief Checks if the current user is following to the given ModCollectionId, returning the result in a delegate
-	 *
-	 * @param ID - The ModCollectionId of the Mod Collection to check is followed.
+	 * @brief Requests a list of all followed mod collections
+	 * Executes callbacks in implementations of IModioUICollectionFollowStateChangedReceiver
 	 */
-	void QueryIsUserFollowingModCollection(FModioModCollectionID ID);
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|ModioUISubsystem")
+	void RequestListUserFollowingModCollections();
 
 	/**
 	 * @docpublic
@@ -921,4 +964,5 @@ private:
 	TMap<int64, EModioRating> ModRatingMap;
 	TMap<int64, EModioRating> ModCollectionRatingMap;
 	TOptional<FModioUserList> FollowedUsers;
+	TOptional<TArray<FModioModCollectionID>> FollowedModCollections;
 };

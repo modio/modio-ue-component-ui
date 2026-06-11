@@ -24,6 +24,7 @@
 	#include "Widgets/Text/STextBlock.h"
 	#include "Widgets/Views/SListView.h"
 	#include "Widgets/Views/STableRow.h"
+	#include "Framework/Application/SlateApplication.h"
 	#include "Framework/Notifications/NotificationManager.h"
 	#include "Widgets/Notifications/SNotificationList.h"
 

@@ -10,6 +10,9 @@
 
 #include "UI/Editor/ComponentTestWidgets/SModioUIHasTooltipTestWidget.h"
 #include "UI/Editor/SModioToggleButton.h"
+#include "Widgets/Input/SEditableTextBox.h"
+#include "Widgets/Input/SButton.h"
+#include "Widgets/SBoxPanel.h"
 
 void SModioUIHasTooltipTestWidget::Construct(const FArguments& InArgs)
 	{

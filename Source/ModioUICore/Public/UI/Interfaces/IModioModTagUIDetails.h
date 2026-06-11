@@ -185,6 +185,14 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Data Binding|Mod Tag Category")
 	TArray<FString> GetSelectedTags();
+	
+	/**
+	 * @brief Sets the selection state for a given array of tags.
+	 * @param InTags The array of tags to set the selection state for
+	 * @param bSelectedState The new selection state for the provided tags
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Data Binding|Mod Tag Category")
+	void SetTagSelectedState(const TArray<FString>& InTags, bool bSelectedState);
 };
 
 /**
@@ -243,6 +251,27 @@ protected:
 		}
 	}
 
+	virtual void SetTagSelectedState_Implementation(const TArray<FString>& InTags, bool bSelectedState)
+	{
+		for (TScriptInterface<UModioModTagCategoryUIDetails>& CurrentCategory :
+			 Execute_GetCategories(Cast<UObject>(this)))
+		{
+			if (CurrentCategory.GetObject() && CurrentCategory.GetObject()->GetClass()->ImplementsInterface(
+												   UModioModTagCategoryUIDetails::StaticClass()))
+			{
+				for (const TScriptInterface<UModioModTagUIDetails>& CurrentTag :
+					 IModioModTagCategoryUIDetails::Execute_GetCategoryTags(CurrentCategory.GetObject()))
+				{
+					FString CurrentTagValue = IModioModTagUIDetails::Execute_GetRawStringValue(CurrentTag.GetObject());
+					if (InTags.Contains(CurrentTagValue))
+					{
+						IModioModTagUIDetails::Execute_SetSelectionState(CurrentTag.GetObject(), bSelectedState);
+					}
+				}
+			}
+		}
+	}
+
 public:
 	/**
 	 * @brief Retrieves an array of objects representing the tag categories this game has configured
@@ -255,6 +284,14 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Data Binding|Mod Tag Options")
 	TArray<FString> GetSelectedTags();
+
+	/**
+	 * @brief Sets the selection state for a given array of tags.
+	 * @param InTags The array of tags to set the selection state for
+	 * @param bSelectedState The new selection state for the provided tags
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Data Binding|Mod Tag Options")
+	void SetTagSelectedState(const TArray<FString>& InTags, bool bSelectedState);
 
 	/**
 	 * @brief Clears all selected tags across all categories

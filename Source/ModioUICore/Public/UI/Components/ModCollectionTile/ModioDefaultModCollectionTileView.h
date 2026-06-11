@@ -1,5 +1,5 @@
 ﻿/*
-*  Copyright (C) 2025 mod.io Pty Ltd. <https://mod.io>
+*  Copyright (C) 2025-2026 mod.io Pty Ltd. <https://mod.io>
  *
  *  This file is part of the mod.io UE Plugin.
  *
@@ -26,12 +26,12 @@
  * existing TileView implementation.
  */
 UCLASS(meta = (ModioWidget))
-class MODIOUICORE_API UModioDefaultModCollectionTileView
-	: public UTileView,
-	  public IModioUIModCollectionListViewInterface,
-	  public IModioUIObjectListWidget,
-	  public IModioUIObjectSelector,
-	  public IModioScrollableWidget
+class MODIOUICORE_API UModioDefaultModCollectionTileView : public UTileView,
+														   public IModioUIModCollectionListViewInterface,
+														   public IModioUIObjectListWidget,
+														   public IModioUIObjectSelector,
+														   public IModioScrollableWidget,
+														   public FTickableGameObject
 {
 	GENERATED_BODY()
 
@@ -41,6 +41,15 @@ protected:
 	virtual void ValidateCompiledDefaults(IWidgetCompilerLog& CompileLog) const override;
 	#endif
 	//~ End UWidget Interface
+
+	//~ Begin FTickableGameObject
+	virtual void Tick(float DeltaTime) override;
+	virtual TStatId GetStatId() const override
+	{
+		RETURN_QUICK_DECLARE_CYCLE_STAT(UModioDefaultModCollectionTileView, STATGROUP_Tickables);
+	}
+	virtual bool IsTickable() const override;
+	//~ End FTickableGameObject
 
 	//~ Begin IModioUIModCollectionListViewInterface Interface
 	virtual void NativeSetListItems(const TArray<UObject*>& InListItems, bool bAddToExisting) override;
@@ -94,6 +103,16 @@ protected:
 	//~ End ITypedUMGListView Interface
 
 	void NotifySelectionChanged(UObject* SelectedItem);
+	
+	void TickFocus();
+	void OnUserFocusChanged(bool bNewFocus);
+	bool bHadAnyUserFocus = false;
+	
+	// If we should select the first visible tile when we gain focus
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "mod.io|UI|Mod Collections View", meta = (BlueprintProtected))
+	bool bSelectFirstTileWhenFocused = false;
+
+	UWidget* GetPreferredFocusWidget() const;
 
 	/**
 	 * @brief Passes the bound value for which selection state has changed as `SelectedValue`

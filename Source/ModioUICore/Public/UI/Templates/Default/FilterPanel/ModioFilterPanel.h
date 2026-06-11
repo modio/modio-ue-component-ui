@@ -55,6 +55,7 @@ protected:
 
 	virtual void NativeOnInitialized() override;
 	void SetModTagOptions(FModioErrorCode ErrorCode, TOptional<FModioModTagOptions> ModTagOptions);
+	virtual void SetTagSelectedState_Implementation(const TArray<FString>& InTags, bool bSelectedState) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Filter Panel", meta = (BlueprintProtected))
 	TArray<FString> GetSelectedTags();

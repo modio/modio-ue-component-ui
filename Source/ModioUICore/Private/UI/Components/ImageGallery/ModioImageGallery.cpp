@@ -106,7 +106,7 @@ void UModioImageGallery::NativeOnModGalleryImageDownloadCompleted(FModioModID Mo
 	}
 	if (ErrorCode || !Image.IsSet())
 	{
-		UE_LOG(LogTemp, Error, TEXT("Get bad response requesting image: %s"), *ErrorCode.GetErrorMessage());
+		UE_LOG(ModioUICore, Error, TEXT("Get bad response requesting image: %s"), *ErrorCode.GetErrorMessage());
 		return;
 	}
 	if (ModioUI::GetInterfaceWidgetChecked(GetImageWidget()))
@@ -126,7 +126,7 @@ void UModioImageGallery::NativeOnModLogoDownloadCompleted(FModioModID ModID, FMo
 	}
 	if (ErrorCode || !Image.IsSet())
 	{
-		UE_LOG(LogTemp, Error, TEXT("Get bad response requesting image: %s"), *ErrorCode.GetErrorMessage());
+		UE_LOG(ModioUICore, Error, TEXT("Get bad response requesting image: %s"), *ErrorCode.GetErrorMessage());
 		return;
 	}
 	if (ModioUI::GetInterfaceWidgetChecked(GetImageWidget()))

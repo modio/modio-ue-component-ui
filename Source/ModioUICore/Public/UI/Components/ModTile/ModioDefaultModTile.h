@@ -10,12 +10,12 @@
 
 #pragma once
 
-#include "Blueprint/IUserObjectListEntry.h"
 #include "CoreMinimal.h"
 #include "UI/Components/ModioUIComponentBase.h"
 #include "UI/Interfaces/IModioUIClickableWidget.h"
 #include "UI/Interfaces/IModioUIHoverableWidget.h"
 #include "UI/Interfaces/IModioUISelectableWidget.h"
+#include "Blueprint/IUserObjectListEntry.h"
 
 #include "ModioDefaultModTile.generated.h"
 

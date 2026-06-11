@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (C) 2025 mod.io Pty Ltd. <https://mod.io>
+ * Copyright (C) 2025-2026 mod.io Pty Ltd. <https://mod.io>
  *
  *  This file is part of the mod.io UE Plugin.
  *
@@ -12,9 +12,10 @@
 #include "UI/Components/Slate/SModioDataSourceAwareTableRow.h"
 
 #if WITH_EDITOR
-#include "Editor/WidgetCompilerLog.h"
+	#include "Editor/WidgetCompilerLog.h"
 #endif
 
+#include "UI/Interfaces/IModioFocusableWidget.h"
 #include "UI/Interfaces/IModioModCollectionInfoUIDetails.h"
 #include "UI/Interfaces/IModioUISelectableWidget.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultModCollectionTileView)
@@ -301,4 +302,90 @@ void UModioDefaultModCollectionTileView::NotifySelectionChanged(UObject* Selecte
 	{
 		OnSelectedValueChanged.Broadcast(SelectedItem);
 	}
+}
+
+void UModioDefaultModCollectionTileView::Tick(float DeltaTime)
+{
+	TickFocus();
+}
+
+bool UModioDefaultModCollectionTileView::IsTickable() const
+{
+	// Check if we're being destroyed first
+	if (HasAnyFlags(RF_BeginDestroyed | RF_FinishDestroyed))
+	{
+		return false;
+	}
+
+	// Check if the outer is valid and not being destroyed
+	UObject* Outer = GetOuter();
+	if (!Outer || Outer->HasAnyFlags(RF_BeginDestroyed | RF_FinishDestroyed))
+	{
+		return false;
+	}
+
+	// Now safe to call GetWorld()
+	UWorld* World = GetWorld();
+	return World != nullptr && !World->HasAnyFlags(RF_BeginDestroyed | RF_FinishDestroyed);
+}
+
+void UModioDefaultModCollectionTileView::TickFocus()
+{
+	APlayerController* PlayerController = GetOwningPlayer();
+	const bool bHasAnyUserFocus = HasUserFocus(PlayerController) || HasUserFocusedDescendants(PlayerController);
+	if (bHasAnyUserFocus != bHadAnyUserFocus)
+	{
+		bHadAnyUserFocus = bHasAnyUserFocus;
+		OnUserFocusChanged(bHasAnyUserFocus);
+	}
+}
+
+void UModioDefaultModCollectionTileView::OnUserFocusChanged(bool bNewFocus)
+{
+	if (!bNewFocus)
+	{
+		// If we have a selected item then unselect it
+		UObject* SelectedItem = GetSelectedItem();
+		if (SelectedItem)
+		{
+			IModioUIObjectSelector::Execute_SetSelectedStateForValue(this, SelectedItem, false, false);
+		}
+		return;
+	}
+
+	if (!bSelectFirstTileWhenFocused)
+	{
+		return;
+	}
+
+	UWidget* FocusWidget = GetPreferredFocusWidget();
+	if (!FocusWidget)
+	{
+		bHadAnyUserFocus = false; // Cant focus
+		return;
+	}
+
+	IModioUIObjectSelector::Execute_SetSelectedStateForValue(
+		this, IModioUIDataSourceWidget::Execute_GetDataSource(FocusWidget), true, false);
+
+	UWidget* WidgetToFocus = IModioFocusableWidget::Execute_GetWidgetToFocus(FocusWidget, EUINavigation::Next);
+	if (WidgetToFocus)
+	{
+		FocusWidget = WidgetToFocus;
+	}
+	FocusWidget->SetUserFocus(GetOwningPlayer());
+}
+
+UWidget* UModioDefaultModCollectionTileView::GetPreferredFocusWidget() const
+{
+	// Get the first visible widget
+	for (auto& Item : GetListItems())
+	{
+		if (UUserWidget* EntryWidget = GetEntryWidgetFromItem(Item))
+		{
+			return EntryWidget;
+		}
+	}
+
+	return nullptr;
 }

@@ -32,40 +32,6 @@ void UModioModCollectionStatusWidget::NativePreConstruct()
 	IModioUICollectionFollowStateChangedReceiver::Register<UModioModCollectionStatusWidget>();
 }
 
-void UModioModCollectionStatusWidget::NativeSetDataSource(UObject* InDataSource)
-{
-	Super::NativeSetDataSource(InDataSource);
-	if (DataSource)
-	{
-		if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
-		{
-			Subsystem->ListUserFollowedModCollectionsAsync(
-				{}, FOnListFollowedModCollectionsDelegateFast::CreateLambda(
-						[this](FModioErrorCode ec, TOptional<FModioModCollectionInfoList> FollowedCollections) {
-							if (ec)
-							{
-								UE_LOG(ModioUICore, Error, TEXT("Failed to Check followed collections: %s"), *ec.GetErrorMessage());
-							}
-							else
-							{
-								// This is a temporary solution until we include a syncronous method of querying follow state
-								bool bFoundCollection = false;
-								FModioModCollectionID ID = GetModCollectionInfo().Id;
-								for (const FModioModCollectionInfo& Info : FollowedCollections.GetValue().GetRawList())
-								{
-									if (Info.Id == ID)
-									{
-										bFoundCollection = true;
-										break;
-									}
-								}
-								SetModCollectionFollowState(bFoundCollection ? EModioModCollectionState::Followed : EModioModCollectionState::NotFollowed);
-							}
-						}));
-		}
-	}
-}
-
 void UModioModCollectionStatusWidget::NativeOnSubscriptionsChanged(FModioModID ModID, bool bNewSubscriptionState)
 {
 	IModioUISubscriptionsChangedReceiver::NativeOnSubscriptionsChanged(ModID, bNewSubscriptionState);

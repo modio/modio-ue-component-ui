@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2024 mod.io Pty Ltd. <https://mod.io>
+ *  Copyright (C) 2024-2026 mod.io Pty Ltd. <https://mod.io>
  *
  *  This file is part of the mod.io UE Plugin.
  *
@@ -11,13 +11,13 @@
 #pragma once
 
 #include "Components/TileView.h"
-#include "CoreMinimal.h"
 #include "Core/ModioStackedBool.h"
+#include "CoreMinimal.h"
 #include "UI/Components/ComponentHelpers.h"
+#include "UI/Interfaces/IModioScrollableWidget.h"
 #include "UI/Interfaces/IModioUIModListViewInterface.h"
 #include "UI/Interfaces/IModioUIObjectListWidget.h"
 #include "UI/Interfaces/IModioUIObjectSelector.h"
-#include "UI/Interfaces/IModioScrollableWidget.h"
 
 #include "ModioDefaultModTileView.generated.h"
 
@@ -28,10 +28,11 @@
  */
 UCLASS(meta = (ModioWidget))
 class MODIOUICORE_API UModioDefaultModTileView : public UTileView,
-                                                 public IModioUIModListViewInterface,
-                                                 public IModioUIObjectListWidget,
-                                                 public IModioUIObjectSelector,
-                                                 public IModioScrollableWidget
+												 public IModioUIModListViewInterface,
+												 public IModioUIObjectListWidget,
+												 public IModioUIObjectSelector,
+												 public IModioScrollableWidget,
+												 public FTickableGameObject
 {
 	GENERATED_BODY()
 
@@ -41,6 +42,15 @@ protected:
 	virtual void ValidateCompiledDefaults(IWidgetCompilerLog& CompileLog) const override;
 #endif
 	//~ End UWidget Interface
+
+	//~ Begin FTickableGameObject
+	virtual void Tick(float DeltaTime) override;
+	virtual TStatId GetStatId() const override
+	{
+		RETURN_QUICK_DECLARE_CYCLE_STAT(UModioDefaultModTileView, STATGROUP_Tickables);
+	}
+	virtual bool IsTickable() const override;
+	//~ End FTickableGameObject
 
 	//~ Begin IModioUIModListViewInterface Interface
 	virtual void NativeSetListItems(const TArray<UObject*>& InListItems, bool bAddToExisting) override;
@@ -89,11 +99,21 @@ protected:
 
 	//~ Begin ITypedUMGListView Interface
 	virtual UUserWidget& OnGenerateEntryWidgetInternal(UObject* Item, TSubclassOf<UUserWidget> DesiredEntryClass,
-											   const TSharedRef<STableViewBase>& OwnerTable) override;
+													   const TSharedRef<STableViewBase>& OwnerTable) override;
 	virtual void OnSelectionChangedInternal(NullableItemType FirstSelectedItem) override;
 	//~ End ITypedUMGListView Interface
 
 	void NotifySelectionChanged(UObject* SelectedItem);
+
+	void TickFocus();
+	void OnUserFocusChanged(bool bNewFocus);
+	bool bHadAnyUserFocus = false;
+	
+	// If we should select the first visible tile when we gain focus
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "mod.io|UI|Mod View", meta = (BlueprintProtected))
+	bool bSelectFirstTileWhenFocused = false;
+
+	UWidget* GetPreferredFocusWidget() const;
 
 	/**
 	 * @brief Passes the bound value for which selection state has changed as `SelectedValue`

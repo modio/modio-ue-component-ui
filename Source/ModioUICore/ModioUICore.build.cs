@@ -24,7 +24,8 @@ public class ModioUICore : ModuleRules
 			"InputCore",
 			"Modio",
 			"CommonUI",
-			"GameplayTags"
+			"GameplayTags",
+			"HeadMountedDisplay"
 		});
 
 		if (Target.bBuildEditor)

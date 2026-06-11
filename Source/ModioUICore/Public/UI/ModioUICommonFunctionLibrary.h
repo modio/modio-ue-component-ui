@@ -26,6 +26,8 @@
 
 #include "ModioUICommonFunctionLibrary.generated.h"
 
+DECLARE_DYNAMIC_DELEGATE_OneParam(FModioAsyncLoadClassesComplete, const TArray<UClass*>&, LoadedClasses);
+
 /**
  * @brief Common utility functions intended for use with the mod.io UI Components
  */
@@ -293,6 +295,13 @@ public:
 	}
 
 	DECLARE_FUNCTION(execValidateWidget);
+
+	/// @brief Utility method to async load an array of soft class pointers
+	/// @param SoftClassRefs The array of soft class pointers to load
+	/// @param OnComplete Delegate to execute once loading is complete
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Utilities|Async Loading")
+	static void AsyncLoadClassArray(const TArray<TSoftClassPtr<UObject>>& SoftClassPtrs,
+									const FModioAsyncLoadClassesComplete& OnComplete);
 
 	/// @brief Utility method to dynamically resolve an FText from the primary mod.io string table
 	/// @param StringKey Name of the text to retrieve

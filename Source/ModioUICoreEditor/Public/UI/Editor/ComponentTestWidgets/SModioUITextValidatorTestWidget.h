@@ -13,6 +13,9 @@
 #include "UI/Interfaces/IModioUITextValidator.h"
 #include "SModioUITextValidatorTestWidget.generated.h"
 
+class SEditableTextBox;
+class STextBlock;
+
 UCLASS()
 class UModioUITextValidatorBridge : public UObject
 {

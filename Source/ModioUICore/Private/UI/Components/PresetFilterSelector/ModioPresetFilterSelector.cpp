@@ -108,21 +108,18 @@ TArray<TScriptInterface<IModioModFilterUIDetails>> UModioPresetFilterSelector::G
 {
 	CachedBoundPresets.Empty();
 	// Query the plugin settings for named filters to display
-	if (const UModioUISettings* Settings = GetDefault<UModioUISettings>())
+
+	// Wrap each named filter in a UObject for data binding purposes
+	TArray<TScriptInterface<IModioModFilterUIDetails>> BindablePresets;
+	for (const auto& NamedFilter : UModioUISettings::GetPresetNamedFilters())
 	{
-		// Wrap each named filter in a UObject for data binding purposes
-		TArray<TScriptInterface<IModioModFilterUIDetails>> BindablePresets;
-		for (auto NamedFilter : Settings->PresetNamedFilters)
-		{
-			UModioFilterParamsUI* NewParams = NewObject<UModioFilterParamsUI>();
-			NewParams->Underlying = NamedFilter.ToFilterParams();
-			NewParams->FilterName = NamedFilter.PresetName;
-			CachedBoundPresets.Add(NewParams);
-			BindablePresets.Add(TScriptInterface<IModioModFilterUIDetails>(NewParams));
-		}
-		return BindablePresets;
+		UModioFilterParamsUI* NewParams = NewObject<UModioFilterParamsUI>();
+		NewParams->Underlying = NamedFilter.ToFilterParams();
+		NewParams->FilterName = NamedFilter.PresetName;
+		CachedBoundPresets.Add(NewParams);
+		BindablePresets.Add(TScriptInterface<IModioModFilterUIDetails>(NewParams));
 	}
-	return {};
+	return BindablePresets;
 }
 
 void UModioPresetFilterSelector::NativePreConstruct()

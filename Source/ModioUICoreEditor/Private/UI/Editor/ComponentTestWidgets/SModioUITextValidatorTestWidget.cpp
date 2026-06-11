@@ -10,6 +10,10 @@
 
 #include "UI/Editor/ComponentTestWidgets/SModioUITextValidatorTestWidget.h"
 #include "UI/Editor/ModioWeakThis.h"
+#include "Widgets/Input/SEditableTextBox.h"
+#include "Widgets/Text/STextBlock.h"
+#include "Widgets/Input/SButton.h"
+#include "Widgets/SBoxPanel.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(SModioUITextValidatorTestWidget)
 

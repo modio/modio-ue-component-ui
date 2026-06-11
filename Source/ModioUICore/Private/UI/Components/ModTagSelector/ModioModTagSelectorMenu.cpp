@@ -48,13 +48,37 @@ TArray<FString> UModioModTagSelectorMenu::GetSelectedTags_Implementation()
 	return {};
 }
 
+void UModioModTagSelectorMenu::SetTagSelectedState_Implementation(const TArray<FString>& InTags, bool bSelectedState)
+{
+	if (CachedTagOptions.GetObject() &&
+		CachedTagOptions.GetObject()->GetClass()->ImplementsInterface(UModioModTagOptionsUIDetails::StaticClass()))
+	{
+		// Set the selected state of the provided tags on our data source
+		IModioModTagOptionsUIDetails::Execute_SetTagSelectedState(CachedTagOptions.GetObject(), InTags, bSelectedState);
+		// Redraw the categories (and in turn their tags) by re-setting the data source containing categories to display
+		// on the internal widget
+		if (UWidget* CategoryContainerWidget = ModioUI::GetInterfaceWidgetChecked(GetCategoryContainerWidget()))
+		{
+			IModioUIObjectListWidget::Execute_SetObjects(
+				CategoryContainerWidget,
+				UModioUICommonFunctionLibrary::NativeConvertInterfaceToObjectArray(GetAllowedTags()));
+			NotifySelectionChanged();
+		}
+	}
+}
+
+
 void UModioModTagSelectorMenu::ClearSelectedTags_Implementation()
 {
+	// Clear the selected tags on our data source
+	if (CachedTagOptions.GetObject() &&
+		CachedTagOptions.GetObject()->GetClass()->ImplementsInterface(UModioModTagOptionsUIDetails::StaticClass()))
+	{
+		IModioModTagOptionsUIDetails::Execute_ClearSelectedTags(CachedTagOptions.GetObject());
+	}
+
 	if (UWidget* CategoryContainerWidget = ModioUI::GetInterfaceWidgetChecked(GetCategoryContainerWidget()))
 	{
-		// Clear the selected tags on our data source
-		IModioModTagOptionsUIDetails::Execute_ClearSelectedTags(CachedTagOptions.GetObject());
-
 		// Redraw the categories (and in turn their tags) by re-setting the data source containing categories to display
 		// on the internal widget
 		IModioUIObjectListWidget::Execute_SetObjects(
