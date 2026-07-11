@@ -8,6 +8,11 @@ public class ModioUICore : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new string[] { "OnlineSubsystem" });
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
+		if (Target.Version.MajorVersion < 5 || (Target.Version.MajorVersion == 5 && Target.Version.MinorVersion <= 4))
+		{
+			PrivateDependencyModuleNames.Add("StructUtils");
+		}
+		
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core",
@@ -19,7 +24,8 @@ public class ModioUICore : ModuleRules
 			"InputCore",
 			"Modio",
 			"CommonUI",
-			"GameplayTags"
+			"GameplayTags",
+			"HeadMountedDisplay"
 		});
 
 		if (Target.bBuildEditor)

@@ -29,7 +29,7 @@ void IModioUIModListViewInterface::SetModsFromModInfoList_Implementation(const F
 																		 bool bAddToExisting)
 {
 	TArray<UObject*> WrappedModList;
-	Algo::Transform(InList.GetRawList(), WrappedModList, [this](const FModioModInfo& In) {
+	Algo::Transform(InList.GetRawList(), WrappedModList, [](const FModioModInfo& In) {
 		UModioModInfoUI* WrappedMod = NewObject<UModioModInfoUI>();
 		WrappedMod->Underlying = In;
 		return WrappedMod;
@@ -41,7 +41,7 @@ void IModioUIModListViewInterface::SetModsFromModInfoArray_Implementation(const 
 																		  bool bAddToExisting)
 {
 	TArray<UObject*> WrappedModList;
-	Algo::Transform(InArray, WrappedModList, [this](const FModioModInfo& In) {
+	Algo::Transform(InArray, WrappedModList, [](const FModioModInfo& In) {
 		UModioModInfoUI* WrappedMod = NewObject<UModioModInfoUI>();
 		WrappedMod->Underlying = In;
 		return WrappedMod;
@@ -61,7 +61,7 @@ void IModioUIModListViewInterface::SetModsFromModCollectionEntryArray_Implementa
 	const TMap<FModioModID, FModioModCollectionEntry> UserSubscriptions = Subsystem->QueryUserSubscriptions();
 
 	TArray<UObject*> CachedCollection;
-	Algo::Transform(InArray, CachedCollection, [this, &UserSubscriptions](const FModioModCollectionEntry& In) {
+	Algo::Transform(InArray, CachedCollection, [&UserSubscriptions](const FModioModCollectionEntry& In) {
 		UModioModCollectionEntryUI* WrappedModCollectionEntry = NewObject<UModioModCollectionEntryUI>();
 		WrappedModCollectionEntry->Underlying = In;
 		WrappedModCollectionEntry->bCachedSubscriptionStatus = UserSubscriptions.Contains(In.GetID());

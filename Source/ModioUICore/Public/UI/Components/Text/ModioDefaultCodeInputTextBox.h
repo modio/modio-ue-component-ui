@@ -168,6 +168,10 @@ public:
 	/** Static delegate for when the user submits the code */
 	DECLARE_DELEGATE(FOnCodeSubmit);
 
+	SModioDefaultCodeInputTextBox() : SCompoundWidget() {}
+	SModioDefaultCodeInputTextBox(SModioDefaultCodeInputTextBox&&) = delete;
+	SModioDefaultCodeInputTextBox& operator = (SModioDefaultCodeInputTextBox&&) = delete;
+
 	/**
 	 * Called when the user submits the code
 	 */

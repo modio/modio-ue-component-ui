@@ -81,6 +81,7 @@ protected:
 	virtual void SetAvailableTagsFromModTagOptions_Implementation(const FModioModTagOptions& InOptions) override;
 	virtual void SetAvailableTagsFromBoundModTagOptions_Implementation(const TScriptInterface<UModioModTagOptionsUIDetails>& InOptions) override;
 	virtual TArray<FString> GetSelectedTags_Implementation() override;
+	virtual void SetTagSelectedState_Implementation(const TArray<FString>& InTags, bool bSelectedState) override;
 	virtual void ClearSelectedTags_Implementation() override;
 	virtual void AddTagSelectionChangedHandler_Implementation(const FModioOnTagSelectionChanged& Handler) override;
 	virtual void RemoveTagSelectionChangedHandler_Implementation(const FModioOnTagSelectionChanged& Handler) override;

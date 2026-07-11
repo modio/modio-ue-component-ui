@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2024 mod.io Pty Ltd. <https://mod.io>
+ *  Copyright (C) 2024-2026 mod.io Pty Ltd. <https://mod.io>
  *
  *  This file is part of the mod.io UE Plugin.
  *
@@ -11,9 +11,11 @@
 #include "UI/Components/ModTile/ModioDefaultModTileView.h"
 
 #include "UI/Components/Slate/SModioDataSourceAwareTableRow.h"
+#include "UI/Interfaces/IModioFocusableWidget.h"
 #include "UI/Interfaces/IModioModInfoUIDetails.h"
 #include "UI/Interfaces/IModioUIDataSourceWidget.h"
 #include "UI/Interfaces/IModioUISelectableWidget.h"
+
 #if WITH_EDITOR
 	#include "Editor/WidgetCompilerLog.h"
 #endif
@@ -157,14 +159,14 @@ void UModioDefaultModTileView::RemoveSelectionChangedHandler_Implementation(
 }
 
 void UModioDefaultModTileView::SetSelectedStateForIndex_Implementation(int32 Index, bool bNewSelectionState,
-	bool bEmitSelectionEvent)
+																	   bool bEmitSelectionEvent)
 {
 	IModioUIObjectSelector::Execute_SetSelectedStateForValue(this, GetItemAt(Index), bNewSelectionState,
 															 bEmitSelectionEvent);
 }
 
 void UModioDefaultModTileView::SetSelectedStateForValue_Implementation(UObject* Value, bool bNewSelectionState,
-	bool bEmitSelectionEvent)
+																	   bool bEmitSelectionEvent)
 {
 	// override the default event emission setting so that our handler for selection changed knows if it should emit
 	// events
@@ -199,7 +201,7 @@ bool UModioDefaultModTileView::GetMultiSelectionAllowed_Implementation()
 void UModioDefaultModTileView::SetListEntryWidgetClass_Implementation(TSubclassOf<UWidget> InNewEntryClass)
 {
 	EntryWidgetClass = InNewEntryClass;
-	//some kind of rebuild here maybe?
+	// some kind of rebuild here maybe?
 }
 
 int32 UModioDefaultModTileView::GetIndexForValue_Implementation(UObject* Value) const
@@ -233,14 +235,14 @@ float UModioDefaultModTileView::GetScrollOffset_Implementation() const
 }
 
 UUserWidget& UModioDefaultModTileView::OnGenerateEntryWidgetInternal(UObject* Item,
-                                                                     TSubclassOf<UUserWidget> DesiredEntryClass,
-                                                                     const TSharedRef<STableViewBase>& OwnerTable)
+																	 TSubclassOf<UUserWidget> DesiredEntryClass,
+																	 const TSharedRef<STableViewBase>& OwnerTable)
 {
-	UUserWidget& GeneratedEntryWidget = [this, DesiredEntryClass, OwnerTable, Item]() -> UUserWidget&
-	{
+	UUserWidget& GeneratedEntryWidget = [this, DesiredEntryClass, OwnerTable, Item]() -> UUserWidget& {
 		if (DesiredEntryClass->ImplementsInterface(UModioUIDataSourceWidget::StaticClass()))
 		{
-			return GenerateTypedEntry<UUserWidget, SModioDataSourceAwareTableRow<UObject*>>(DesiredEntryClass, OwnerTable);
+			return GenerateTypedEntry<UUserWidget, SModioDataSourceAwareTableRow<UObject*>>(DesiredEntryClass,
+																							OwnerTable);
 		}
 		return Super::OnGenerateEntryWidgetInternal(Item, DesiredEntryClass, OwnerTable);
 	}();
@@ -279,6 +281,92 @@ void UModioDefaultModTileView::NotifySelectionChanged(UObject* SelectedItem)
 	{
 		OnSelectedValueChanged.Broadcast(SelectedItem);
 	}
+}
+
+void UModioDefaultModTileView::Tick(float DeltaTime)
+{
+	TickFocus();
+}
+
+bool UModioDefaultModTileView::IsTickable() const
+{
+	// Check if we're being destroyed first
+	if (HasAnyFlags(RF_BeginDestroyed | RF_FinishDestroyed))
+	{
+		return false;
+	}
+
+	// Check if the outer is valid and not being destroyed
+	UObject* Outer = GetOuter();
+	if (!Outer || Outer->HasAnyFlags(RF_BeginDestroyed | RF_FinishDestroyed))
+	{
+		return false;
+	}
+
+	// Now safe to call GetWorld()
+	UWorld* World = GetWorld();
+	return World != nullptr && !World->HasAnyFlags(RF_BeginDestroyed | RF_FinishDestroyed);
+}
+
+void UModioDefaultModTileView::TickFocus()
+{
+	APlayerController* PlayerController = GetOwningPlayer();
+	const bool bHasAnyUserFocus = HasUserFocus(PlayerController) || HasUserFocusedDescendants(PlayerController);
+	if (bHasAnyUserFocus != bHadAnyUserFocus)
+	{
+		bHadAnyUserFocus = bHasAnyUserFocus;
+		OnUserFocusChanged(bHasAnyUserFocus);
+	}
+}
+
+void UModioDefaultModTileView::OnUserFocusChanged(bool bNewFocus)
+{
+	if (!bNewFocus)
+	{
+		// If we have a selected item then unselect it
+		UObject* SelectedItem = GetSelectedItem();
+		if (SelectedItem)
+		{
+			IModioUIObjectSelector::Execute_SetSelectedStateForValue(this, SelectedItem, false, false);
+		}
+		return;
+	}
+
+	if (!bSelectFirstTileWhenFocused)
+	{
+		return;
+	}
+
+	UWidget* FocusWidget = GetPreferredFocusWidget();
+	if (!FocusWidget) 
+	{
+		bHadAnyUserFocus = false; // Cant focus
+		return;
+	}
+
+	IModioUIObjectSelector::Execute_SetSelectedStateForValue(
+		this, IModioUIDataSourceWidget::Execute_GetDataSource(FocusWidget), true, false);
+
+	UWidget* WidgetToFocus = IModioFocusableWidget::Execute_GetWidgetToFocus(FocusWidget, EUINavigation::Next);
+	if (WidgetToFocus)
+	{
+		FocusWidget = WidgetToFocus;
+	}
+	FocusWidget->SetUserFocus(GetOwningPlayer());
+}
+
+UWidget* UModioDefaultModTileView::GetPreferredFocusWidget() const
+{
+	// Get the first visible widget
+	for (auto& Item : GetListItems())
+	{
+		if (UUserWidget* EntryWidget = GetEntryWidgetFromItem(Item))
+		{
+			return EntryWidget;
+		}
+	}
+
+	return nullptr;
 }
 
 #if WITH_EDITOR

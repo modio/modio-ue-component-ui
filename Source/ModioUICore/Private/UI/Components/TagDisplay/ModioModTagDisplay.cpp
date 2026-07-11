@@ -12,6 +12,7 @@
 
 #include "Core/ModioTagOptionsUI.h"
 #include "UI/Interfaces/IModioModInfoUIDetails.h"
+#include "UI/Interfaces/IModioModCollectionInfoUIDetails.h"
 #include "UI/Interfaces/IModioUIObjectListWidget.h"
 #include "UI/ModioUICommonFunctionLibrary.h"
 
@@ -25,12 +26,28 @@ TScriptInterface<IModioUIObjectListWidget> UModioModTagDisplay::GetTagContainerW
 void UModioModTagDisplay::NativeSetDataSource(UObject* InDataSource)
 {
 	Super::NativeSetDataSource(InDataSource);
-	if (InDataSource->Implements<UModioModInfoUIDetails>())
+	if (InDataSource && InDataSource->Implements<UModioModInfoUIDetails>())
 	{
 		FModioModInfo UnderlyingMod = IModioModInfoUIDetails::Execute_GetFullModInfo(InDataSource);
 		TArray<UObject*> BoundTags;
 
 		for (UModioModTagUI* BoundTag : UModioUICommonFunctionLibrary::CreateBindableModTagArray(UnderlyingMod.Tags))
+		{
+			BoundTags.Add(BoundTag);
+		}
+
+		if (GetTagContainerWidget().GetObject())
+		{
+			IModioUIObjectListWidget::Execute_SetObjects(GetTagContainerWidget().GetObject(), BoundTags);
+		}
+	}
+	else if (InDataSource && InDataSource->Implements<UModioModCollectionInfoUIDetails>())
+	{
+		FModioModCollectionInfo UnderlyingModCollection = IModioModCollectionInfoUIDetails::Execute_GetFullModCollectionInfo(InDataSource);
+		TArray<UObject*> BoundTags;
+
+		for (UModioModTagUI* BoundTag :
+			 UModioUICommonFunctionLibrary::CreateBindableModTagArrayFromStringArray(UnderlyingModCollection.Tags))
 		{
 			BoundTags.Add(BoundTag);
 		}

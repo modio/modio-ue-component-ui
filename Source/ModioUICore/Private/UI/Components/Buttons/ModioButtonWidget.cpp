@@ -380,8 +380,13 @@ void UModioButtonWidget::AddSelectedStateChangedHandler_Implementation(
 
 FReply UModioButtonWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
-	if (bShouldTriggerButtonClickOnEnterOrGamepadAccept &&
+#if UE_VERSION_OLDER_THAN(5, 7, 0)
+	if (bShouldTriggerButtonClickOnEnterOrGamepadAccept && 
 		(InKeyEvent.GetKey() == EKeys::Enter || InKeyEvent.GetKey() == EKeys::Virtual_Accept))
+#else
+	if (bShouldTriggerButtonClickOnEnterOrGamepadAccept &&
+		(InKeyEvent.GetKey() == EKeys::Enter || InKeyEvent.GetKey() == EKeys::Virtual_Gamepad_Accept.GetVirtualKey()))
+#endif
 	{
 		UE_LOG(ModioUICore, Log, TEXT("The key '%s' was pressed and handled by the button '%s' as a click"), *InKeyEvent.GetKey().ToString(), *GetName());
 		HandleButtonClicked();

@@ -72,6 +72,14 @@ public:
 	TArray<FString> GetSelectedTags();
 
 	/**
+	 * @brief Sets the selection state of the given tags
+	 * @param InTags Array of tag values to set
+	 * @param bSelectedState Whether the given tags should be selected or unselected
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|TagSelector")
+	void SetTagSelectedState(const TArray<FString>& InTags, bool bSelectedState);
+
+	/**
 	 * @brief Clears the selection state of the selector
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|TagSelector")

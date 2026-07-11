@@ -14,6 +14,9 @@
 #include "UObject/Interface.h"
 #include "IModioScrollableWidget.generated.h"
 
+DECLARE_DYNAMIC_DELEGATE_OneParam(FModioScrollableOffsetChanged, UObject*, ScrollableContext);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FModioScrollableOffsetChangedMulticast, UObject*, ScrollableContext);
+
 /**
  * @brief Interface for widgets that support scrolling functionality
  */
@@ -55,4 +58,33 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Scrollable")
 	float GetScrollOffset() const;
+
+	/**
+	 * @brief Scroll the widget by the size of the visible content area
+	 * @param bBackward If true, scroll up/left; if false, scroll down/right
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Scrollable")
+	void ScrollVisibleArea(bool bBackward);
+
+	/**
+	 * @brief Checks if the widget can scroll in the specified direction
+	 * @param bBackward If true, check if can scroll up/left; if false check if can scroll down/right
+	 * @return True if the widget can scroll in the specified direction, false otherwise
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Scrollable")
+	bool CanScrollInDirection(bool bBackward) const; 
+	
+	/**
+	 * @brief Registers a delegate that receives a callback when the scroll offset of the widget changes
+	 * @param Handler Delegate to invoke on state change
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Events|Selectable")
+	void AddScrollableOffsetChangedHandler(const FModioScrollableOffsetChanged& Handler);
+
+	/**
+	 * @brief Unsubscribes a delegate from receiving state change callbacks
+	 * @param Handler The delegate to remove
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Events|Selectable")
+	void RemoveScrollableOffsetChangedHandler(const FModioScrollableOffsetChanged& Handler);
 };

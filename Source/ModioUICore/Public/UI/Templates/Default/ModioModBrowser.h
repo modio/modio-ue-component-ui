@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2024 mod.io Pty Ltd. <https://mod.io>
+ *  Copyright (C) 2024-2025 mod.io Pty Ltd. <https://mod.io>
  *
  *  This file is part of the mod.io UE Plugin.
  *
@@ -13,12 +13,14 @@
 #include "CoreMinimal.h"
 #include "UI/Components/ModioUIComponentBase.h"
 #include "UI/EventHandlers/IModioUIDialogDisplayEventReceiver.h"
+#include "UI/EventHandlers/IModioUIModCollectionInfoReceiver.h"
 #include "UI/EventHandlers/IModioUIModInfoReceiver.h"
 #include "UI/EventHandlers/IModioUISubscriptionsChangedReceiver.h"
 #include "UI/EventHandlers/IModioUIWalletBalanceUpdatedEventReceiver.h"
 #include "UI/Interfaces/IModioUIClickableWidget.h"
 #include "UI/Interfaces/IModioUIHasTextWidget.h"
 #include "UI/Interfaces/IModioUIImageDisplayWidget.h"
+#include "UI/Interfaces/IModioUIModCollectionListViewInterface.h"
 #include "UI/Interfaces/IModioUIModListViewInterface.h"
 #include "UI/Interfaces/IModioUIModTagSelector.h"
 #include "UI/Interfaces/IModioUIObjectSelector.h"
@@ -30,6 +32,7 @@ UENUM(BlueprintType)
 enum class EModioModBrowserState : uint8
 {
 	ModsView,
+	CollectionsView,
 	LibraryView
 };
 
@@ -39,6 +42,7 @@ enum class EModioModBrowserState : uint8
 UCLASS()
 class MODIOUICORE_API UModioModBrowser : public UModioUIComponentBase,
 										 public IModioUIModInfoReceiver,
+										 public IModioUIModCollectionInfoReceiver,
 										 public IModioUIDialogDisplayEventReceiver,
 										 public IModioUIModTagSelector,
 										 public IModioUIWalletBalanceUpdatedEventReceiver,
@@ -49,12 +53,19 @@ class MODIOUICORE_API UModioModBrowser : public UModioUIComponentBase,
 protected:
 	//~ Begin UUserWidget Interface
 	virtual void NativePreConstruct() override;
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	//~ End UUserWidget Interface
 
 	//~ Begin IModioUIModInfoReceiver Interface
 	virtual void NativeOnListAllModsRequestCompleted(FString RequestIdentifier, FModioErrorCode ErrorCode,
 													 TOptional<FModioModInfoList> List) override;
 	//~ End IModioUIModInfoReceiver Interface
+
+	//~ Begin IModioUIModCollectionInfoReceiver Interface
+	virtual void NativeOnListModCollectionsRequestCompleted(FString RequestIdentifier, FModioErrorCode ErrorCode,
+															TOptional<FModioModCollectionInfoList> List) override;
+	//~ End IModioUIModCollectionInfoReceiver Interface
 
 	//~ Begin IModioUIDialogDisplayEventReceiver Interface
 	virtual void NativeOnDialogDisplayEvent(EModioUIDialogType DialogRequested, UObject* InDataSource) override;
@@ -65,7 +76,7 @@ protected:
 	//~ End IModioUIWalletBalanceUpdatedEventReceiver Interface
 
 	//~ Begin IModioUISubscriptionsChangedReceiver Interface
-	void NativeOnSubscriptionsChanged(FModioModID ModID, bool bNewSubscriptionState);
+	virtual void NativeOnSubscriptionsChanged(FModioModID ModID, bool bNewSubscriptionState) override;
 	//~ End IModioUISubscriptionsChangedReceiver Interface
 
 	// Select preset filtered searches (Recent, Trending)
@@ -76,7 +87,11 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
 			  meta = (BlueprintProtected))
 	TScriptInterface<IModioUIClickableWidget> GetLibraryViewButtonWidget() const;
-	
+	// Select Library (user collection) View
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
+			  meta = (BlueprintProtected))
+	TScriptInterface<IModioUIClickableWidget> GetModCollectionsViewButtonWidget() const;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|Mod Browser|State", meta = (BlueprintProtected))
 	EModioModBrowserState CurrentView = EModioModBrowserState::ModsView;
 
@@ -130,11 +145,16 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "mod.io|UI|Mod Browser|Search and Filters", Transient,
 			  meta = (BlueprintProtected))
 	TObjectPtr<UObject> StoredLibraryTagData;
+	UPROPERTY(BlueprintReadOnly, Category = "mod.io|UI|Mod Browser|Search and Filters", Transient,
+			  meta = (BlueprintProtected))
+	TObjectPtr<UObject> StoredCollectionTagData;
 
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Mod Browser|Search and Filters", meta = (BlueprintProtected))
 	void InitializeTagData(UObject* InTagData);
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Mod Browser|Search and Filters", meta = (BlueprintProtected))
 	void InitializeLibraryTagData(UObject* InTagData);
+	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Mod Browser|Search and Filters", meta = (BlueprintProtected))
+	void InitializeCollectionTagData(UObject* InTagData);
 
 	// Searching in Library View
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Mod Browser|Search and Filters", meta = (BlueprintProtected))
@@ -159,8 +179,23 @@ protected:
 			  meta = (BlueprintProtected))
 	TScriptInterface<IModioUIModListViewInterface> GetModTileViewWidget() const;
 
+	// Grid of ModCollectionTiles. Updates based on search and filters
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
+			  meta = (BlueprintProtected))
+	TScriptInterface<IModioUIModCollectionListViewInterface> GetModCollectionTileViewWidget() const;
+
 	// Close mod browser
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
 			  meta = (BlueprintProtected))
 	TScriptInterface<IModioUIClickableWidget> GetCloseBrowserButtonWidget() const;
+
+	void HandleFocusChanging(const FFocusEvent& FocusEvent, const FWeakWidgetPath& FromWidgetPath,
+							 const TSharedPtr<SWidget>& FromWidget, const FWidgetPath& ToWidgetPath,
+							 const TSharedPtr<SWidget>& ToWidget);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "mod.io|UI|Mod Browser|Widget Getters",
+			  meta = (BlueprintProtected))
+	void OnNavigationFocusChanged();
+
+	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 };

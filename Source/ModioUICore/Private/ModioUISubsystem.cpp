@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2024 mod.io Pty Ltd. <https://mod.io>
+ *  Copyright (C) 2024-2026 mod.io Pty Ltd. <https://mod.io>
  *
  *  This file is part of the mod.io UE Plugin.
  *
@@ -24,9 +24,10 @@
 #include "Math/IntPoint.h"
 #include "ModioErrorCondition.h"
 #include "ModioSettings.h"
-#include "ModioSubsystem.h"
 #include "ModioUICore.h"
 #include "OnlineSubsystem.h"
+#include "IXRTrackingSystem.h"
+#include "IHeadMountedDisplay.h"
 
 #include "Interfaces/OnlineExternalUIInterface.h"
 #include "Interfaces/OnlineStoreInterfaceV2.h"
@@ -35,6 +36,9 @@
 #include "Interfaces/OnlineEntitlementsInterface.h"
 #include "Libraries/ModioPlatformHelpersLibrary.h"
 #include "Libraries/ModioSDKLibrary.h"
+
+#include "Algo/RemoveIf.h"
+#include "Algo/Find.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUISubsystem)
 
@@ -67,27 +71,28 @@ void UModioUISubsystem::RequestWalletBalanceRefreshWithHandler(const FOnGetUserW
 	{
 		Subsystem->GetUserWalletBalanceAsync(FOnGetUserWalletBalanceDelegateFast::CreateLambda(
 			[HookedHandler = FOnGetUserWalletBalanceDelegateFast::CreateUObject(
-				 this, &UModioUISubsystem::WalletBalanceRequestHandler),
-			 Callback](FModioErrorCode ec, TOptional<uint64> Balance) {
-				Callback.ExecuteIfBound(ec, FModioOptionalUInt64 {Balance});
+					this, &UModioUISubsystem::WalletBalanceRequestHandler),
+				Callback](FModioErrorCode ec, TOptional<uint64> Balance) {
+				Callback.ExecuteIfBound(ec, FModioOptionalUInt64{Balance});
 				HookedHandler.ExecuteIfBound(ec, Balance);
 			}));
 	}
 }
 
 void UModioUISubsystem::RequestPurchaseForModIDWithHandler(FModioModID ID, FModioUnsigned64 ExpectedPrice,
-														   const FOnPurchaseModDelegate& Callback)
+                                                           const FOnPurchaseModDelegate& Callback)
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
 		Subsystem->PurchaseModAsync(ID, ExpectedPrice.Underlying,
-									FOnPurchaseModDelegateFast::CreateLambda(
-										[HookedHandler = FOnPurchaseModDelegateFast::CreateUObject(
-											 this, &UModioUISubsystem::PurchaseRequestHandler),
-										 Callback](FModioErrorCode ec, TOptional<FModioTransactionRecord> Transaction) {
-											Callback.ExecuteIfBound(ec, FModioOptionalTransactionRecord {Transaction});
-											HookedHandler.ExecuteIfBound(ec, Transaction);
-										}));
+		                            FOnPurchaseModDelegateFast::CreateLambda(
+			                            [HookedHandler = FOnPurchaseModDelegateFast::CreateUObject(
+					                            this, &UModioUISubsystem::PurchaseRequestHandler),
+				                            Callback](FModioErrorCode ec,
+				                                      TOptional<FModioTransactionRecord> Transaction) {
+				                            Callback.ExecuteIfBound(ec, FModioOptionalTransactionRecord{Transaction});
+				                            HookedHandler.ExecuteIfBound(ec, Transaction);
+			                            }));
 	}
 }
 
@@ -98,7 +103,8 @@ bool UModioUISubsystem::RequestModEnabledStateChange(FModioModID ID, bool bNewEn
 		return false;
 	}
 
-	return IModioUIModEnabledStateProvider::Execute_RequestModEnabledStateChange(ModEnabledStateDataProvider, ID, bNewEnabledState);
+	return IModioUIModEnabledStateProvider::Execute_RequestModEnabledStateChange(
+		ModEnabledStateDataProvider, ID, bNewEnabledState);
 }
 
 void UModioUISubsystem::RequestShowDialog(EModioUIDialogType DialogType, UObject* DataSource)
@@ -120,10 +126,42 @@ bool UModioUISubsystem::QueryConnectivityState()
 	return bCurrentConnectivityState;
 }
 
+void UModioUISubsystem::NotifyInputModeChange(EModioUIInputMode NewInputModeState)
+{
+	if (CurrentInputModeState != NewInputModeState)
+	{
+		CurrentInputModeState = NewInputModeState;
+		OnInputModeChanged.Broadcast(CurrentInputModeState);
+	}
+}
+
+EModioUIInputMode UModioUISubsystem::QueryInputModeState()
+{
+	return CurrentInputModeState;
+}
+
+bool UModioUISubsystem::IsRunningInVR() 
+{
+	if (!GEngine->XRSystem.IsValid())
+	{
+		return false;
+	}
+
+	IHeadMountedDisplay* HMDDevice = GEngine->XRSystem->GetHMDDevice();
+	TSharedPtr<IStereoRendering, ESPMode::ThreadSafe> StereoDevice = GEngine->XRSystem->GetStereoRenderingDevice();
+
+	if (HMDDevice && StereoDevice.IsValid())
+	{
+		return HMDDevice->IsHMDEnabled() && StereoDevice->IsStereoEnabled();
+	}
+	
+	return false;
+}
+
 bool UModioUISubsystem::IsUGCFeatureEnabled(EModioUIFeatureFlags Feature)
 {
 	// Copy of the same function in UUGCSubsystem
-	
+
 	const UModioSettings* ModioConfiguration = GetDefault<UModioSettings>();
 	if (ModioConfiguration)
 	{
@@ -135,19 +173,93 @@ bool UModioUISubsystem::IsUGCFeatureEnabled(EModioUIFeatureFlags Feature)
 				return ModioConfiguration->bEnableMonetizationFeature;
 			case EModioUIFeatureFlags::ModEnableDisable:
 				return ModioConfiguration->bEnableModEnableDisableFeature;
+			case EModioUIFeatureFlags::ModCollections:
+				return ModioConfiguration->bEnableModCollectionsFeature;
 			default:
 				return false;
 		}
 	}
-	else
+	return false;
+}
+
+bool UModioUISubsystem::IsUserFollowingCreator(const FModioUserID CreatorId)
+{
+	if (!FollowedUsers.IsSet())
 	{
+		UE_LOG(ModioUICore, Error,
+			   TEXT("Cannot check if a user is followed until UModioUISubsystem::RequestListUserFollowing first to "
+					"populate the cache."));
 		return false;
 	}
+	FModioUser* FoundUser = Algo::FindByPredicate(FollowedUsers->InternalList, [&CreatorId](const FModioUser& InUser)
+		{
+			return InUser.UserId == CreatorId;
+		});
+	return FoundUser != nullptr;
 }
 
 void UModioUISubsystem::OnModEnabledChanged(int64 RawModID, bool bNewEnabledState)
 {
 	OnModEnabledStateChanged.Broadcast(FModioModID(RawModID), bNewEnabledState);
+}
+
+void UModioUISubsystem::ModCollectionFollowHandler(FModioErrorCode ErrorCode,
+                                                   TOptional<FModioModCollectionInfo> CollectionInfo)
+{
+	OnModCollectionFollowRequestComplete.Broadcast(ErrorCode, CollectionInfo.GetValue().Id);
+	if (!ErrorCode)
+	{
+		if (FollowedModCollections.IsSet())
+		{
+			FollowedModCollections->AddUnique(CollectionInfo.GetValue().Id);
+		}
+		OnModCollectionFollowStateChanged.Broadcast(CollectionInfo.GetValue().Id, true);
+	}
+	else
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Follow failed for mod collection %s: \"%s\""),
+		       *CollectionInfo.GetValue().Id.ToString(),
+		       *ErrorCode.GetErrorMessage());
+	}
+}
+
+void UModioUISubsystem::ModCollectionSubscribeHandler(FModioErrorCode ErrorCode, FModioModCollectionID CollectionID)
+{
+	OnModCollectionSubscribeRequestComplete.Broadcast(ErrorCode, CollectionID);
+	if (ErrorCode)
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Subscribe failed for mod collection %s: \"%s\""),
+		       *CollectionID.ToString(), *ErrorCode.GetErrorMessage());
+	}
+}
+
+void UModioUISubsystem::ModCollectionUnfollowHandler(FModioErrorCode ErrorCode,
+                                                     FModioModCollectionID CollectionID)
+{
+	if (!ErrorCode)
+	{
+		if (FollowedModCollections.IsSet())
+		{
+			FollowedModCollections->Remove(CollectionID);
+		}
+		OnModCollectionFollowStateChanged.Broadcast(CollectionID, false);
+	}
+	else
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Unfollow failed for mod collection %s: \"%s\""),
+		       *CollectionID.ToString(),
+		       *ErrorCode.GetErrorMessage());
+	}
+}
+
+void UModioUISubsystem::ModCollectionUnsubscribeHandler(FModioErrorCode ErrorCode, FModioModCollectionID CollectionID)
+{
+	OnModCollectionUnsubscribeRequestComplete.Broadcast(ErrorCode, CollectionID);
+	if (ErrorCode)
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Unsubscribe failed for mod collection %s: \"%s\""),
+		       *CollectionID.ToString(), *ErrorCode.GetErrorMessage());
+	}
 }
 
 void UModioUISubsystem::SubscriptionHandler(FModioErrorCode ErrorCode, FModioModID ID)
@@ -159,12 +271,13 @@ void UModioUISubsystem::SubscriptionHandler(FModioErrorCode ErrorCode, FModioMod
 	}
 	else
 	{
-		UE_LOG(ModioUICore, Error, TEXT("Subscription failed for mod %s: \"%s\""), *ID.ToString(), *ErrorCode.GetErrorMessage());
+		UE_LOG(ModioUICore, Error, TEXT("Subscription failed for mod %s: \"%s\""), *ID.ToString(),
+		       *ErrorCode.GetErrorMessage());
 	}
 }
 
 void UModioUISubsystem::PurchaseRequestHandler(FModioErrorCode ErrorCode,
-											   TOptional<FModioTransactionRecord> Transaction)
+                                               TOptional<FModioTransactionRecord> Transaction)
 {
 	OnPurchaseRequestCompleted.Broadcast(ErrorCode, Transaction);
 	if (!ErrorCode)
@@ -186,7 +299,8 @@ void UModioUISubsystem::UnsubscribeHandler(FModioErrorCode ErrorCode, FModioModI
 	}
 	else
 	{
-		UE_LOG(ModioUICore, Error, TEXT("Unsubscribe failed for mod %s: \"%s\""), *ID.ToString(), *ErrorCode.GetErrorMessage());
+		UE_LOG(ModioUICore, Error, TEXT("Unsubscribe failed for mod %s: \"%s\""), *ID.ToString(),
+		       *ErrorCode.GetErrorMessage());
 	}
 }
 
@@ -194,9 +308,10 @@ void UModioUISubsystem::UninstallHandler(FModioErrorCode ErrorCode, FModioModID 
 {
 	if (ErrorCode)
 	{
-		UE_LOG(ModioUICore, Error, TEXT("Uninstall failed for mod %s: \"%s\""), *ID.ToString(), *ErrorCode.GetErrorMessage());
+		UE_LOG(ModioUICore, Error, TEXT("Uninstall failed for mod %s: \"%s\""), *ID.ToString(),
+		       *ErrorCode.GetErrorMessage());
 	}
-	
+
 	// Need to create a synthetic FModioModManagementEvent to let the UI know an uninstallation has occurred.
 	// UninstallHandler is used by ForceUninstallAsync, which does not emit a ModManagementEvent as it's an async
 	// function with a callback, and is not used by the mod management loop.
@@ -213,9 +328,11 @@ void UModioUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Collection.InitializeDependency(UModioSubsystem::StaticClass());
 
 	SetModRatingStateDataProvider(this);
+	SetModCollectionRatingStateDataProvider(this);
 }
 
-void UModioUISubsystem::SetModEnabledStateDataProvider(TScriptInterface<IModioUIModEnabledStateProvider> InModEnabledStateDataProvider)
+void UModioUISubsystem::SetModEnabledStateDataProvider(
+	TScriptInterface<IModioUIModEnabledStateProvider> InModEnabledStateDataProvider)
 {
 	ModEnabledStateDataProvider = InModEnabledStateDataProvider.GetObject();
 
@@ -256,33 +373,42 @@ void UModioUISubsystem::RequestSubscriptionForModID(FModioModID ID, bool Include
 }
 
 void UModioUISubsystem::RequestSubscriptionForModIDWithHandler(FModioModID ID, bool IncludeDependencies,
-															   FOnErrorOnlyDelegate Callback)
+                                                               FOnErrorOnlyDelegate Callback)
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
 		Subsystem->SubscribeToModAsync(
 			ID, IncludeDependencies,
 			FOnErrorOnlyDelegateFast::CreateLambda([HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
-															this, &UModioUISubsystem::SubscriptionHandler, ID),
-														Callback](FModioErrorCode ec) {
-				Callback.ExecuteIfBound(ec);
-				HookedHandler.ExecuteIfBound(ec);
-			}));
+						this, &UModioUISubsystem::SubscriptionHandler, ID),
+					Callback](FModioErrorCode ec) {
+					Callback.ExecuteIfBound(ec);
+					HookedHandler.ExecuteIfBound(ec);
+				}));
 	}
 }
 
 void UModioUISubsystem::RequestRemoveSubscriptionForModIDWithHandler(FModioModID ID,
-																	 FOnErrorOnlyDelegate DedicatedCallback)
+                                                                     FOnErrorOnlyDelegate DedicatedCallback)
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
+		// Only proceed with uninstall if the delegate returns true or is not bound
+		if (OnPreUninstall.IsBound() && !OnPreUninstall.Execute(ID))
+		{
+			UE_LOG(ModioUICore, Warning, TEXT("Uninstall for mod %s was prevented by PreUninstall delegate"),
+			       *ID.ToString());
+			DedicatedCallback.ExecuteIfBound(FModioErrorCode::CancelledError());
+			return;
+		}
+
 		Subsystem->UnsubscribeFromModAsync(
 			ID, FOnErrorOnlyDelegateFast::CreateLambda([HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
-															this, &UModioUISubsystem::UnsubscribeHandler, ID),
-														DedicatedCallback](FModioErrorCode ec) {
-				DedicatedCallback.ExecuteIfBound(ec);
-				HookedHandler.ExecuteIfBound(ec);
-			}));
+						this, &UModioUISubsystem::UnsubscribeHandler, ID),
+					DedicatedCallback](FModioErrorCode ec) {
+					DedicatedCallback.ExecuteIfBound(ec);
+					HookedHandler.ExecuteIfBound(ec);
+				}));
 	}
 }
 
@@ -290,57 +416,113 @@ void UModioUISubsystem::RequestUninstallForModID(FModioModID ID, FOnErrorOnlyDel
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
+		// Only proceed with uninstall if the delegate returns true or is not bound
+		if (OnPreUninstall.IsBound() && !OnPreUninstall.Execute(ID))
+		{
+			UE_LOG(ModioUICore, Warning, TEXT("Uninstall for mod %s was prevented by PreUninstall delegate"),
+			       *ID.ToString());
+			DedicatedCallback.ExecuteIfBound(FModioErrorCode::CancelledError());
+			return;
+		}
+
 		Subsystem->ForceUninstallModAsync(
 			ID, FOnErrorOnlyDelegateFast::CreateLambda([HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
-															this, &UModioUISubsystem::UninstallHandler, ID),
-														DedicatedCallback](FModioErrorCode ec) {
-				DedicatedCallback.ExecuteIfBound(ec);
-				HookedHandler.ExecuteIfBound(ec);
-			}));
-	}
-}
-
-void UModioUISubsystem::RequestRateUpForModId(FModioModID ModId, FOnErrorOnlyDelegateFast DedicatedCallback)
-{
-	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
-	{
-		// Needs additional payload param so we know which type of operation was completed
-		Subsystem->SubmitModRatingAsync(
-			ModId, EModioRating::Positive,
-			FOnErrorOnlyDelegateFast::CreateLambda(
-				[HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
-					 this, &UModioUISubsystem::OnRatingSubmissionComplete, EModioRating::Positive),
-				 DedicatedCallback](FModioErrorCode ec) {
+						this, &UModioUISubsystem::UninstallHandler, ID),
+					DedicatedCallback](FModioErrorCode ec) {
 					DedicatedCallback.ExecuteIfBound(ec);
 					HookedHandler.ExecuteIfBound(ec);
 				}));
 	}
 }
 
-void UModioUISubsystem::RequestRateDownForModId(FModioModID ModId, FOnErrorOnlyDelegateFast DedicatedCallback)
+void UModioUISubsystem::RequestRateUpForModId(FModioModID ID, FOnErrorOnlyDelegateFast DedicatedCallback)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		// Needs additional payload param so we know which type of operation was completed
+		Subsystem->SubmitModRatingAsync(
+			ID, EModioRating::Positive,
+			FOnErrorOnlyDelegateFast::CreateLambda(
+				[HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
+						this, &UModioUISubsystem::OnRatingSubmissionComplete, EModioRating::Positive),
+					DedicatedCallback](FModioErrorCode ec) {
+					DedicatedCallback.ExecuteIfBound(ec);
+					HookedHandler.ExecuteIfBound(ec);
+				}));
+	}
+}
+
+void UModioUISubsystem::RequestRateDownForModId(FModioModID ID, FOnErrorOnlyDelegateFast DedicatedCallback)
 {
 	UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>();
 	if (Subsystem)
 	{
 		// Needs additional payload param so we know which type of operation was completed
 		Subsystem->SubmitModRatingAsync(
-			ModId, EModioRating::Negative,
+			ID, EModioRating::Negative,
 			FOnErrorOnlyDelegateFast::CreateLambda(
 				[HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
-					 this, &UModioUISubsystem::OnRatingSubmissionComplete, EModioRating::Negative),
-				 DedicatedCallback](FModioErrorCode ec) {
+						this, &UModioUISubsystem::OnRatingSubmissionComplete, EModioRating::Negative),
+					DedicatedCallback](FModioErrorCode ec) {
 					DedicatedCallback.ExecuteIfBound(ec);
 					HookedHandler.ExecuteIfBound(ec);
 				}));
 	}
 }
 
-void UModioUISubsystem::OnRatingSubmissionComplete(FModioErrorCode ErrorCode, EModioRating Rating)
+void UModioUISubsystem::RequestRateUpForModCollectionId(FModioModCollectionID ID,
+                                                        FOnErrorOnlyDelegateFast DedicatedCallback)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		// Needs additional payload param so we know which type of operation was completed
+		Subsystem->SubmitModCollectionRatingAsync(
+			ID, EModioRating::Positive,
+			FOnErrorOnlyDelegateFast::CreateLambda(
+				[HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
+						this, &UModioUISubsystem::OnModCollectionRatingSubmissionComplete, EModioRating::Positive),
+					DedicatedCallback](FModioErrorCode ec) {
+					DedicatedCallback.ExecuteIfBound(ec);
+					HookedHandler.ExecuteIfBound(ec);
+				}));
+	}
+}
+
+void UModioUISubsystem::RequestRateDownForModCollectionId(FModioModCollectionID ID,
+                                                          FOnErrorOnlyDelegateFast DedicatedCallback)
+{
+	UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>();
+	if (Subsystem)
+	{
+		// Needs additional payload param so we know which type of operation was completed
+		Subsystem->SubmitModCollectionRatingAsync(
+			ID, EModioRating::Negative,
+			FOnErrorOnlyDelegateFast::CreateLambda(
+				[HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
+						this, &UModioUISubsystem::OnRatingSubmissionComplete, EModioRating::Negative),
+					DedicatedCallback](FModioErrorCode ec) {
+					DedicatedCallback.ExecuteIfBound(ec);
+					HookedHandler.ExecuteIfBound(ec);
+				}));
+	}
+}
+
+void UModioUISubsystem::OnRatingSubmissionComplete(FModioErrorCode ErrorCode, EModioRating ModioRating)
 {
 	if (ErrorCode)
 	{
-		UE_LOG(ModioUICore, Error, TEXT("Failed to submit rating %s: \"%s\""), *UEnum::GetValueAsString(Rating),
-			   *ErrorCode.GetErrorMessage());
+		UE_LOG(ModioUICore, Error, TEXT("Failed to submit rating %s: \"%s\""), *UEnum::GetValueAsString(ModioRating),
+		       *ErrorCode.GetErrorMessage());
+	}
+}
+
+void UModioUISubsystem::OnModCollectionRatingSubmissionComplete(FModioErrorCode ErrorCode, EModioRating ModioRating)
+{
+	if (ErrorCode)
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Failed to submit mod collection rating %s: \"%s\""),
+		       *UEnum::GetValueAsString(ModioRating),
+		       *ErrorCode.GetErrorMessage());
 	}
 }
 
@@ -356,19 +538,38 @@ void UModioUISubsystem::RequestRemoveSubscriptionForModID(FModioModID ID)
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
+		// Only proceed with uninstall if the delegate returns true or is not bound
+		if (OnPreUninstall.IsBound() && !OnPreUninstall.Execute(ID))
+		{
+			UE_LOG(ModioUICore, Warning, TEXT("Uninstall for mod %s was prevented by PreUninstall delegate"),
+			       *ID.ToString());
+			return;
+		}
+
 		Subsystem->UnsubscribeFromModAsync(
 			ID, FOnErrorOnlyDelegateFast::CreateUObject(this, &UModioUISubsystem::UnsubscribeHandler, ID));
 	}
 }
 
 void UModioUISubsystem::RequestLogoDownloadForModID(FModioModID ID,
-													EModioLogoSize LogoSize /*= EModioLogoSize::Thumb320*/)
+                                                    EModioLogoSize LogoSize /*= EModioLogoSize::Thumb320*/)
 {
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
 		Subsystem->GetModMediaAsync(
 			ID, LogoSize,
 			FOnGetMediaDelegateFast::CreateUObject(this, &UModioUISubsystem::LogoDownloadHandler, ID, LogoSize));
+	}
+}
+
+void UModioUISubsystem::RequestLogoDownloadForModCollectionID(FModioModCollectionID ID, EModioLogoSize LogoSize)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->GetModCollectionMediaAsync(ID, LogoSize,
+		                                      FOnGetMediaDelegateFast::CreateUObject(
+			                                      this, &UModioUISubsystem::ModCollectionLogoDownloadHandler, ID,
+			                                      LogoSize));
 	}
 }
 
@@ -381,12 +582,9 @@ float UModioUISubsystem::GetCurrentDPIScaleValue()
 		GEngine->GameViewport->GetViewportSize(ViewportSize);
 		return GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())
 			->GetDPIScaleBasedOnSize(FIntPoint(FGenericPlatformMath::FloorToInt(ViewportSize.X),
-											   FGenericPlatformMath::FloorToInt(ViewportSize.Y)));
+			                                   FGenericPlatformMath::FloorToInt(ViewportSize.Y)));
 	}
-	else
-	{
-		return 1.0f;
-	}
+	return 1.0f;
 }
 
 void UModioUISubsystem::RequestModInfoForModIDs(TArray<FModioModID> IDs)
@@ -407,13 +605,33 @@ void UModioUISubsystem::RequestListAllMods(FModioFilterParams Params, FString Re
 	{
 		Subsystem->ListAllModsAsync(
 			Params, FOnListAllModsDelegateFast::CreateUObject(this, &UModioUISubsystem::ListAllModsCompletedHandler,
-															  RequestIdentifier));
+			                                                  RequestIdentifier));
+	}
+}
+
+void UModioUISubsystem::RequestListModCollections(const FModioFilterParams& Filter, FString RequestIdentifier)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->ListModCollectionsAsync(
+			Filter, FOnListModCollectionsDelegateFast::CreateUObject(
+				this, &UModioUISubsystem::ListModCollectionsCompletedHandler,
+				RequestIdentifier));
+	}
+}
+
+void UModioUISubsystem::RequestGetModCollectionMods(FModioModCollectionID CollectionID)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->GetModCollectionModsAsync(
+			CollectionID, FOnGetModCollectionModsDelegateFast::CreateUObject(
+				this, &UModioUISubsystem::GetModCollectionModsCompletedHandler, CollectionID));
 	}
 }
 
 void UModioUISubsystem::RequestListAllTokenPacks()
 {
-
 	if (IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::GetByPlatform())
 	{
 		if (UModioSubsystem* ModioSubsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
@@ -430,28 +648,29 @@ void UModioUISubsystem::RequestListAllTokenPacks()
 					FOnQueryOnlineStoreOffersComplete OnQueryOffersComplete;
 
 					OnQueryOffersComplete.BindLambda([this, Id, OnlineSubsystem](bool bWasSuccessful,
-																				 const TArray<FUniqueOfferId>& OfferIds,
-																				 const FString& Error) {
-						if (bWasSuccessful && !OfferIds.IsEmpty())
-						{
-							TArray<FModioTokenPack> Offers;
-							for (const FUniqueOfferId& Offer : OfferIds)
+						const TArray<FUniqueOfferId>& OfferIds,
+						const FString& Error) {
+							if (bWasSuccessful && !OfferIds.IsEmpty())
 							{
-								// We get the details of the offers from the cache, this is not async
-								Offers.Add(
-									FModioTokenPack(*OnlineSubsystem->GetStoreV2Interface()->GetOffer(Offer).Get()));
+								TArray<FModioTokenPack> Offers;
+								for (const FUniqueOfferId& Offer : OfferIds)
+								{
+									// We get the details of the offers from the cache, this is not async
+									Offers.Add(
+										FModioTokenPack(
+											*OnlineSubsystem->GetStoreV2Interface()->GetOffer(Offer).Get()));
+								}
+								FModioTokenPackList OffersList = FModioTokenPackList(Offers);
+								ListAllTokenPacksCompletedHandler(FModioErrorCode(), FModioTokenPackList(Offers));
 							}
-							FModioTokenPackList OffersList = FModioTokenPackList(Offers);
-							ListAllTokenPacksCompletedHandler(FModioErrorCode(), FModioTokenPackList(Offers));
-						}
-						else
-						{
-							ListAllTokenPacksCompletedHandler(FModioErrorCode::SystemError(), {});
-						}
-					});
+							else
+							{
+								ListAllTokenPacksCompletedHandler(FModioErrorCode::SystemError(), {});
+							}
+						});
 					// This callback is guaranteed
 					OnlineSubsystem->GetStoreV2Interface()->QueryOffersByFilter(*Id.Get(), Filter,
-																				OnQueryOffersComplete);
+						OnQueryOffersComplete);
 					return;
 				}
 			}
@@ -460,10 +679,10 @@ void UModioUISubsystem::RequestListAllTokenPacks()
 
 	// We failed somewhere, so call the handler with Error
 	ListAllTokenPacksCompletedHandler(FModioErrorCode::SystemError(), {});
-	
 }
 
-bool UModioUISubsystem::RequestPurchaseTokenPack(FModioTokenPackID TokenPackID, const FOnPlatformCheckoutDelegate& Callback)
+bool UModioUISubsystem::RequestPurchaseTokenPack(FModioTokenPackID TokenPackID,
+                                                 const FOnPlatformCheckoutDelegate& Callback)
 {
 	if (TokenPackID.ToString().IsEmpty())
 	{
@@ -476,7 +695,7 @@ bool UModioUISubsystem::RequestPurchaseTokenPack(FModioTokenPackID TokenPackID, 
 		if (UModioSubsystem* ModioSubsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 		{
 			if (OnlineSubsystem->GetPurchaseInterface().IsValid()
-				&& OnlineSubsystem->GetIdentityInterface().IsValid())
+			    && OnlineSubsystem->GetIdentityInterface().IsValid())
 			{
 				EModioPortal CurrentPortal = ModioSubsystem->GetCurrentPortal();
 				FUniqueNetIdPtr Id = OnlineSubsystem->GetIdentityInterface()->GetUniquePlayerId(0);
@@ -485,13 +704,14 @@ bool UModioUISubsystem::RequestPurchaseTokenPack(FModioTokenPackID TokenPackID, 
 				FOnPurchaseCheckoutComplete CheckoutCallback;
 				CheckoutCallback.BindLambda(
 					[this, ModioSubsystem, OnlineSubsystem, Callback, Id](const FOnlineError& Error,
-																		  const TSharedRef<FPurchaseReceipt>& Receipt) {
+					                                                      const TSharedRef<FPurchaseReceipt>& Receipt) {
 						if (!Error.WasSuccessful())
 						{
 							Callback.Execute(false, "Checkout failed with error: " + Error.ErrorRaw);
 							return;
 						}
-						OnlineSubsystem->GetPurchaseInterface()->FinalizePurchase(*Id.Get(), Receipt.Get().TransactionId);
+						OnlineSubsystem->GetPurchaseInterface()->FinalizePurchase(
+							*Id.Get(), Receipt.Get().TransactionId);
 						Callback.Execute(true, "Successfully purchased offer.");
 					});
 				OnlineSubsystem->GetPurchaseInterface()->Checkout(*Id.Get(), PurchaseRequest, CheckoutCallback);
@@ -513,7 +733,7 @@ void UModioUISubsystem::LogoDownloadHandler(FModioErrorCode ErrorCode, TOptional
 	if (ErrorCode)
 	{
 		UE_LOG(ModioUICore, Error, TEXT("Failed to download logo for mod %s: \"%s\""), *ID.ToString(),
-			   *ErrorCode.GetErrorMessage());
+		       *ErrorCode.GetErrorMessage());
 	}
 	OnModLogoDownloadCompleted.Broadcast(ID, ErrorCode, Image, LogoSize);
 }
@@ -537,17 +757,20 @@ void UModioUISubsystem::RequestUserAvatar()
 	}
 }
 
-void UModioUISubsystem::RequestEmailAuthenticationWithHandler(FModioEmailAuthCode Code, const FOnErrorOnlyDelegate Callback)
+void UModioUISubsystem::RequestEmailAuthenticationWithHandler(FModioEmailAuthCode Code,
+                                                              const FOnErrorOnlyDelegate Callback)
 {
 	OnAuthenticationChangeStarted.Broadcast();
 
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
 		Subsystem->AuthenticateUserEmailAsync(
-			Code, FOnErrorOnlyDelegateFast::CreateLambda([HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(this, &UModioUISubsystem::OnAuthenticationComplete), Callback](FModioErrorCode ec) {
-				Callback.ExecuteIfBound(ec);
-				HookedHandler.ExecuteIfBound(ec);
-			}));
+			Code, FOnErrorOnlyDelegateFast::CreateLambda(
+				[HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
+					this, &UModioUISubsystem::OnAuthenticationComplete), Callback](FModioErrorCode ec) {
+					Callback.ExecuteIfBound(ec);
+					HookedHandler.ExecuteIfBound(ec);
+				}));
 	}
 }
 
@@ -563,25 +786,49 @@ void UModioUISubsystem::RequestGalleryImageDownloadForModID(
 }
 
 void UModioUISubsystem::GalleryImageDownloadHandler(FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image,
-													FModioModID ID, int32 Index)
+                                                    FModioModID ID, int32 Index)
 {
 	if (ErrorCode)
 	{
 		UE_LOG(ModioUICore, Error, TEXT("Failed to download gallery image for mod %s: \"%s\""), *ID.ToString(),
-			   *ErrorCode.GetErrorMessage());
+		       *ErrorCode.GetErrorMessage());
 	}
 	OnModGalleryImageDownloadCompleted.Broadcast(ID, ErrorCode, Index, Image);
 }
 
 void UModioUISubsystem::CreatorAvatarDownloadHandler(FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image,
-													 FModioModID ID)
+                                                     FModioModID ID)
 {
 	if (ErrorCode)
 	{
 		UE_LOG(ModioUICore, Error, TEXT("Failed to download creator avatar for mod %s: \"%s\""), *ID.ToString(),
-			   *ErrorCode.GetErrorMessage());
+		       *ErrorCode.GetErrorMessage());
 	}
 	OnModCreatorAvatarDownloadCompleted.Broadcast(ID, ErrorCode, Image);
+}
+
+void UModioUISubsystem::ModCollectionLogoDownloadHandler(FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image,
+                                                         FModioModCollectionID ID, EModioLogoSize LogoSize)
+{
+	if (ErrorCode)
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Failed to download logo for mod collection %s: \"%s\""), *ID.ToString(),
+		       *ErrorCode.GetErrorMessage());
+	}
+	OnModCollectionLogoDownloadCompleted.Broadcast(ID, ErrorCode, Image, LogoSize);
+}
+
+void UModioUISubsystem::ModCollectionCuratorAvatarDownloadHandler(FModioErrorCode ErrorCode,
+                                                                  TOptional<FModioImageWrapper> Image,
+                                                                  FModioModCollectionID ID)
+{
+	if (ErrorCode)
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Failed to download curator avatar for mod collection %s: \"%s\""),
+		       *ID.ToString(),
+		       *ErrorCode.GetErrorMessage());
+	}
+	OnModCollectionCuratorAvatarDownloadCompleted.Broadcast(ID, ErrorCode, Image);
 }
 
 void UModioUISubsystem::OnAuthenticationComplete(FModioErrorCode ErrorCode)
@@ -601,7 +848,7 @@ void UModioUISubsystem::OnAuthenticationComplete(FModioErrorCode ErrorCode)
 }
 
 void UModioUISubsystem::ModInfoRequestCompletedHandler(FModioErrorCode ErrorCode, TOptional<FModioModInfoList> ModInfos,
-													   TArray<FModioModID> IDs)
+                                                       TArray<FModioModID> IDs)
 {
 	if (ErrorCode)
 	{
@@ -620,14 +867,50 @@ void UModioUISubsystem::ModInfoRequestCompletedHandler(FModioErrorCode ErrorCode
 	}
 }
 
+void UModioUISubsystem::ModCollectionInfoRequestCompletedHandler(FModioErrorCode ErrorCode,
+                                                                 TOptional<FModioModCollectionInfoList>
+                                                                 ModCollectionInfos, TArray<FModioModCollectionID> IDs)
+{
+	if (ErrorCode)
+	{
+		// Got an error, notify anybody that the specified IDs got errors when requesting mod collection info
+		for (FModioModCollectionID& ID : IDs)
+		{
+			OnModCollectionInfoRequestCompleted.Broadcast(ID, ErrorCode, {});
+		}
+	}
+	else
+	{
+		for (FModioModCollectionInfo Info : ModCollectionInfos.GetValue().GetRawList())
+		{
+			OnModCollectionInfoRequestCompleted.Broadcast(Info.Id, {}, Info);
+		}
+	}
+}
+
 void UModioUISubsystem::ListAllModsCompletedHandler(FModioErrorCode ErrorCode, TOptional<FModioModInfoList> ModInfos,
-													FString RequestIdentifier)
+                                                    FString RequestIdentifier)
 {
 	OnListAllModsRequestCompleted.Broadcast(RequestIdentifier, ErrorCode, ModInfos);
 }
 
+void UModioUISubsystem::ListModCollectionsCompletedHandler(FModioErrorCode ErrorCode,
+                                                           TOptional<FModioModCollectionInfoList> ModCollectionInfos,
+                                                           FString RequestIdentifier)
+{
+	OnListModCollectionsRequestCompleted.Broadcast(RequestIdentifier, ErrorCode, ModCollectionInfos);
+}
+
+void UModioUISubsystem::GetModCollectionModsCompletedHandler(FModioErrorCode ErrorCode,
+                                                             TOptional<FModioModInfoList> ModInfos,
+                                                             FModioModCollectionID CollectionID)
+{
+	OnGetModCollectionModsRequestCompleted.Broadcast(CollectionID, ErrorCode, ModInfos);
+}
+
 void UModioUISubsystem::TokenPackRequestCompletedHandler(FModioErrorCode ErrorCode,
-	TOptional<FModioTokenPackList> TokenPacks, TArray<FModioTokenPackID> IDs)
+                                                         TOptional<FModioTokenPackList> TokenPacks,
+                                                         TArray<FModioTokenPackID> IDs)
 {
 	if (ErrorCode)
 	{
@@ -647,9 +930,38 @@ void UModioUISubsystem::TokenPackRequestCompletedHandler(FModioErrorCode ErrorCo
 }
 
 void UModioUISubsystem::ListAllTokenPacksCompletedHandler(FModioErrorCode ErrorCode,
-	TOptional<FModioTokenPackList> TokenPacks)
+                                                          TOptional<FModioTokenPackList> TokenPacks)
 {
 	OnListAllTokenPacksRequestCompleted.Broadcast(ErrorCode, TokenPacks);
+}
+
+void UModioUISubsystem::ListUserFollowingCompletedHandler(FModioErrorCode ErrorCode,
+														  TOptional<FModioUserList> FollowingList)
+{
+	if (!ErrorCode && FollowingList.IsSet())
+	{
+		NativeRequestUserFollowingListChange(FollowingList.GetValue());
+	}
+	OnListUserFollowingRequestComplete.Broadcast(ErrorCode, FollowingList);
+}
+
+void UModioUISubsystem::FollowUserCompletedHandler(FModioErrorCode ErrorCode)
+{
+	OnFollowUserRequestCompleted.Broadcast(ErrorCode);
+	if (!ErrorCode)
+	{
+		FollowedUsers.Reset();
+		RequestListUserFollowing();
+	}
+}
+
+void UModioUISubsystem::UnfollowUserCompletedHandler(FModioErrorCode ErrorCode, FModioUserID UnfollowedUser)
+{
+	if (!ErrorCode)
+	{
+		NativeRequestRemoveFollowedUser(UnfollowedUser);
+	}
+	OnUnfollowUserRequestCompleted.Broadcast(ErrorCode);
 }
 
 void UModioUISubsystem::LogOut(FOnErrorOnlyDelegateFast DedicatedCallback)
@@ -660,7 +972,7 @@ void UModioUISubsystem::LogOut(FOnErrorOnlyDelegateFast DedicatedCallback)
 
 		Subsystem->ClearUserDataAsync(FOnErrorOnlyDelegateFast::CreateLambda(
 			[HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(this, &UModioUISubsystem::OnLogoutComplete),
-			 DedicatedCallback](FModioErrorCode ec) {
+				DedicatedCallback](FModioErrorCode ec) {
 				DedicatedCallback.ExecuteIfBound(ec);
 				HookedHandler.ExecuteIfBound(ec);
 			}));
@@ -722,9 +1034,16 @@ void UModioUISubsystem::WalletBalanceRequestHandler(FModioErrorCode ErrorCode, T
 	}
 }
 
-void UModioUISubsystem::SetModRatingStateDataProvider(TScriptInterface<IModRatingStateProvider> InModRatingStateProvider)
+void UModioUISubsystem::SetModRatingStateDataProvider(
+	TScriptInterface<IModRatingStateProvider> InModRatingStateProvider)
 {
 	ModRatingStateProvider = InModRatingStateProvider.GetObject();
+}
+
+void UModioUISubsystem::SetModCollectionRatingStateDataProvider(
+	TScriptInterface<IModCollectionRatingStateProvider> InModCollectionRatingStateProvider)
+{
+	ModCollectionRatingStateProvider = InModCollectionRatingStateProvider.GetObject();
 }
 
 EModioRating UModioUISubsystem::NativeQueryModRating(int64 ModID)
@@ -735,6 +1054,78 @@ EModioRating UModioUISubsystem::NativeQueryModRating(int64 ModID)
 	}
 
 	return EModioRating::Neutral;
+}
+
+bool UModioUISubsystem::NativeRequestModCollectionRatingChange(int64 CollectionID, EModioRating NewRating)
+{
+	if (ModCollectionRatingMap.Contains(CollectionID))
+	{
+		ModCollectionRatingMap[CollectionID] = NewRating;
+	}
+	else
+	{
+		ModCollectionRatingMap.Add(CollectionID, NewRating);
+	}
+
+	return true;
+}
+
+EModioRating UModioUISubsystem::NativeQueryModCollectionRating(int64 ModCollectionID)
+{
+	if (ModCollectionRatingMap.Contains(ModCollectionID))
+	{
+		return ModCollectionRatingMap[ModCollectionID];
+	}
+
+	return EModioRating::Neutral;
+}
+
+void UModioUISubsystem::NativeQueryUserFollowingList()
+{
+	if (FollowedUsers.IsSet())
+	{
+		OnListUserFollowingRequestComplete.Broadcast({}, FollowedUsers);
+	}
+	else
+	{
+		RequestListUserFollowing();
+	}
+}
+
+void UModioUISubsystem::NativeRequestUserFollowingListChange(FModioUserList NewFollowingList)
+{
+	FollowedUsers = NewFollowingList;
+}
+
+void UModioUISubsystem::NativeRequestAddFollowedUser(FModioUserID NewFollowedUser)
+{
+	if (FollowedUsers.IsSet())
+	{
+		if (!FollowedUsers->InternalList.FindByPredicate(
+				[NewFollowedUser](const FModioUser& User)
+			{return User.UserId == NewFollowedUser;}))
+		{
+			FollowedUsers.Reset();
+		}
+	}
+}
+
+void UModioUISubsystem::NativeRequestRemoveFollowedUser(FModioUserID UnfollowedUser)
+{
+	// Algo::RemoveIf takes all the elements which match the criteria
+	// then moves them to the end of the array, returning the index of the last-most 
+	// element that didn't meet the criteria
+	// so we `SetNum` to the result and we have effectivly trimmed all members that 
+	// match the given criteria. Does not preserve order, however
+	if (FollowedUsers.IsSet())
+	{
+		FollowedUsers->InternalList.SetNum(
+			Algo::RemoveIf(FollowedUsers->InternalList,
+						   [UnfollowedUser](const FModioUser& User)
+				{
+					return User.UserId == UnfollowedUser;
+				}));
+	}
 }
 
 EModioOpenStoreResult UModioUISubsystem::RequestShowTokenPurchaseUI()
@@ -771,24 +1162,24 @@ EModioOpenStoreResult UModioUISubsystem::RequestShowTokenPurchaseUIWithHandler(
 				if (CurrentPortal == EModioPortal::Steam)
 				{
 					FString StoreUrl = "https://store.steampowered.com/itemstore/" +
-									   UModioSDKLibrary::GetMonetizationPurchaseCategory(CurrentPortal) +
-										"/?beta=1";
+					                   UModioSDKLibrary::GetMonetizationPurchaseCategory(CurrentPortal) +
+					                   "/?beta=1";
 					FShowWebUrlParams WebParams;
 					FOnShowWebUrlClosedDelegate OnWebUrlClosedHandler;
 
-					OnWebUrlClosedHandler.BindLambda([Callback](const FString& FinalUrl)
-					{
+					OnWebUrlClosedHandler.BindLambda([Callback](const FString& FinalUrl) {
 						Callback.Execute(true, FinalUrl);
 					});
-					return (OnlineSubsystem->GetExternalUIInterface()->ShowWebURL(StoreUrl, WebParams, OnWebUrlClosedHandler) ? 
-																EModioOpenStoreResult::Success : EModioOpenStoreResult::FailedUnknown);
+					return (OnlineSubsystem->GetExternalUIInterface()->
+					                         ShowWebURL(StoreUrl, WebParams, OnWebUrlClosedHandler)
+						        ? EModioOpenStoreResult::Success
+						        : EModioOpenStoreResult::FailedUnknown);
 				}
 
 				// If we are not Steam, use the OSS ExternalUIInterface
 				FOnShowStoreUIClosedDelegate OnStoreClosedHandler;
 				OnStoreClosedHandler.BindLambda(
-					[this, Callback, ModioSubsystem](bool bResult) 
-					{
+					[this, Callback, ModioSubsystem](bool bResult) {
 						// Purchase made
 
 						if (bResult)
@@ -803,20 +1194,15 @@ EModioOpenStoreResult UModioUISubsystem::RequestShowTokenPurchaseUIWithHandler(
 				Params.Category = UModioSDKLibrary::GetMonetizationPurchaseCategory(CurrentPortal);
 				Params.bAddToCart = false;
 
-				return (OnlineSubsystem->GetExternalUIInterface()->ShowStoreUI(0, Params, OnStoreClosedHandler) ? 
-																EModioOpenStoreResult::Success : EModioOpenStoreResult::FailedUnknown);
+				return (OnlineSubsystem->GetExternalUIInterface()->ShowStoreUI(0, Params, OnStoreClosedHandler)
+					        ? EModioOpenStoreResult::Success
+					        : EModioOpenStoreResult::FailedUnknown);
 			}
-			else
-			{
-				Callback.Execute(false, "Failed to get External UI Interface when invoking store.");
-				return EModioOpenStoreResult::FailedUnknown;
-			}
-		}
-		else
-		{
-			Callback.Execute(false, "Failed to get Modio Subsystem when invoking store.");
+			Callback.Execute(false, "Failed to get External UI Interface when invoking store.");
 			return EModioOpenStoreResult::FailedUnknown;
 		}
+		Callback.Execute(false, "Failed to get Modio Subsystem when invoking store.");
+		return EModioOpenStoreResult::FailedUnknown;
 	}
 
 	Callback.Execute(false, "Failed to get Online Subsystem when invoking store.");
@@ -825,9 +1211,245 @@ EModioOpenStoreResult UModioUISubsystem::RequestShowTokenPurchaseUIWithHandler(
 
 void UModioUISubsystem::RequestRefreshEntitlements()
 {
-#if !WITH_EDITOR // Only do this in a build: editor context does not have Online Subsystems
-	OnEntitlementRefreshEvent.Broadcast();
-#endif
+	UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>();
+	if (!Subsystem)
+	{
+		return;
+	}
+
+	FEntitlementParamsRequestedDelegate EntitlementParamsDelegate;
+	EntitlementParamsDelegate.BindDynamic(this, &UModioUISubsystem::OnEntitlementParamsReceived);
+
+	IModioPortalInterface::Execute_RequestEntitlementParams(Subsystem->GetPortalInterfaceObject(), {},
+															EntitlementParamsDelegate);
+}
+
+void UModioUISubsystem::OnEntitlementParamsReceived(const FModioEntitlementParams& EntitlementParams)
+{
+	UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>();
+	if (!Subsystem)
+	{
+		return;
+	}
+
+	Subsystem->RefreshUserEntitlementsAsync(
+		EntitlementParams,
+		FOnRefreshUserEntitlementsDelegateFast::CreateLambda(
+			[this](FModioErrorCode ErrorCode, TOptional<FModioEntitlementConsumptionStatusList> OptionalStatusList) {
+				if (!ErrorCode)
+				{
+					RequestWalletBalanceRefresh();
+					UE_LOG(ModioUICore, Log, TEXT("Successfully refreshed user entitlements"));
+				}
+				else
+				{
+					UE_LOG(ModioUICore, Error, TEXT("Failed to refresh user entitlements: \"%s\""),
+						   *ErrorCode.GetErrorMessage());
+				}
+			}));
+}
+
+void UModioUISubsystem::RequestFollowModCollection(FModioModCollectionID ID)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->FollowModCollectionAsync(ID,
+		                                    FOnFollowModCollectionDelegateFast::CreateUObject(
+			                                    this, &UModioUISubsystem::ModCollectionFollowHandler));
+	}
+}
+
+void UModioUISubsystem::RequestFollowModCollectionWithHandler(FModioModCollectionID ID,
+                                                              FOnFollowModCollectionDelegate Callback)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->FollowModCollectionAsync(ID, FOnFollowModCollectionDelegateFast::CreateLambda(
+			                                    [HookedHandler = FOnFollowModCollectionDelegateFast::CreateUObject(
+				                                    this, &UModioUISubsystem::ModCollectionFollowHandler), Callback]
+		                                    (FModioErrorCode ec, TOptional<FModioModCollectionInfo> CollectionInfo) {
+				                                    FModioOptionalModCollectionInfo OptionalResult = {};
+				                                    OptionalResult.Internal = CollectionInfo.GetValue();
+				                                    Callback.ExecuteIfBound(ec, OptionalResult);
+				                                    HookedHandler.ExecuteIfBound(ec, CollectionInfo);
+			                                    }));
+	}
+}
+
+void UModioUISubsystem::RequestUnfollowModCollection(FModioModCollectionID ID)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->UnfollowModCollectionAsync(
+			ID, FOnErrorOnlyDelegateFast::CreateUObject(this, &UModioUISubsystem::ModCollectionUnfollowHandler, ID));
+	}
+}
+
+void UModioUISubsystem::RequestUnfollowModCollectionWithHandler(FModioModCollectionID ID,
+                                                                FOnErrorOnlyDelegate DedicatedCallback)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->UnfollowModCollectionAsync(
+			ID, FOnErrorOnlyDelegateFast::CreateLambda([HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
+						this, &UModioUISubsystem::ModCollectionUnfollowHandler, ID),
+					DedicatedCallback](FModioErrorCode ec) {
+					DedicatedCallback.ExecuteIfBound(ec);
+					HookedHandler.ExecuteIfBound(ec);
+				}));
+	}
+}
+
+void UModioUISubsystem::RequestSubscribeToModCollection(FModioModCollectionID ID)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->SubscribeToModCollectionAsync(
+			ID, FOnErrorOnlyDelegateFast::CreateUObject(this, &UModioUISubsystem::ModCollectionSubscribeHandler, ID));
+	}
+}
+
+void UModioUISubsystem::RequestSubscribeToModCollectionWithHandler(FModioModCollectionID ID,
+                                                                   FOnErrorOnlyDelegate Callback)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->SubscribeToModCollectionAsync(
+			ID, FOnErrorOnlyDelegateFast::CreateLambda(
+				[HookedHandler =
+					FOnErrorOnlyDelegateFast::CreateUObject(this, &UModioUISubsystem::ModCollectionSubscribeHandler, ID)
+					,
+					Callback](FModioErrorCode ec) {
+					Callback.ExecuteIfBound(ec);
+					HookedHandler.ExecuteIfBound(ec);
+				}));
+	}
+}
+
+void UModioUISubsystem::RequestUnsubscribeFromModCollection(FModioModCollectionID ID)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->UnsubscribeFromModCollectionAsync(
+			ID, FOnErrorOnlyDelegateFast::CreateUObject(this, &UModioUISubsystem::ModCollectionUnsubscribeHandler, ID));
+	}
+}
+
+void UModioUISubsystem::RequestUnsubscribeFromModCollectionWithHandler(FModioModCollectionID ID,
+                                                                       FOnErrorOnlyDelegate DedicatedCallback)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->UnsubscribeFromModCollectionAsync(
+			ID, FOnErrorOnlyDelegateFast::CreateLambda([HookedHandler = FOnErrorOnlyDelegateFast::CreateUObject(
+						this, &UModioUISubsystem::ModCollectionUnsubscribeHandler, ID),
+					DedicatedCallback](FModioErrorCode ec) {
+					DedicatedCallback.ExecuteIfBound(ec);
+					HookedHandler.ExecuteIfBound(ec);
+				}));
+	}
+}
+
+void UModioUISubsystem::RequestListUserFollowingModCollections()
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->ListUserFollowedModCollectionsAsync(
+			{}, FOnListFollowedModCollectionsDelegateFast::CreateLambda(
+					[this](FModioErrorCode ec, TOptional<FModioModCollectionInfoList> FollowedCollections) {
+						if (ec)
+						{
+							UE_LOG(ModioUICore, Error, TEXT("Failed to query mod following collection state: \"%s\""),
+								   *ec.GetErrorMessage());
+						}
+						else
+						{
+							TArray<FModioModCollectionID> PreviouslyFollowedCollections;
+							if (FollowedModCollections.IsSet())
+							{
+								PreviouslyFollowedCollections = MoveTemp(FollowedModCollections.GetValue());
+							}
+							FollowedModCollections = TArray<FModioModCollectionID>();
+
+							bool bFoundCollection = false;
+							for (const FModioModCollectionInfo& Info : FollowedCollections.GetValue().GetRawList())
+							{
+								FollowedModCollections->Add(Info.Id);
+								if (!PreviouslyFollowedCollections.Contains(Info.Id))
+								{
+									// Went from not following to following, broadcast the change
+									OnModCollectionFollowStateChanged.Broadcast(Info.Id, true);
+								}
+							}
+
+							for (const FModioModCollectionID& CollectionID : PreviouslyFollowedCollections)
+							{
+								if (!FollowedModCollections->Contains(CollectionID))
+								{
+									// Went from following to not following, broadcast the change
+									OnModCollectionFollowStateChanged.Broadcast(CollectionID, false);
+								}
+							}
+						}
+					}));
+	}
+}
+
+void UModioUISubsystem::QueryIsUserFollowingModCollectionWithHandler(FModioModCollectionID ID,
+                                                                     FOnQueryFollowedModCollectionCompleted Handler)
+{
+	if (FollowedModCollections.IsSet())
+	{
+		bool bFoundCollection = false;
+		for (const FModioModCollectionID& CollectionID : FollowedModCollections.GetValue())
+		{
+			if (CollectionID == ID)
+			{
+				bFoundCollection = true;
+				break;
+			}
+		}
+		Handler.ExecuteIfBound({}, bFoundCollection);
+	}
+	else if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->ListUserFollowedModCollectionsAsync({},
+		                                               FOnListFollowedModCollectionsDelegateFast::CreateLambda(
+			                                               [this, ID, Handler](
+			                                               FModioErrorCode ec,
+			                                               TOptional<FModioModCollectionInfoList> FollowedCollections) {
+				                                               if (ec)
+				                                               {
+					                                               Handler.ExecuteIfBound(ec, false);
+				                                               }
+				                                               else
+				                                               {
+					                                               if (!FollowedCollections.IsSet())
+					                                               {
+																	   Handler.ExecuteIfBound(ec, false);
+																	   return;
+																   }
+
+																   FollowedModCollections =
+																	   TArray<FModioModCollectionID>();
+
+																   // can probably do this better
+																   bool bFoundCollection = false;
+																   for (const FModioModCollectionInfo& Info :
+																		FollowedCollections.GetValue().GetRawList())
+																   {
+																	   FollowedModCollections->Add(Info.Id);
+																	   OnModCollectionFollowStateChanged.Broadcast(
+																		   Info.Id, true);
+						                                               if (Info.Id == ID)
+						                                               {
+							                                               bFoundCollection = true;
+						                                               }
+					                                               }
+					                                               Handler.ExecuteIfBound(ec, bFoundCollection);
+				                                               }
+			                                               }));
+	}
 }
 
 bool UModioUISubsystem::NativeRequestModRatingChange(int64 ID, EModioRating NewRating)
@@ -844,5 +1466,39 @@ bool UModioUISubsystem::NativeRequestModRatingChange(int64 ID, EModioRating NewR
 	return true;
 }
 
+void UModioUISubsystem::RequestListUserFollowing()
+{
+	if (FollowedUsers.IsSet())
+	{
+		ListUserFollowingCompletedHandler({}, FollowedUsers);
+	}
+	else if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->GetUserFollowingAsync(Subsystem->QueryUserProfile()->UserId,
+			FOnGetFollowsDelegateFast::CreateUObject(this, &UModioUISubsystem::ListUserFollowingCompletedHandler));
+	}
+}
+
+void UModioUISubsystem::RequestFollowUser(FModioUserID UserToFollow)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->FollowUserAsync(UserToFollow, FOnErrorOnlyDelegateFast::CreateLambda([this](FModioErrorCode ec)
+			{
+				FollowUserCompletedHandler(ec);
+			}));
+	}
+}
+
+void UModioUISubsystem::RequestUnfollowUser(FModioUserID UserToUnfollow)
+{
+	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	{
+		Subsystem->UnfollowUserAsync(UserToUnfollow,
+									 FOnErrorOnlyDelegateFast::CreateLambda([this, UserToUnfollow](FModioErrorCode ec) {
+										 UnfollowUserCompletedHandler(ec, UserToUnfollow);
+									 }));
+	}
+}
 
 #include "Loc/EndModioLocNamespace.h"

@@ -39,7 +39,7 @@ protected:
 	 * @brief The class of the widget to instantiate for each object in the list. Must implement ModioUIDataSourceWidget
 	 */
 	UPROPERTY(EditAnywhere, Category = "mod.io|UI|Data Binding|Object Wrap Box",
-			  meta = (MustImplement = "ModioUIDataSourceWidget", BlueprintProtected))
+			  meta = (MustImplement = "/Script/ModioUICore.ModioUIDataSourceWidget", BlueprintProtected))
 	TSubclassOf<UWidget> WidgetClass;
 
 	/**

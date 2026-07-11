@@ -95,14 +95,14 @@ void UModioDefaultScrollBox::UpdateNavigationData_Implementation(int32 PendingSc
 		Navigation = UserDefinedNavigation;
 		BuildNavigation();
 	}
-	else if (PendingScrollOffset != INDEX_NONE && (PendingScrollOffset <= 0 || PendingScrollOffset >= GetScrollOffsetOfEnd() || GetScrollOffsetOfEnd() == 0))
+	else if (PendingScrollOffset != INDEX_NONE && (PendingScrollOffset <= 0 || float(PendingScrollOffset) >= GetScrollOffsetOfEnd() || GetScrollOffsetOfEnd() == 0.0f))
 	{
 		if (PendingScrollOffset <= 0)
 		{
 			Navigation->Up = UserDefinedNavigation->Up;
 			Navigation->Left = UserDefinedNavigation->Left;
 		}
-		if (GetScrollOffsetOfEnd() == 0 || (GetScrollOffsetOfEnd() > 0 && PendingScrollOffset >= GetScrollOffsetOfEnd()))
+		if (GetScrollOffsetOfEnd() == 0.0f || (GetScrollOffsetOfEnd() > 0.0f && float(PendingScrollOffset) >= GetScrollOffsetOfEnd()))
 		{
 			Navigation->Right = UserDefinedNavigation->Right;
 			Navigation->Down = UserDefinedNavigation->Down;
@@ -116,11 +116,11 @@ UWidget* UModioDefaultScrollBox::HandleCustomBoundaryNavigation_Implementation(E
 	const float NewOffset = [this, InNavigation]() {
 		if (InNavigation == EUINavigation::Down || InNavigation == EUINavigation::Right)
 		{
-			return GetScrollOffset() + NavigationScrollOffsetStep;
+			return GetScrollOffset() + float(NavigationScrollOffsetStep);
 		}
 		if (InNavigation == EUINavigation::Up || InNavigation == EUINavigation::Left)
 		{
-			return GetScrollOffset() - NavigationScrollOffsetStep;
+			return GetScrollOffset() - float(NavigationScrollOffsetStep);
 		}
 		return static_cast<float>(INDEX_NONE);
 	}();

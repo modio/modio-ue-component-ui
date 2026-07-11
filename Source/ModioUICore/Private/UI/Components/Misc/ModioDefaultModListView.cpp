@@ -279,3 +279,21 @@ void UModioDefaultModListView::NotifySelectionChanged(UObject* SelectedItem)
 
 	LastSelectedIndex = GetIndexForItem(SelectedItem);
 }
+
+void UModioDefaultModListView::OnListViewScrolledInternal(float ItemOffset, float DistanceRemaining)
+{
+	Super::OnListViewScrolledInternal(ItemOffset, DistanceRemaining);
+	OnScroll.Broadcast(this);
+}
+
+void UModioDefaultModListView::AddScrollableOffsetChangedHandler_Implementation(
+	const FModioScrollableOffsetChanged& Handler)
+{
+	OnScroll.AddUnique(Handler);
+}
+
+void UModioDefaultModListView::RemoveScrollableOffsetChangedHandler_Implementation(
+	const FModioScrollableOffsetChanged& Handler)
+{
+	OnScroll.Remove(Handler);
+}

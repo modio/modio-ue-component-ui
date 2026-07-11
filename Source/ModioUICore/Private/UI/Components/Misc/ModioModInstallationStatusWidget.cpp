@@ -143,6 +143,12 @@ void UModioModInstallationStatusWidget::UpdateInternalStateFromModProgressInfo(
 		{
 			SetModInstallationStatus(EModioModInstallationStatus::Uploading);
 		}
+		break;
+		case EModioModProgressState::Compressing:
+		{
+			SetModInstallationStatus(EModioModInstallationStatus::Compressing);
+		}
+		break;
 	}
 }
 

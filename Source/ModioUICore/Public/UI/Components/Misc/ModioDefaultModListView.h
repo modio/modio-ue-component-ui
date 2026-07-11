@@ -86,10 +86,22 @@ protected:
 	virtual void ScrollToBottom_Implementation() override;
 	virtual void SetScrollOffset_Implementation(float Offset) override;
 	virtual float GetScrollOffset_Implementation() const override;
+	virtual void AddScrollableOffsetChangedHandler_Implementation(
+		const FModioScrollableOffsetChanged& Handler) override;
+	virtual void RemoveScrollableOffsetChangedHandler_Implementation(
+		const FModioScrollableOffsetChanged& Handler) override;
 	//~ End IModioScrollableWidget Interface
+
+	/**
+	 * @brief Passes `this` as ScrollableContext
+	 * @default_component_event FModioScrollableOffsetChanged
+	 */
+	UPROPERTY()
+	FModioScrollableOffsetChangedMulticast OnScroll;
 
 	virtual UUserWidget& OnGenerateEntryWidgetInternal(UObject* Item, TSubclassOf<UUserWidget> DesiredEntryClass,
 											   const TSharedRef<STableViewBase>& OwnerTable) override;
+	virtual void OnListViewScrolledInternal(float ItemOffset, float DistanceRemaining) override;
 
 	void NotifySelectionChanged(UObject* SelectedItem);
 

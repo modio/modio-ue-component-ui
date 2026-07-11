@@ -23,7 +23,14 @@
 template <typename ItemType>
 class SModioDataSourceAwareTableRow : public SObjectTableRow<ItemType>
 {
+public:
+	SModioDataSourceAwareTableRow() : SObjectTableRow<ItemType>() {}
+
 protected:
+
+	SModioDataSourceAwareTableRow(SModioDataSourceAwareTableRow<ItemType>&&) = delete;
+	SModioDataSourceAwareTableRow& operator = (SModioDataSourceAwareTableRow<ItemType>&&) = delete;
+
 	//~ Begin SObjectTableRow Interface
 	virtual void InitializeObjectRow() override
 	{

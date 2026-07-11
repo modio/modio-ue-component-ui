@@ -23,28 +23,36 @@ UENUM(BlueprintType)
 enum class EModioUIDialogType : uint8
 {
 	ModDetails,
+	ModCollectionDetails,
+	ModCollectionContributors,
 	ReportMod,
 	EnableDisableManagement,
 	PurchaseMod,
 	StoreUi,
 
 	// Dialog to inform users that the mod they want to download has dependencies, which will be downloaded automatically along with the selected mod
-	ConfirmDependencyDownload,
+	ConfirmDependencyDownload
 };
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FModioDialogShownEvent, bool, bOpen);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FModioDialogShownEventMulticast, bool, bOpen);
 
 DECLARE_DYNAMIC_DELEGATE(FModioDialogEvent);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FModioDialogEventMulticast);
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FModioDialogButtonClickedEvent, int32, ButtonIndex);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FModioDialogButtonClickedEventMulticast, int32, ButtonIndex);
 
 /**
  * @brief Interface indicating that the implementing widget behaves as a modal dialog that can emit Confirmed/Canceled/Shown events
  */
-UINTERFACE(BlueprintType, Category = "mod.io|UI|Dialog", Meta = (DocGroup = "UI", Comment = "@brief Interface indicating that the implementing widget behaves as a modal dialog that can emit Confirmed/Canceled/Shown events"))
+UINTERFACE(BlueprintType, Category = "mod.io|UI|Dialog",
+	Meta = (DocGroup = "UI", Comment =
+		"@brief Interface indicating that the implementing widget behaves as a modal dialog that can emit Confirmed/Canceled/Shown events"
+	))
 class MODIOUICORE_API UModioUIDialog : public UInterface
 {
 	GENERATED_BODY()

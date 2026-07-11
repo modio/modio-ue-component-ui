@@ -85,7 +85,7 @@ void FModioUICore::RequestEmailAuthCodeForTesting(const TArray<FString>& Args, U
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
 		Subsystem->RequestEmailAuthCodeAsync(
-			FModioEmailAddress(Args[0]), FOnErrorOnlyDelegateFast::CreateLambda([&OutputDevice](FModioErrorCode ec) {
+			FModioEmailAddress(Args[0]), FOnErrorOnlyDelegateFast::CreateLambda([](FModioErrorCode ec) {
 				// OutputDevice.Log(ec ? ELogVerbosity::Fatal : ELogVerbosity::Display, ec.GetErrorMessage());
 			}));
 	}
@@ -102,7 +102,7 @@ void FModioUICore::SubmitEmailAuthCodeForTesting(const TArray<FString>& Args, UW
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
 		Subsystem->AuthenticateUserEmailAsync(
-			FModioEmailAuthCode(Args[0]), FOnErrorOnlyDelegateFast::CreateLambda([&OutputDevice](FModioErrorCode ec) {
+			FModioEmailAuthCode(Args[0]), FOnErrorOnlyDelegateFast::CreateLambda([](FModioErrorCode ec) {
 				// OutputDevice.Log(ec ? ELogVerbosity::Fatal : ELogVerbosity::Display, ec.GetErrorMessage());
 			}));
 	}

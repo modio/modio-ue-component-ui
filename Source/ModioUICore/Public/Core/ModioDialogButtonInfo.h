@@ -34,7 +34,7 @@ struct MODIOUICORE_API FModioDialogButtonInfo
 	/**
 	 * @brief Style to apply to the button
 	 */
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|Dialog", meta = (MetaClass = "CommonButtonStyle"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "mod.io|UI|Dialog", meta = (MetaClass = "/Script/CommonUI.CommonButtonStyle"))
 	FClassPathOverride StyleOverride;
 
 	/**

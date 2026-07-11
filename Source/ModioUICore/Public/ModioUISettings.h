@@ -36,9 +36,40 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Config, Category = "modio UI")
 	TSoftObjectPtr<UMaterial> FakeCaretMaterial;
 
+protected:
+
 	/**
-	 * Named sets of filter parameters for use in the default PresetFilterSelector UI component
+	 * Named sets of filter parameters for use in the default mod browser when the marketplace is disabled
 	 */
 	UPROPERTY(EditDefaultsOnly, config, Category = "UI Configuration")
 	TArray<FModioPresetFilterParams> PresetNamedFilters;
+
+	/**
+	 * Named sets of filter parameters for use in the default mod browser when the marketplace is enabled
+	 */
+	UPROPERTY(EditDefaultsOnly, config, Category = "UI Configuration")
+	TArray<FModioPresetFilterParams> MarketplaceEnabledPresetNamedFilters;
+
+public:
+
+	/**
+	 * Get the correct filters based on whether the marketplace is enabled or not
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "UI Configuration")
+	static const TArray<FModioPresetFilterParams>& GetPresetNamedFilters();
+
+	/**
+	 * Get the correct filters based on whether the marketplace is enabled or not
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "UI Configuration")
+	static const FModioPresetFilterParams& GetPresetFilterByName(const FText& PresetFilterName, bool& bSuccess);
+
+	/**
+	 * Named sets of filter parameters for use in defining preset collections search
+	 */
+	UPROPERTY(EditDefaultsOnly, config, Category = "UI Configuration")
+	FModioPresetFilterParams DefaultCollectionsFilter;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "UI Configuration")
+	static FModioPresetFilterParams GetDefaultCollectionsFilter();
 };

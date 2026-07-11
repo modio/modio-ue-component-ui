@@ -18,7 +18,7 @@ void IModioUITokenPackListInterface::SetTokenPacksFromTokenPackList_Implementati
                                                                                     bool bAddToExisting)
 {
 	TArray<UObject*> WrappedTokenPackList;
-	Algo::Transform(InList.GetRawList(), WrappedTokenPackList, [this](const FModioTokenPack& In) {
+	Algo::Transform(InList.GetRawList(), WrappedTokenPackList, [](const FModioTokenPack& In) {
 		UModioTokenPackUI* WrappedMod = NewObject<UModioTokenPackUI>();
 		WrappedMod->Underlying = In;
 		return WrappedMod;
@@ -30,7 +30,7 @@ void IModioUITokenPackListInterface::SetTokenPacksFromTokenPackArray_Implementat
 	const TArray<FModioTokenPack>& InArray, bool bAddToExisting)
 {
 	TArray<UObject*> WrappedModList;
-	Algo::Transform(InArray, WrappedModList, [this](const FModioTokenPack& In) {
+	Algo::Transform(InArray, WrappedModList, [](const FModioTokenPack& In) {
 		UModioTokenPackUI* WrappedMod = NewObject<UModioTokenPackUI>();
 		WrappedMod->Underlying = In;
 		return WrappedMod;

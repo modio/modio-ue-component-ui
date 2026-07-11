@@ -7,6 +7,7 @@
 #include "DetailsCustomizations/ClassPathOverrideDetailsCustomization.h"
 #include "DetailsCustomizations/LinearColorRefDetailsCustomization.h"
 #include "Factories/ModioModInfoUIFactory.h"
+#include "Factories/ModioModCollectionInfoUIFactory.h"
 #include "Factories/ModioModProgressInfoUIFactory.h"
 #include "Factories/ModioUserUIFactory.h"
 #include "IAssetTools.h"
@@ -25,6 +26,7 @@ void FModioUICoreEditor::StartupModule()
 	// Register custom asset actions for our preview data binding objects
 	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 	AssetActions.Add(MakeShared<FModioModInfoUIAssetActions>());
+	AssetActions.Add(MakeShared<FModioModCollectionInfoUIAssetActions>());
 	AssetActions.Add(MakeShared<FModioModProgressInfoUIAssetActions>());
 	AssetActions.Add(MakeShared<FModioUserUIAssetActions>());
 	for (const auto& CurrentAssetAction : AssetActions)

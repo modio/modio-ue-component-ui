@@ -32,7 +32,13 @@ enum class EModioUIMediaDownloadEventType : uint8
 	ModCreatorAvatarImage,
 
 	/** Downloading a logo **/
-	ModLogo
+	ModLogo,
+
+	/* Downloading a collection logo */
+	ModCollectionLogo,
+
+	/* Downloading a collection curator avatar */
+	ModCollectionCuratorAvatarImage
 };
 
 ENUM_CLASS_FLAGS(EModioUIMediaDownloadEventType);
@@ -56,28 +62,43 @@ class MODIOUICORE_API IModioUIMediaDownloadCompletedReceiver : public IInterface
 	bool bRoutedMediaDownloadCompleted = false;
 
 	void GalleryImageDownloadHandler(FModioModID ModID, FModioErrorCode ErrorCode, int32 Index,
-									 TOptional<FModioImageWrapper> Image);
+	                                 TOptional<FModioImageWrapper> Image);
 	void ModLogoDownloadHandler(FModioModID ModID, FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image,
-								EModioLogoSize LogoSize);
+	                            EModioLogoSize LogoSize);
 
 	void CreatorAvatarDownloadHandler(FModioModID ModID, FModioErrorCode ErrorCode,
-									  TOptional<FModioImageWrapper> Image);
+	                                  TOptional<FModioImageWrapper> Image);
+
+	void ModCollectionLogoDownloadHandler(FModioModCollectionID ID, FModioErrorCode ErrorCode,
+	                                      TOptional<FModioImageWrapper> Image,
+	                                      EModioLogoSize LogoSize);
+
+	void ModCollectionCuratorAvatarDownloadHandler(FModioModCollectionID ID, FModioErrorCode ErrorCode,
+	                                               TOptional<FModioImageWrapper> Image);
 
 	static void GalleryImageDownloadHandlerK2Helper(FModioModID ModID, FModioErrorCode ErrorCode, int32 Index,
-													TOptional<FModioImageWrapper> Image,
-													TWeakObjectPtr<UObject> ImplementingObject);
+	                                                TOptional<FModioImageWrapper> Image,
+	                                                TWeakObjectPtr<UObject> ImplementingObject);
 	static void ModLogoDownloadHandlerK2Helper(FModioModID ModID, FModioErrorCode ErrorCode,
-											   TOptional<FModioImageWrapper> Image, EModioLogoSize LogoSize,
-											   TWeakObjectPtr<UObject> ImplementingObject);
+	                                           TOptional<FModioImageWrapper> Image, EModioLogoSize LogoSize,
+	                                           TWeakObjectPtr<UObject> ImplementingObject);
 	static void CreatorAvatarDownloadHandlerK2Helper(FModioModID ModID, FModioErrorCode ErrorCode,
-													 TOptional<FModioImageWrapper> Image,
-													 TWeakObjectPtr<UObject> ImplementingObject);
+	                                                 TOptional<FModioImageWrapper> Image,
+	                                                 TWeakObjectPtr<UObject> ImplementingObject);
+	static void ModCollectionLogoDownloadHandlerK2Helper(FModioModCollectionID ID, FModioErrorCode ErrorCode,
+	                                                     TOptional<FModioImageWrapper> Image, EModioLogoSize LogoSize,
+	                                                     TWeakObjectPtr<UObject> ImplementingObject);
+	static void ModCollectionCuratorAvatarDownloadHandlerK2Helper(FModioModCollectionID ID, FModioErrorCode ErrorCode,
+	                                                              TOptional<FModioImageWrapper> Image,
+	                                                              TWeakObjectPtr<UObject> ImplementingObject);
 	friend class UModioUIMediaDownloadCompletedReceiverLibrary;
 
 protected:
 	inline static TMap<TWeakObjectPtr<>, FDelegateHandle> RegistrationMapGallery;
 	inline static TMap<TWeakObjectPtr<>, FDelegateHandle> RegistrationMapLogo;
 	inline static TMap<TWeakObjectPtr<>, FDelegateHandle> RegistrationMapAvatar;
+	inline static TMap<TWeakObjectPtr<>, FDelegateHandle> RegistrationMapCollectionLogo;
+	inline static TMap<TWeakObjectPtr<>, FDelegateHandle> RegistrationMapCollectionAvatar;
 
 	template<typename ImplementingClass>
 	void Register(EModioUIMediaDownloadEventType DownloadTypes)
@@ -105,6 +126,20 @@ protected:
 					&IModioUIMediaDownloadCompletedReceiver::CreatorAvatarDownloadHandler,
 					*Cast<ImplementingClass>(this));
 			}
+			if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModCollectionLogo))
+			{
+				Subsystem->RegisterEventHandler<IModioUIMediaDownloadCompletedReceiver>(
+					Subsystem->OnModCollectionLogoDownloadCompleted,
+					&IModioUIMediaDownloadCompletedReceiver::ModCollectionLogoDownloadHandler,
+					*Cast<ImplementingClass>(this));
+			}
+			if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModCollectionCuratorAvatarImage))
+			{
+				Subsystem->RegisterEventHandler<IModioUIMediaDownloadCompletedReceiver>(
+					Subsystem->OnModCollectionCuratorAvatarDownloadCompleted,
+					&IModioUIMediaDownloadCompletedReceiver::ModCollectionCuratorAvatarDownloadHandler,
+					*Cast<ImplementingClass>(this));
+			}
 		}
 	}
 
@@ -128,6 +163,18 @@ protected:
 			{
 				Subsystem->DeregisterEventHandler<&IModioUIMediaDownloadCompletedReceiver::GalleryImageDownloadHandler>(
 					Subsystem->OnModCreatorAvatarDownloadCompleted, *Cast<ImplementingClass>(this));
+			}
+			if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModCollectionLogo))
+			{
+				Subsystem->DeregisterEventHandler<&
+					IModioUIMediaDownloadCompletedReceiver::ModCollectionLogoDownloadHandler>(
+					Subsystem->OnModCollectionLogoDownloadCompleted, *Cast<ImplementingClass>(this));
+			}
+			if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModCollectionCuratorAvatarImage))
+			{
+				Subsystem->DeregisterEventHandler<&
+					IModioUIMediaDownloadCompletedReceiver::ModCollectionCuratorAvatarDownloadHandler>(
+					Subsystem->OnModCollectionCuratorAvatarDownloadCompleted, *Cast<ImplementingClass>(this));
 			}
 		}
 	}
@@ -159,6 +206,21 @@ protected:
 						Subsystem->OnModCreatorAvatarDownloadCompleted,
 						&IModioUIMediaDownloadCompletedReceiver::CreatorAvatarDownloadHandlerK2Helper,
 						RegistrationMapAvatar, TWeakObjectPtr<>(ObjectToRegister));
+				}
+				if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModCollectionLogo))
+				{
+					Subsystem->RegisterEventHandlerFromK2(
+						Subsystem->OnModCollectionLogoDownloadCompleted,
+						&IModioUIMediaDownloadCompletedReceiver::ModCollectionLogoDownloadHandlerK2Helper,
+						RegistrationMapCollectionLogo,
+						TWeakObjectPtr<>(ObjectToRegister));
+				}
+				if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModCollectionCuratorAvatarImage))
+				{
+					Subsystem->RegisterEventHandlerFromK2(
+						Subsystem->OnModCollectionCuratorAvatarDownloadCompleted,
+						&IModioUIMediaDownloadCompletedReceiver::ModCollectionCuratorAvatarDownloadHandlerK2Helper,
+						RegistrationMapCollectionAvatar, TWeakObjectPtr<>(ObjectToRegister));
 				}
 			}
 		}
@@ -192,27 +254,57 @@ protected:
 						&IModioUIMediaDownloadCompletedReceiver::CreatorAvatarDownloadHandlerK2Helper,
 						RegistrationMapAvatar, TWeakObjectPtr<>(ObjectToDeregister));
 				}
+				if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModCollectionLogo))
+				{
+					Subsystem->DeregisterEventHandlerFromK2(
+						Subsystem->OnModCollectionLogoDownloadCompleted,
+						&IModioUIMediaDownloadCompletedReceiver::ModCollectionLogoDownloadHandlerK2Helper,
+						RegistrationMapCollectionLogo,
+						TWeakObjectPtr<>(ObjectToDeregister));
+				}
+				if (EnumHasAllFlags(DownloadTypes, EModioUIMediaDownloadEventType::ModCollectionCuratorAvatarImage))
+				{
+					Subsystem->DeregisterEventHandlerFromK2(
+						Subsystem->OnModCollectionCuratorAvatarDownloadCompleted,
+						&IModioUIMediaDownloadCompletedReceiver::ModCollectionCuratorAvatarDownloadHandlerK2Helper,
+						RegistrationMapCollectionAvatar, TWeakObjectPtr<>(ObjectToDeregister));
+				}
 			}
 		}
 	}
 
 	virtual void NativeOnModLogoDownloadCompleted(FModioModID ModID, FModioErrorCode ErrorCode,
-												  TOptional<FModioImageWrapper> Image, EModioLogoSize LogoSize);
+	                                              TOptional<FModioImageWrapper> Image, EModioLogoSize LogoSize);
 	virtual void NativeOnModGalleryImageDownloadCompleted(FModioModID ModID, FModioErrorCode ErrorCode,
-														  int32 ImageIndex, TOptional<FModioImageWrapper> Image);
+	                                                      int32 ImageIndex, TOptional<FModioImageWrapper> Image);
 	virtual void NativeOnModCreatorAvatarDownloadCompleted(FModioModID ModID, FModioErrorCode ErrorCode,
-														   TOptional<FModioImageWrapper> Image);
+	                                                       TOptional<FModioImageWrapper> Image);
+	virtual void NativeOnModCollectionLogoDownloadCompleted(FModioModCollectionID ModCollectionID,
+	                                                        FModioErrorCode ErrorCode,
+	                                                        TOptional<FModioImageWrapper> Image,
+	                                                        EModioLogoSize LogoSize);
+	virtual void NativeOnModCollectionCuratorAvatarDownloadCompleted(FModioModCollectionID ModCollectionID,
+	                                                                 FModioErrorCode ErrorCode,
+	                                                                 TOptional<FModioImageWrapper> Image);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "mod.io|UI|Events|Media", meta = (BlueprintProtected))
 	void OnModGalleryImageDownloadCompleted(FModioModID ModID, FModioErrorCode ErrorCode, int32 ImageIndex,
-											FModioOptionalImage Image);
+	                                        FModioOptionalImage Image);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "mod.io|UI|Events|Media", meta = (BlueprintProtected))
 	void OnModLogoDownloadCompleted(FModioModID ModID, FModioErrorCode ErrorCode, FModioOptionalImage Image,
-									EModioLogoSize LogoSize);
+	                                EModioLogoSize LogoSize);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "mod.io|UI|Events|Media", meta = (BlueprintProtected))
 	void OnModCreatorAvatarDownloadCompleted(FModioModID ModID, FModioErrorCode ErrorCode, FModioOptionalImage Image);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "mod.io|UI|Events|Media", meta = (BlueprintProtected))
+	void OnModCollectionLogoDownloadCompleted(FModioModCollectionID ModCollectionID, FModioErrorCode ErrorCode,
+	                                          FModioOptionalImage Image, EModioLogoSize LogoSize);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "mod.io|UI|Events|Media", meta = (BlueprintProtected))
+	void OnModCollectionCuratorAvatarDownloadCompleted(FModioModCollectionID ModCollectionID, FModioErrorCode ErrorCode,
+	                                                   FModioOptionalImage Image);
 };
 
 UCLASS()
@@ -226,7 +318,7 @@ class MODIOUICORE_API UModioUIMediaDownloadCompletedReceiverLibrary : public UBl
 	/// @param DownloadTypes Which type of event to register for
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Event Handlers")
 	static void RegisterMediaDownloadCompletedReceiver(UObject* ObjectToRegister,
-													   EModioUIMediaDownloadEventType DownloadTypes);
+	                                                   EModioUIMediaDownloadEventType DownloadTypes);
 
 	/// @brief Deregisters a UObject as a receiver for GetModMedia UI events provided it implements
 	/// UModioUIModInfoReceiver
@@ -234,5 +326,5 @@ class MODIOUICORE_API UModioUIMediaDownloadCompletedReceiverLibrary : public UBl
 	/// @param DownloadTypes Which type of event to register for
 	UFUNCTION(BlueprintCallable, Category = "mod.io|UI|Event Handlers")
 	static void DeregisterMediaDownloadCompletedReceiver(UObject* ObjectToDeregister,
-														 EModioUIMediaDownloadEventType DownloadTypes);
+	                                                     EModioUIMediaDownloadEventType DownloadTypes);
 };

@@ -39,7 +39,7 @@ class MODIOUICORE_API UModioUICommandMenu : public UInterface
 
 // clang-format on
 
-class IModioUICommandMenu
+class MODIOUICORE_API IModioUICommandMenu
 {
 	GENERATED_BODY()
 
