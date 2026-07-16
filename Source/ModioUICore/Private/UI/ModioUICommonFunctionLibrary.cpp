@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2024-2025 mod.io Pty Ltd. <https://mod.io>
+ *  Copyright (C) 2024-2026 mod.io Pty Ltd. <https://mod.io>
  *
  *  This file is part of the mod.io UE Plugin.
  *
@@ -9,20 +9,21 @@
  */
 
 #include "UI/ModioUICommonFunctionLibrary.h"
+#include "Components/TextBlock.h"
 #include "Core/ModioModDependencyUI.h"
 #include "Core/ModioPropertyOverrides.h"
 #include "Core/ModioUserUI.h"
+#include "Engine/AssetManager.h"
 #include "Internationalization/StringTable.h"
 #include "Libraries/ModioModTagOptionsLibrary.h"
+#include "Libraries/ModioSDKLibrary.h"
+#include "Loc/ModioEnumLocalizationHelpers.h"
 #include "ModioSettings.h"
 #include "ModioSubsystem.h"
-#include "Components/TextBlock.h"
-#include "Libraries/ModioSDKLibrary.h"
-#include "UObject/UnrealType.h"
-#include "Loc/ModioEnumLocalizationHelpers.h"
+#include "ModioUISubsystem.h"
 #include "UI/Interfaces/IModioModCollectionInfoUIDetails.h"
 #include "UI/Interfaces/IModioModDependencyUIDetails.h"
-#include "Engine/AssetManager.h"
+#include "UObject/UnrealType.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUICommonFunctionLibrary)
 
@@ -411,6 +412,29 @@ void UModioUICommonFunctionLibrary::ApplyTextPropertyOverridesHelper(
 			UnderlyingWidget->SetTextTransformPolicy(ResolvedTransform);
 		}
 	}
+}
+
+FText UModioUICommonFunctionLibrary::GetModDisplayPriceText(const FModioModInfo& InModInfo)
+{
+	UModioUISubsystem* ModioUISubsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
+	if (!ModioUISubsystem)
+	{
+		return FText::GetEmpty();
+	}
+
+	if (!ModioUISubsystem->IsUGCFeatureEnabled(EModioUIFeatureFlags::FiatMonetization))
+	{
+		return UModioUnsigned64Library::Conv_FModioUnsigned64ToText(InModInfo.Price);
+	}
+
+	bool bValid = false;
+	FModioTokenPack FoundSKU = ModioUISubsystem->GetSKUMappingBySKUMappingArray(InModInfo.SKUMappings, bValid);
+	if (bValid)
+	{
+		return FoundSKU.GetDisplayPrice();
+	}
+
+	return FText::GetEmpty();
 }
 
 #if WITH_EDITORONLY_DATA

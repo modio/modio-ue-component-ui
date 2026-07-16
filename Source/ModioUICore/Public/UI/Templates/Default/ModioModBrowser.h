@@ -16,6 +16,7 @@
 #include "UI/EventHandlers/IModioUIModCollectionInfoReceiver.h"
 #include "UI/EventHandlers/IModioUIModInfoReceiver.h"
 #include "UI/EventHandlers/IModioUISubscriptionsChangedReceiver.h"
+#include "UI/EventHandlers/IModioUITokenPackReceiver.h"
 #include "UI/EventHandlers/IModioUIWalletBalanceUpdatedEventReceiver.h"
 #include "UI/Interfaces/IModioUIClickableWidget.h"
 #include "UI/Interfaces/IModioUIHasTextWidget.h"
@@ -46,7 +47,8 @@ class MODIOUICORE_API UModioModBrowser : public UModioUIComponentBase,
 										 public IModioUIDialogDisplayEventReceiver,
 										 public IModioUIModTagSelector,
 										 public IModioUIWalletBalanceUpdatedEventReceiver,
-										 public IModioUISubscriptionsChangedReceiver
+										 public IModioUISubscriptionsChangedReceiver,
+										 public IModioUITokenPackReceiver
 {
 	GENERATED_BODY()
 

@@ -328,6 +328,9 @@ public:
 	                                             const struct FTextTransformOverride& TextTransformOverride,
 	                                             UObject* Target);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "mod.io|UI|Utilities", meta = (DefaultToSelf = "Target"))
+	static FText GetModDisplayPriceText(const FModioModInfo& InModInfo);
+
 	#if WITH_EDITORONLY_DATA
 
 private:

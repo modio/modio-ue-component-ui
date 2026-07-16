@@ -37,6 +37,12 @@ void UModioModBrowser::NativeConstruct()
 	Super::NativeConstruct();
 
 	FSlateApplication::Get().OnFocusChanging().AddUObject(this, &UModioModBrowser::HandleFocusChanging);
+
+	UModioUISubsystem* UISubsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
+	if (UISubsystem && UISubsystem->IsUGCFeatureEnabled(EModioUIFeatureFlags::Monetization))
+	{
+		UISubsystem->RequestListAllTokenPacks();
+	}
 }
 
 void UModioModBrowser::NativeDestruct()

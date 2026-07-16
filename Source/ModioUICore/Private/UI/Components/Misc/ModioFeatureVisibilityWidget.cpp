@@ -19,7 +19,9 @@ TSharedRef<SWidget> UModioFeatureVisibilityWidget::RebuildWidget()
 {
 	if (UModioUISubsystem* UISubsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>())
 	{
-		if (UISubsystem->IsUGCFeatureEnabled(FeatureToCheck))
+		const bool bFeatureEnabled = UISubsystem->IsUGCFeatureEnabled(FeatureToCheck);
+		const bool bDisplay = bInvertCheck ? !bFeatureEnabled : bFeatureEnabled;
+		if (bDisplay)
 		{
 			if (GetChildrenCount() > 0)
 			{

@@ -16,7 +16,7 @@
 #include "UI/Interfaces/ModioTokenPackUIDetails.h"
 
 #if WITH_EDITOR
-#include "Editor/WidgetCompilerLog.h"
+	#include "Editor/WidgetCompilerLog.h"
 #endif
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ModioDefaultTokenPackTileView)
@@ -59,13 +59,14 @@ void UModioDefaultTokenPackTileView::NativeSetListItems(const TArray<UObject*>& 
 
 void UModioDefaultTokenPackTileView::NativeSetTokenPackSelectionByID(FModioTokenPackID TokenPackID)
 {
-	UObject* const* FirstItemMatchingTokenPackID = GetListItems().FindByPredicate([TokenPackID](UObject* CurrentListItem) {
-		if (!CurrentListItem || !CurrentListItem->Implements<UModioTokenPackUIDetails>())
-		{
-			return false;
-		}
-		return IModioTokenPackUIDetails::Execute_GetTokenPackID(CurrentListItem) == TokenPackID;
-	});
+	UObject* const* FirstItemMatchingTokenPackID =
+		GetListItems().FindByPredicate([TokenPackID](UObject* CurrentListItem) {
+			if (!CurrentListItem || !CurrentListItem->Implements<UModioTokenPackUIDetails>())
+			{
+				return false;
+			}
+			return IModioTokenPackUIDetails::Execute_GetModioId(CurrentListItem) == TokenPackID;
+		});
 	if (FirstItemMatchingTokenPackID)
 	{
 		SetSelectedItem(*FirstItemMatchingTokenPackID);
@@ -172,14 +173,14 @@ void UModioDefaultTokenPackTileView::RemoveSelectionChangedHandler_Implementatio
 }
 
 void UModioDefaultTokenPackTileView::SetSelectedStateForIndex_Implementation(int32 Index, bool bNewSelectionState,
-	bool bEmitSelectionEvent)
+																			 bool bEmitSelectionEvent)
 {
 	IModioUIObjectSelector::Execute_SetSelectedStateForValue(this, GetItemAt(Index), bNewSelectionState,
 															 bEmitSelectionEvent);
 }
 
 void UModioDefaultTokenPackTileView::SetSelectedStateForValue_Implementation(UObject* Value, bool bNewSelectionState,
-	bool bEmitSelectionEvent)
+																			 bool bEmitSelectionEvent)
 {
 	// override the default event emission setting so that our handler for selection changed knows if it should emit
 	// events
@@ -223,13 +224,14 @@ int32 UModioDefaultTokenPackTileView::GetIndexForValue_Implementation(UObject* V
 }
 
 UUserWidget& UModioDefaultTokenPackTileView::OnGenerateEntryWidgetInternal(UObject* Item,
-	TSubclassOf<UUserWidget> DesiredEntryClass, const TSharedRef<STableViewBase>& OwnerTable)
+																		   TSubclassOf<UUserWidget> DesiredEntryClass,
+																		   const TSharedRef<STableViewBase>& OwnerTable)
 {
-	UUserWidget& GeneratedEntryWidget = [this, DesiredEntryClass, OwnerTable, Item]() -> UUserWidget&
-	{
+	UUserWidget& GeneratedEntryWidget = [this, DesiredEntryClass, OwnerTable, Item]() -> UUserWidget& {
 		if (DesiredEntryClass->ImplementsInterface(UModioUIDataSourceWidget::StaticClass()))
 		{
-			return GenerateTypedEntry<UUserWidget, SModioDataSourceAwareTableRow<UObject*>>(DesiredEntryClass, OwnerTable);
+			return GenerateTypedEntry<UUserWidget, SModioDataSourceAwareTableRow<UObject*>>(DesiredEntryClass,
+																							OwnerTable);
 		}
 		return Super::OnGenerateEntryWidgetInternal(Item, DesiredEntryClass, OwnerTable);
 	}();

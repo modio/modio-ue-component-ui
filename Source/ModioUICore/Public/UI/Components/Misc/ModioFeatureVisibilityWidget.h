@@ -37,6 +37,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "mod.io|UI|Feature Visibility Widget",
 			  meta = (BlueprintProtected))
 	EModioUIFeatureFlags FeatureToCheck;
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "mod.io|UI|Feature Visibility Widget",
+			  meta = (BlueprintProtected))
+	bool bInvertCheck = false;
 
 	MODIO_WIDGET_PALETTE_OVERRIDE();
 };
