@@ -13,6 +13,12 @@ custom_edit_url: https://github.com/modio/modio-ue4-internal/blob/develop/Plugin
 If you are after a ready-made UGC browser, [Template UI](https://docs.mod.io/in-game-ui/template) is a fully-featured UGC browser built using Component UI.
 :::
 
+:::warning[Register a portal interface]
+Component UI routes platform-specific requests such as SSO auth tokens, entitlements, token packs, and the platform storefront through a portal interface you provide.  Register one with `UModioUISubsystem::RegisterPortalInterface`, passing an object that implements `IModioPortalInterface`.
+
+If no portal interface is registered, these calls will fail and log an error to the `ModioUICore` category.
+:::
+
 ### List of Component UI Guides for Unreal Engine
 
 * [Component UI Framework](/unreal/component-ui) < *you are here*

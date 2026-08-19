@@ -19,6 +19,7 @@
 #include "GenericPlatform/GenericPlatformMath.h"
 #include "IHeadMountedDisplay.h"
 #include "IXRTrackingSystem.h"
+#include "Interfaces/IModioPortalInterface.h"
 #include "Libraries/ModioErrorConditionLibrary.h"
 #include "Loc/BeginModioLocNamespace.h"
 #include "Math/IntPoint.h"
@@ -29,6 +30,7 @@
 #include "ModioUICore.h"
 #include "OnlineSubsystem.h"
 #include "Types/ModioTokenPackList.h"
+#include "UI/ModioUIDefaultFeedbackProvider.h"
 
 #include "Interfaces/OnlineEntitlementsInterface.h"
 #include "Interfaces/OnlineExternalUIInterface.h"
@@ -43,6 +45,32 @@
 #include "Algo/Find.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ModioUISubsystem)
+
+static FAutoConsoleCommand CmdTestSso(
+	TEXT("Modio.Online.TestSSO"), TEXT("Test SSO with custom arguments for scope and client. Args: client_id"),
+	FConsoleCommandWithArgsDelegate::CreateLambda([](const TArray<FString>& Args) {
+		if (Args.Num() == 1)
+		{
+			TMap<FString, FString> Params;
+			Params.Add("client_id", Args[0]);
+			UModioUISubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioUISubsystem>();
+			if (Subsystem)
+			{
+				if (!Subsystem->GetPortalInterface().GetObject())
+				{
+					UE_LOG(ModioUICore, Error,
+						   TEXT("Cannot test SSO because the portal interface is not set."));
+					return;
+				}
+				IModioPortalInterface::Execute_RequestAuthToken(
+					Subsystem->GetPortalInterface().GetObject(), Params,
+					UAuthTokenRequestedProxy::CreateProxyDelegate(
+						FAuthTokenRequestedDelegateFast::CreateLambda([](const FString& Result) {
+							UE_LOG(ModioUICore, Warning, TEXT("Response to SSO Test: %s"), *Result);
+						})));
+			}
+		}
+	}));
 
 void UModioUISubsystem::GetPreloadDependencies(TArray<UObject*>& OutDeps)
 {
@@ -110,6 +138,14 @@ void UModioUISubsystem::RequestPurchaseForModIDWithHandler(FModioModID ID, FModi
 void UModioUISubsystem::RequestPurchaseWithEntitlementForModIDWithHandler(FModioModID ID,
 																		  const FOnPurchaseModDelegate& Callback)
 {
+	if (!PortalInterface.GetObject()) 
+	{
+		UE_LOG(ModioUICore, Error,
+			   TEXT("Cannot RequestPurchaseWithEntitlementForModIDWithHandler because the portal interface is not set."));
+		Callback.ExecuteIfBound(FModioErrorCode::SystemError(), {});
+		return;
+	}
+
 	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
 	{
 		FEntitlementParamsRequestedDelegate Delegate =
@@ -126,7 +162,7 @@ void UModioUISubsystem::RequestPurchaseWithEntitlementForModIDWithHandler(FModio
 							}));
 				}));
 
-		IModioPortalInterface::Execute_RequestEntitlementParams(Subsystem->GetPortalInterfaceObject(), {}, Delegate);
+		IModioPortalInterface::Execute_RequestEntitlementParams(PortalInterface.GetObject(), {}, Delegate);
 	}
 }
 
@@ -363,6 +399,10 @@ void UModioUISubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	SetModRatingStateDataProvider(this);
 	SetModCollectionRatingStateDataProvider(this);
+
+	// A default feedback provider so feedback works out of the box, studios can override via
+	// SetUIInteractionFeedbackProvider
+	UIInteractionFeedbackProvider = NewObject<UModioUIDefaultFeedbackProvider>(this);
 }
 
 void UModioUISubsystem::SetModEnabledStateDataProvider(
@@ -664,61 +704,39 @@ void UModioUISubsystem::RequestGetModCollectionMods(FModioModCollectionID Collec
 
 void UModioUISubsystem::RequestListAllTokenPacks()
 {
-	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	if (!PortalInterface.GetObject())
 	{
-		FSKUMappingsRequestedDelegate Handler =
-			USKUMappingsRequestedProxy::CreateProxyDelegate(FSKUMappingsRequestedDelegateFast::CreateLambda(
-				[this, Subsystem](const TArray<FModioTokenPack>& SKUMappings) {
-					SetCachedSKUMappings(SKUMappings);
-					FModioTokenPackList OffersList = FModioTokenPackList(SKUMappings);
-					ListAllTokenPacksCompletedHandler(FModioErrorCode(), TOptional<FModioTokenPackList>(OffersList));
-				}));
-		IModioPortalInterface::Execute_RequestSKUMappings(Subsystem->GetPortalInterfaceObject(), Handler);
+		UE_LOG(ModioUICore, Error,
+			   TEXT("Cannot RequestListAllTokenPacks because the portal interface is not set."));
+		return;
 	}
+
+	FSKUMappingsRequestedDelegate Handler = USKUMappingsRequestedProxy::CreateProxyDelegate(
+		FSKUMappingsRequestedDelegateFast::CreateLambda([this](const TArray<FModioTokenPack>& SKUMappings) {
+			SetCachedSKUMappings(SKUMappings);
+			FModioTokenPackList OffersList = FModioTokenPackList(SKUMappings);
+			ListAllTokenPacksCompletedHandler(FModioErrorCode(), TOptional<FModioTokenPackList>(OffersList));
+		}));
+	IModioPortalInterface::Execute_RequestSKUMappings(PortalInterface.GetObject(), Handler);
 }
 
-bool UModioUISubsystem::RequestPurchaseTokenPack(FModioTokenPackID TokenPackID, const FOnPlatformCheckoutDelegate& Callback)
+bool UModioUISubsystem::RequestPurchaseTokenPack(FModioTokenPackID TokenPackID,
+												 const FOnPlatformCheckoutDelegate& Callback)
 {
-	if (TokenPackID.ToString().IsEmpty())
+	if (!PortalInterface.GetObject())
 	{
-		Callback.Execute(false, "Tried to purchase a token pack with an invalid ID");
+		UE_LOG(ModioUICore, Error, TEXT("Cannot RequestListAllTokenPacks because the portal interface is not set."));
+		Callback.ExecuteIfBound(false,
+								TEXT("Cannot RequestListAllTokenPacks because the portal interface is not set."));
 		return false;
 	}
 
-	if (IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::GetByPlatform())
-	{
-		if (UModioSubsystem* ModioSubsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
-		{
-			if (OnlineSubsystem->GetPurchaseInterface().IsValid()
-				&& OnlineSubsystem->GetIdentityInterface().IsValid())
-			{
-				EModioPortal CurrentPortal = ModioSubsystem->GetCurrentPortal();
-				FUniqueNetIdPtr Id = OnlineSubsystem->GetIdentityInterface()->GetUniquePlayerId(0);
-				FPurchaseCheckoutRequest PurchaseRequest;
-				PurchaseRequest.AddPurchaseOffer("", TokenPackID.ToString(), 1, true);
-				FOnPurchaseCheckoutComplete CheckoutCallback;
-				CheckoutCallback.BindLambda(
-					[this, ModioSubsystem, OnlineSubsystem, Callback, Id](const FOnlineError& Error,
-																		  const TSharedRef<FPurchaseReceipt>& Receipt) {
-						if (!Error.WasSuccessful())
-						{
-							Callback.Execute(false, "Checkout failed with error: " + Error.ErrorRaw);
-							return;
-						}
-						OnlineSubsystem->GetPurchaseInterface()->FinalizePurchase(*Id.Get(), Receipt.Get().TransactionId);
-						Callback.Execute(true, "Successfully purchased offer.");
-					});
-				OnlineSubsystem->GetPurchaseInterface()->Checkout(*Id.Get(), PurchaseRequest, CheckoutCallback);
-				return true;
-			}
-			Callback.Execute(false, "No purchase, entitlement, or identity interface");
-			return false;
-		}
-		Callback.Execute(false, "No modio subsystem");
-		return false;
-	}
-	Callback.Execute(false, "No online subsystem");
-	return false;
+	FStorePurchaseDelegate Handler = UStorePurchaseProxy::CreateProxyDelegate(
+		FStorePurchaseDelegateFast::CreateLambda([this, Callback](bool bSuccess, const FString& ErrorMessage) {
+			Callback.ExecuteIfBound(bSuccess, ErrorMessage);
+		}));
+	return IModioPortalInterface::Execute_RequestStorePurchase(PortalInterface.GetObject(), TokenPackID.ToString(),
+															   Handler);
 }
 
 void UModioUISubsystem::LogoDownloadHandler(FModioErrorCode ErrorCode, TOptional<FModioImageWrapper> Image,
@@ -1039,6 +1057,33 @@ void UModioUISubsystem::SetModCollectionRatingStateDataProvider(
 	ModCollectionRatingStateProvider = InModCollectionRatingStateProvider.GetObject();
 }
 
+void UModioUISubsystem::SetUIInteractionFeedbackProvider(
+	TScriptInterface<IModioUIInteractionFeedback> InUIInteractionFeedbackProvider)
+{
+	UIInteractionFeedbackProvider = InUIInteractionFeedbackProvider.GetObject();
+}
+
+void UModioUISubsystem::PlayUISoundFeedback(USoundBase* UIFeedbackSound, UObject* WorldContextObject)
+{
+	if (UIInteractionFeedbackProvider &&
+		UIInteractionFeedbackProvider->GetClass()->ImplementsInterface(UModioUIInteractionFeedback::StaticClass()))
+	{
+		IModioUIInteractionFeedback::Execute_PlayUISoundFeedback(UIInteractionFeedbackProvider, UIFeedbackSound,
+																 WorldContextObject);
+	}
+}
+
+void UModioUISubsystem::PlayUIForceFeedback(UForceFeedbackEffect* UIFeedbackForceEffect,
+											APlayerController* PlayerController)
+{
+	if (UIInteractionFeedbackProvider &&
+		UIInteractionFeedbackProvider->GetClass()->ImplementsInterface(UModioUIInteractionFeedback::StaticClass()))
+	{
+		IModioUIInteractionFeedback::Execute_PlayUIForceFeedback(UIInteractionFeedbackProvider, UIFeedbackForceEffect,
+																 PlayerController);
+	}
+}
+
 EModioRating UModioUISubsystem::NativeQueryModRating(int64 ModID)
 {
 	if (ModRatingMap.Contains(ModID))
@@ -1134,22 +1179,24 @@ EModioOpenStoreResult UModioUISubsystem::RequestShowTokenSKUPurchaseUIWithHandle
 {
 	if (!IsUGCFeatureEnabled(EModioUIFeatureFlags::Monetization))
 	{
-		Callback.Execute(false);
+		Callback.ExecuteIfBound(false);
 		return EModioOpenStoreResult::FailedInactive;
 	}
 
-	if (UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>())
+	if (!PortalInterface.GetObject())
 	{
-		FStoreClosedDelegate Handler = UStoreClosedProxy::CreateProxyDelegate(
-			FStoreClosedDelegateFast::CreateLambda([this, Callback](bool bSuccess) {
-				RequestRefreshEntitlements();
-				Callback.ExecuteIfBound(bSuccess);
-			}));
-
-		return IModioPortalInterface::Execute_RequestOpenStore(Subsystem->GetPortalInterfaceObject(), Handler, SKU);
+		UE_LOG(ModioUICore, Error, TEXT("Cannot RequestShowTokenSKUPurchaseUIWithHandler because the portal interface is not set."));
+		Callback.ExecuteIfBound(false);
+		return EModioOpenStoreResult::FailedUnknown;
 	}
 
-	return EModioOpenStoreResult::FailedUnknown;
+	FStoreClosedDelegate Handler =
+		UStoreClosedProxy::CreateProxyDelegate(FStoreClosedDelegateFast::CreateLambda([this, Callback](bool bSuccess) {
+			RequestRefreshEntitlements();
+			Callback.ExecuteIfBound(bSuccess);
+		}));
+
+	return IModioPortalInterface::Execute_RequestOpenStore(PortalInterface.GetObject(), SKU, Handler);
 }
 
 void UModioUISubsystem::RequestRefreshEntitlements()
@@ -1167,8 +1214,14 @@ void UModioUISubsystem::RequestRefreshEntitlements()
 		return;
 	}
 
+	if (!PortalInterface.GetObject())
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Cannot RequestRefreshEntitlements because the portal interface is not set."));
+		return;
+	}
+
 	IModioPortalInterface::Execute_RequestEntitlementParams(
-		Subsystem->GetPortalInterfaceObject(), {},
+		PortalInterface.GetObject(), {},
 		UEntitlementParamsRequestedProxy::CreateProxyDelegate(FEntitlementParamsRequestedDelegateFast::CreateLambda(
 			[Subsystem, this](const FModioEntitlementParams& EntitlementParams) {
 				Subsystem->RefreshUserEntitlementsAsync(
@@ -1187,6 +1240,30 @@ void UModioUISubsystem::RequestRefreshEntitlements()
 									   *ErrorCode.GetErrorMessage());
 							}
 						}));
+			})));
+}
+
+void UModioUISubsystem::RequestAvailableUserEntitlements(const FOnGetAvailableUserEntitlementsDelegate& OnGetUserEntitlements) 
+{
+	UModioSubsystem* Subsystem = GEngine->GetEngineSubsystem<UModioSubsystem>();
+	if (!Subsystem)
+	{
+		return;
+	}
+
+	if (!PortalInterface.GetObject())
+	{
+		UE_LOG(ModioUICore, Error, TEXT("Cannot RequestUserEntitlements because the portal interface is not set."));
+		OnGetUserEntitlements.ExecuteIfBound(FModioErrorCode::SystemError(),
+											 {});
+		return;
+	}
+
+	IModioPortalInterface::Execute_RequestEntitlementParams(
+		PortalInterface.GetObject(), {},
+		UEntitlementParamsRequestedProxy::CreateProxyDelegate(FEntitlementParamsRequestedDelegateFast::CreateLambda(
+			[Subsystem, OnGetUserEntitlements](const FModioEntitlementParams& EntitlementParams) {
+				Subsystem->K2_GetAvailableUserEntitlementsAsync(EntitlementParams, OnGetUserEntitlements);
 			})));
 }
 

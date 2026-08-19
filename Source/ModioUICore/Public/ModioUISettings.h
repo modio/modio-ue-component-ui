@@ -28,6 +28,12 @@ public:
 	TSoftObjectPtr<UDataTable> ColorsTable;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Config, Category = "modio UI")
+	TSoftObjectPtr<UDataTable> SoundsTable;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Config, Category = "modio UI")
+	TSoftObjectPtr<UDataTable> ForceFeedbackTable;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Config, Category = "modio UI")
 	TSoftObjectPtr<UDataTable> CommandsTable;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Config, Category = "modio UI")

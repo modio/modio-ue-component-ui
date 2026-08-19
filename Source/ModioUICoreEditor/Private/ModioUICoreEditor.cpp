@@ -6,6 +6,8 @@
 #include "DetailsCustomizations/BlueprintWidgetDetailsCustomization.h"
 #include "DetailsCustomizations/ClassPathOverrideDetailsCustomization.h"
 #include "DetailsCustomizations/LinearColorRefDetailsCustomization.h"
+#include "DetailsCustomizations/ModioSoundCueRefDetailsCustomization.h"
+#include "DetailsCustomizations/ModioForceFeedbackRefDetailsCustomization.h"
 #include "Factories/ModioModInfoUIFactory.h"
 #include "Factories/ModioModCollectionInfoUIFactory.h"
 #include "Factories/ModioModProgressInfoUIFactory.h"
@@ -38,6 +40,14 @@ void FModioUICoreEditor::StartupModule()
 	PropertyModule.RegisterCustomPropertyTypeLayout("LinearColorRef",
 													FOnGetPropertyTypeCustomizationInstance::CreateLambda([]() {
 														return MakeShared<FLinearColorRefDetailsCustomization>();
+													}));
+	PropertyModule.RegisterCustomPropertyTypeLayout("ModioSoundCueRef",
+													FOnGetPropertyTypeCustomizationInstance::CreateLambda([]() {
+														return MakeShared<FModioSoundCueRefDetailsCustomization>();
+													}));
+	PropertyModule.RegisterCustomPropertyTypeLayout("ModioForceFeedbackRef",
+													FOnGetPropertyTypeCustomizationInstance::CreateLambda([]() {
+														return MakeShared<FModioForceFeedbackRefDetailsCustomization>();
 													}));
 	PropertyModule.RegisterCustomPropertyTypeLayout("ClassPathOverride",
 													FOnGetPropertyTypeCustomizationInstance::CreateLambda([]() {
@@ -86,6 +96,8 @@ void FModioUICoreEditor::ShutdownModule()
 
 	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	PropertyModule.UnregisterCustomPropertyTypeLayout("LinearColorRef");
+	PropertyModule.UnregisterCustomPropertyTypeLayout("ModioSoundCueRef");
+	PropertyModule.UnregisterCustomPropertyTypeLayout("ModioForceFeedbackRef");
 	PropertyModule.UnregisterCustomPropertyTypeLayout("ClassPathOverride");
 
 	IUMGEditorModule& UMGEditorModule = FModuleManager::LoadModuleChecked<IUMGEditorModule>(TEXT("UMGEditor"));

@@ -33,10 +33,10 @@ public:
 
 protected:
 	UPROPERTY()
-	UUserWidget* HandledWidget = nullptr;
+	TObjectPtr<UUserWidget> HandledWidget = nullptr;
 
 	UPROPERTY()
-	UModioDefaultCarouselModListView* ParentListView = nullptr;
+	TObjectPtr<UModioDefaultCarouselModListView> ParentListView = nullptr;
 
 	UFUNCTION()
 	UWidget* OnNavigate(EUINavigation Navigation);
@@ -55,10 +55,10 @@ public:
 	//~ End IModioModInfoUIDetails Interface
 
 	UPROPERTY()
-	UItemWidgetNavigationHandler* NavHandler = nullptr;
+	TObjectPtr<UItemWidgetNavigationHandler> NavHandler = nullptr;
 
 	UPROPERTY()
-	UObject* UnderlyingItem = nullptr;
+	TObjectPtr<UObject> UnderlyingItem = nullptr;
 };
 
 UCLASS()
@@ -84,7 +84,7 @@ class MODIOUICORE_API UViewMoreWidgetItem : public UObject
 
 public:
 	UPROPERTY()
-	UItemWidgetNavigationHandler* NavHandler = nullptr;
+	TObjectPtr<UItemWidgetNavigationHandler> NavHandler = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "mod.io|UI|Mod Carousel")
 	FText ViewMorePresetFilterName;
@@ -225,7 +225,7 @@ protected:
 	FText PresetName = FText::GetEmpty();
 
 	UPROPERTY()
-	UObject* TargetNavigation = nullptr;
+	TObjectPtr<UObject> TargetNavigation = nullptr;
 
 	int32 ListItemOffset = 0;
 
@@ -249,17 +249,17 @@ protected:
 public:
 	// Wrapper objects ordered in the same order as GetListItems.
 	UPROPERTY()
-	TArray<UObject*> ItemWrappers;
+	TArray<TObjectPtr<UObject>> ItemWrappers;
 
 	// Wrapper objects ordered in the order we want to display them in the list.
 	UPROPERTY()
-	TArray<UObject*> OrderedItemWrappers;
+	TArray<TObjectPtr<UObject>> OrderedItemWrappers;
 
 	UPROPERTY()
-	UObject* ViewMoreItem = nullptr;
+	TObjectPtr<UObject> ViewMoreItem = nullptr;
 
 	UPROPERTY()
-	UObject* BackPaddingItem = nullptr;
+	TObjectPtr<UObject> BackPaddingItem = nullptr;
 
 	bool ShouldHaveViewMoreButton() const;
 

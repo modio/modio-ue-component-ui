@@ -36,6 +36,22 @@ namespace ModioUI::AssetPaths
 			return FSoftObjectPath("/ModioComponentUI/UI/Data/DT_UIColors.DT_UIColors");
 	};
 
+	static FSoftObjectPath GetUiSoundsTablePath()
+	{
+		if (GetSettings()->SoundsTable.IsValid())
+			return GetSettings()->SoundsTable.ToSoftObjectPath();
+		else
+			return FSoftObjectPath("/ModioComponentUI/UI/Data/DT_UISounds.DT_UISounds");
+	};
+
+	static FSoftObjectPath GetUiForceFeedbackTablePath()
+	{
+		if (GetSettings()->ForceFeedbackTable.IsValid())
+			return GetSettings()->ForceFeedbackTable.ToSoftObjectPath();
+		else
+			return FSoftObjectPath("/ModioComponentUI/UI/Data/DT_UIForceFeedback.DT_UIForceFeedback");
+	};
+
 	static FSoftObjectPath GetUiCommandsTablePath()
 	{
 		if (GetSettings()->CommandsTable.IsValid())
